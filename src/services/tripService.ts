@@ -1,81 +1,9 @@
-
 import { Trip } from '@/types/trips';
 import { supabase } from '@/integrations/supabase/client';
 import { getDirections, combineJourneySegments } from './mapboxService';
 
-// Export the mockTrips variable so it can be imported in other files
-export const mockTrips = getMockTrips();
-
-// This is a placeholder for a real API service
-// In a production app, you would integrate with Claude or another API
-export const generateTrips = async (prompt: string): Promise<Trip[]> => {
-  try {
-    // In a real implementation, this would call Claude/Anthropic's API
-    // For demo, return mock data
-    
-    // Mock API call:
-    /*
-    const response = await fetch('your-claude-endpoint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer your-api-key'
-      },
-      body: JSON.stringify({ prompt })
-    });
-    
-    const data = await response.json();
-    return data.trips;
-    */
-    
-    // For demo purposes, simulate a delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Return mock data
-    const trips = getMockTrips();
-    
-    // Log that we're returning mock data for now
-    console.log('Returning mock trip data for prompt:', prompt);
-    
-    return trips;
-  } catch (error) {
-    console.error('Error generating trips:', error);
-    throw error;
-  }
-};
-
-// Function to fetch guides from Supabase
-export const fetchGuides = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('guide_services')
-      .select('*');
-    
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching guides:', error);
-    return [];
-  }
-};
-
-// Function to fetch activities from Supabase
-export const fetchActivities = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('activities')
-      .select('*');
-    
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching activities:', error);
-    return [];
-  }
-};
-
-// Mock data for demonstration
-const getMockTrips = (): Trip[] => {
+// Define the getMockTrips function first before using it
+function getMockTrips(): Trip[] {
   return [
     {
       id: '1',
@@ -500,4 +428,75 @@ const getMockTrips = (): Trip[] => {
       ]
     }
   ];
+}
+
+// Now we can safely export mockTrips
+export const mockTrips = getMockTrips();
+
+// This is a placeholder for a real API service
+// In a production app, you would integrate with Claude or another API
+export const generateTrips = async (prompt: string): Promise<Trip[]> => {
+  try {
+    // In a real implementation, this would call Claude/Anthropic's API
+    // For demo, return mock data
+    
+    // Mock API call:
+    /*
+    const response = await fetch('your-claude-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-api-key'
+      },
+      body: JSON.stringify({ prompt })
+    });
+    
+    const data = await response.json();
+    return data.trips;
+    */
+    
+    // For demo purposes, simulate a delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Return mock data
+    const trips = getMockTrips();
+    
+    // Log that we're returning mock data for now
+    console.log('Returning mock trip data for prompt:', prompt);
+    
+    return trips;
+  } catch (error) {
+    console.error('Error generating trips:', error);
+    throw error;
+  }
+};
+
+// Function to fetch guides from Supabase
+export const fetchGuides = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('guide_services')
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching guides:', error);
+    return [];
+  }
+};
+
+// Function to fetch activities from Supabase
+export const fetchActivities = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('activities')
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching activities:', error);
+    return [];
+  }
 };

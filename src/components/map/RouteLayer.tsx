@@ -1,12 +1,12 @@
 
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { JourneySegment } from '@/types/trips';
+import { Segment } from '@/types/trips';
 
 interface RouteLayerProps {
   map: mapboxgl.Map | null;
   journey?: {
-    segments: JourneySegment[];
+    segments: Segment[];
     totalDistance: number;
     totalDuration: number;
     bounds?: number[][];
