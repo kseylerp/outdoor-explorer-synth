@@ -13,12 +13,20 @@ interface TripCardProps {
   trip: Trip;
   expanded?: boolean;
   onExpand?: () => void;
+  isSaved?: boolean;
+  onSave?: () => void;
+  showRemoveButton?: boolean;
+  onRemove?: () => void;
 }
 
 const TripCard: React.FC<TripCardProps> = ({ 
   trip,
   expanded = false,
-  onExpand
+  onExpand,
+  isSaved = false,
+  onSave,
+  showRemoveButton = false,
+  onRemove
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const navigate = useNavigate();
@@ -45,7 +53,11 @@ const TripCard: React.FC<TripCardProps> = ({
   };
   
   const handleSaveTrip = () => {
-    navigate(`/trip/${trip.id}`);
+    if (onSave) {
+      onSave();
+    } else {
+      navigate(`/trip/${trip.id}`);
+    }
   };
   
   const handleShareTrip = () => {
@@ -102,10 +114,17 @@ const TripCard: React.FC<TripCardProps> = ({
             </div>
             
             <div className="flex gap-2">
-              <Button onClick={handleSaveTrip} variant="default" className="bg-purple-600 hover:bg-purple-700 flex-1">
-                <Bookmark className="h-4 w-4 mr-2" />
-                Save Trip
-              </Button>
+              {showRemoveButton ? (
+                <Button onClick={onRemove} variant="default" className="bg-red-600 hover:bg-red-700 flex-1">
+                  <Bookmark className="h-4 w-4 mr-2" />
+                  Remove Trip
+                </Button>
+              ) : (
+                <Button onClick={handleSaveTrip} variant="default" className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : 'bg-purple-600 hover:bg-purple-700'} flex-1`}>
+                  <Bookmark className="h-4 w-4 mr-2" />
+                  {isSaved ? 'Saved' : 'Save Trip'}
+                </Button>
+              )}
               <Button onClick={handleShareTrip} variant="outline" className="flex-1">
                 <Share2 className="h-4 w-4 mr-2" />
                 Share

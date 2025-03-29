@@ -100,11 +100,11 @@ const Index: React.FC = () => {
     <div className="container max-w-5xl mx-auto p-4 space-y-8">
       <div className="text-center space-y-2 mb-10">
         <h1 className="font-poppins">
-          <span className="text-[#303030] text-[50px] font-medium tracking-[-2px] leading-[80px]">How can </span>
-          <span className="bg-gradient-to-r from-[#9870FF] via-[#98BBF7] to-[#9870FF] bg-clip-text text-transparent text-[50px] font-medium tracking-[-2px] leading-[80px]">Yugen</span>
-          <span className="text-[#353535] text-[50px] font-medium tracking-[-2px] leading-[80px]"> help you</span>
+          <span className="text-[#303030] text-[40px] font-normal tracking-[-1.5px] leading-[60px]">How can </span>
+          <span className="bg-gradient-to-r from-[#9870FF] via-[#98BBF7] to-[#9870FF] bg-clip-text text-transparent text-[40px] font-normal tracking-[-1.5px] leading-[60px]">Yugen</span>
+          <span className="text-[#353535] text-[40px] font-normal tracking-[-1.5px] leading-[60px]"> help you</span>
           <br />
-          <span className="text-black text-[30px] font-light tracking-[-1.2px] leading-[40px]">discover, plan, and share your next adventure?</span>
+          <span className="text-black text-[24px] font-light tracking-[-1px] leading-[30px]">discover, plan, and share your next adventure?</span>
         </h1>
       </div>
       
