@@ -11,6 +11,7 @@ import Explore from "./pages/Explore";
 import Destinations from "./pages/Destinations";
 import Maps from "./pages/Maps";
 import About from "./pages/About";
+import SavedTrips from "./pages/SavedTrips";
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/trip/:id" element={<TripDetails />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/saved-trips" element={<SavedTrips />} />
                 <Route path="/destinations" element={<Destinations />} />
                 <Route path="/maps" element={<Maps />} />
                 <Route path="/about" element={<About />} />

@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings } from 'lucide-react';
+import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MainNav: React.FC = () => {
@@ -45,11 +44,7 @@ const MainNav: React.FC = () => {
             className={`${expanded ? '' : 'hidden'}`} 
             onClick={toggle}
           >
-            <img 
-              src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
-              alt="Toggle" 
-              className="h-6 w-6"
-            />
+            <PanelLeft size={20} />
           </Button>
         </div>
         
@@ -57,10 +52,10 @@ const MainNav: React.FC = () => {
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="space-y-1 px-2">
             <MenuItem 
-              to="/explore" 
+              to="/" 
               icon={<Compass size={20} />} 
               label="Explore" 
-              active={isActive('/explore')} 
+              active={isActive('/') || isActive('/explore')} 
               expanded={expanded} 
               onClick={() => {}} 
             />
@@ -129,11 +124,7 @@ const MainNav: React.FC = () => {
             className="absolute bottom-4 left-0 right-0 mx-auto" 
             onClick={toggle}
           >
-            <img 
-              src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
-              alt="Toggle" 
-              className="h-6 w-6 transform rotate-180"
-            />
+            <PanelLeft size={20} className="transform rotate-180" />
           </Button>
         )}
       </div>
