@@ -7,8 +7,8 @@ import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
-// This would normally come from an API
-import { mockTrips } from '../services/tripService';
+// Import the mockTrips from tripService
+import { mockTrips } from '@/services/tripService';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);

@@ -3,6 +3,9 @@ import { Trip } from '@/types/trips';
 import { supabase } from '@/integrations/supabase/client';
 import { getDirections, combineJourneySegments } from './mapboxService';
 
+// Export the mockTrips variable so it can be imported in other files
+export const mockTrips = getMockTrips();
+
 // This is a placeholder for a real API service
 // In a production app, you would integrate with Claude or another API
 export const generateTrips = async (prompt: string): Promise<Trip[]> => {
