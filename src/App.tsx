@@ -12,6 +12,7 @@ import Destinations from "./pages/Destinations";
 import Maps from "./pages/Maps";
 import About from "./pages/About";
 import MainNav from "./components/MainNav";
+import TopNav from "./components/TopNav";
 
 const queryClient = new QueryClient();
 
@@ -23,18 +24,21 @@ const App = () => (
       <BrowserRouter>
         <div className="flex min-h-screen w-full">
           <MainNav />
-          <main className="flex-1 overflow-auto">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/trip/:id" element={<TripDetails />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/destinations" element={<Destinations />} />
-              <Route path="/maps" element={<Maps />} />
-              <Route path="/about" element={<About />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <TopNav />
+            <main className="flex-1 overflow-auto">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/trip/:id" element={<TripDetails />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/destinations" element={<Destinations />} />
+                <Route path="/maps" element={<Maps />} />
+                <Route path="/about" element={<About />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
         </div>
       </BrowserRouter>
     </TooltipProvider>

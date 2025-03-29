@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Map, Home, Info } from 'lucide-react';
+import { Compass, Map, Home, Info, Settings, BookmarkIcon, Users, ShieldQuestion } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MainNav: React.FC = () => {
@@ -32,7 +32,7 @@ const MainNav: React.FC = () => {
           ) : (
             <Link to="/" className="mx-auto">
               <img 
-                src="/lovable-uploads/276785dd-4ac8-4986-89e4-8c33996a2328.png" 
+                src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
                 alt="Yugen Logo" 
                 className="h-10 w-10 object-contain" 
               />
@@ -45,7 +45,11 @@ const MainNav: React.FC = () => {
             className={`${expanded ? '' : 'hidden'}`} 
             onClick={toggle}
           >
-            ← 
+            <img 
+              src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
+              alt="Toggle" 
+              className="h-6 w-6"
+            />
           </Button>
         </div>
         
@@ -53,19 +57,19 @@ const MainNav: React.FC = () => {
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="space-y-1 px-2">
             <MenuItem 
-              to="/" 
-              icon={<Home size={20} />} 
-              label="Home" 
-              active={isActive('/')} 
+              to="/explore" 
+              icon={<Compass size={20} />} 
+              label="Explore" 
+              active={isActive('/explore')} 
               expanded={expanded} 
               onClick={() => {}} 
             />
             
             <MenuItem 
-              to="/explore" 
-              icon={<Compass size={20} />} 
-              label="Explore" 
-              active={isActive('/explore')} 
+              to="/saved-trips" 
+              icon={<BookmarkIcon size={20} />} 
+              label="Saved Trips" 
+              active={isActive('/saved-trips')} 
               expanded={expanded} 
               onClick={() => {}} 
             />
@@ -80,10 +84,37 @@ const MainNav: React.FC = () => {
             />
             
             <MenuItem 
+              to="/buddies" 
+              icon={<Users size={20} />} 
+              label="Buddies" 
+              active={isActive('/buddies')} 
+              expanded={expanded} 
+              onClick={() => {}} 
+            />
+            
+            <MenuItem 
+              to="/guides" 
+              icon={<ShieldQuestion size={20} />} 
+              label="Guides" 
+              active={isActive('/guides')} 
+              expanded={expanded} 
+              onClick={() => {}} 
+            />
+            
+            <MenuItem 
               to="/about" 
               icon={<Info size={20} />} 
               label="About" 
               active={isActive('/about')} 
+              expanded={expanded} 
+              onClick={() => {}} 
+            />
+            
+            <MenuItem 
+              to="/settings" 
+              icon={<Settings size={20} />} 
+              label="Settings" 
+              active={isActive('/settings')} 
               expanded={expanded} 
               onClick={() => {}} 
             />
@@ -98,7 +129,11 @@ const MainNav: React.FC = () => {
             className="absolute bottom-4 left-0 right-0 mx-auto" 
             onClick={toggle}
           >
-            →
+            <img 
+              src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
+              alt="Toggle" 
+              className="h-6 w-6 transform rotate-180"
+            />
           </Button>
         )}
       </div>
