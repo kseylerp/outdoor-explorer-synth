@@ -21,21 +21,19 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="flex h-screen">
+        <div className="flex min-h-screen w-full">
           <MainNav />
           <main className="flex-1 overflow-auto">
-            <div className="container mx-auto py-8 px-4">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/trip/:id" element={<TripDetails />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/destinations" element={<Destinations />} />
-                <Route path="/maps" element={<Maps />} />
-                <Route path="/about" element={<About />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/trip/:id" element={<TripDetails />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/destinations" element={<Destinations />} />
+              <Route path="/maps" element={<Maps />} />
+              <Route path="/about" element={<About />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </main>
         </div>
       </BrowserRouter>

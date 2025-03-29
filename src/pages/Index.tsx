@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, MapPin, Mountain } from 'lucide-react';
 import { 
@@ -66,16 +66,14 @@ const Index = () => {
       {/* Header & Hero Section */}
       <header className="pt-12 pb-16 px-4">
         <div className="container mx-auto max-w-5xl">
-          <div className="flex items-center justify-center mb-4">
-            <Mountain className="h-8 w-8 text-green-600 mr-2" />
-            <h1 className="text-3xl md:text-4xl font-bold text-green-800">OffBeat Adventure Planner</h1>
+          <div className="flex flex-col items-center justify-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-green-800 text-center mb-2">
+              Discover, Plan, and Share Your Next Adventure
+            </h1>
+            <p className="text-center text-gray-600 mb-4">
+              Powered by Local Guides
+            </p>
           </div>
-          
-          <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
-            Discover unique outdoor experiences tailored to your preferences. 
-            Use natural language or voice to describe your dream adventure, and our AI will create 
-            personalized trip options with detailed itineraries and interactive maps.
-          </p>
           
           <Card className="bg-white/90 backdrop-blur shadow-xl">
             <CardHeader className="pb-2">
@@ -126,26 +124,6 @@ const Index = () => {
           </div>
         )}
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto max-w-5xl px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-semibold flex items-center">
-                <Mountain className="h-5 w-5 mr-2" />
-                OffBeat Adventures
-              </h3>
-              <p className="text-gray-400 text-sm mt-1">Your AI-powered outdoor adventure planner</p>
-            </div>
-            
-            <div className="text-sm text-gray-400">
-              <p>Powered by AI & MapBox</p>
-              <p>© {new Date().getFullYear()} OffBeat Adventures. All rights reserved.</p>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
