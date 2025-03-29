@@ -17,9 +17,9 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
       const mockTrips = [
         {
           id: '1',
-          title: 'Weekend Wilderness Escape: Tahoe's Hidden Trails',
-          description: 'Experience the breathtaking beauty of Lake Tahoe's lesser-known trails on this 3-day adventure through alpine meadows and pristine forests.',
-          whyWeChoseThis: 'This trip offers the perfect balance of accessibility and seclusion, with stunning views and moderate trails suitable for most hikers seeking a genuine wilderness experience without extreme difficulty.',
+          title: "Weekend Wilderness Escape: Tahoe's Hidden Trails",
+          description: "Experience the breathtaking beauty of Lake Tahoe's lesser-known trails on this 3-day adventure through alpine meadows and pristine forests.",
+          whyWeChoseThis: "This trip offers the perfect balance of accessibility and seclusion, with stunning views and moderate trails suitable for most hikers seeking a genuine wilderness experience without extreme difficulty.",
           difficultyLevel: 'Moderate',
           priceEstimate: '$350-450 per person',
           duration: '3 days',
@@ -171,7 +171,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
             {
               day: 2,
               title: 'Alpine Heights Adventure',
-              description: 'Challenge yourself with a rewarding hike up one of Tahoe's most celebrated peaks for unparalleled panoramic views.',
+              description: "Challenge yourself with a rewarding hike up one of Tahoe's most celebrated peaks for unparalleled panoramic views.",
               activities: [
                 {
                   name: 'Mt. Tallac Hike',
@@ -210,7 +210,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
                   name: 'Glen Alpine Springs Historic Site',
                   type: 'Cultural/Historical',
                   duration: '1 hour',
-                  description: 'Visit the historic Glen Alpine Springs resort site and learn about its fascinating history as one of California's first mountain resorts.',
+                  description: "Visit the historic Glen Alpine Springs resort site and learn about its fascinating history as one of California's first mountain resorts.",
                   permitRequired: false,
                   outfitters: []
                 },
@@ -235,7 +235,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
           priceEstimate: '$400-500 per person',
           duration: '3 days',
           location: 'North Lake Tahoe, California',
-          suggestedGuides: ['Tahoe Trips & Trails', 'Tahoe Jack's Adventure Authority'],
+          suggestedGuides: ['Tahoe Trips & Trails', "Tahoe Jack's Adventure Authority"],
           mapCenter: { lng: -120.1215, lat: 39.1680 },
           markers: [
             { 
@@ -359,7 +359,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
                   name: 'Commons Beach Picnic',
                   type: 'Leisure',
                   duration: '1.5 hours',
-                  description: 'Enjoy a lakeside lunch at Tahoe City's Commons Beach with beautiful views of the crystal-clear waters.',
+                  description: "Enjoy a lakeside lunch at Tahoe City's Commons Beach with beautiful views of the crystal-clear waters.",
                   permitRequired: false,
                   outfitters: []
                 },
@@ -376,7 +376,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
             {
               day: 2,
               title: 'Crystal Waters & Hidden Coves',
-              description: 'Experience the stunning clarity and beauty of Lake Tahoe's waters up close through paddleboarding and snorkeling.',
+              description: "Experience the stunning clarity and beauty of Lake Tahoe's waters up close through paddleboarding and snorkeling.",
               activities: [
                 {
                   name: 'Stand-Up Paddleboarding at Sand Harbor',
@@ -413,7 +413,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
                   name: 'Donner Memorial State Park Visit',
                   type: 'Cultural/Historical',
                   duration: '2 hours',
-                  description: 'Learn about the infamous Donner Party and the area's history at the visitor center, followed by a walk around Donner Lake.',
+                  description: "Learn about the infamous Donner Party and the area's history at the visitor center, followed by a walk around Donner Lake.",
                   permitRequired: false,
                   outfitters: []
                 },
@@ -423,7 +423,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
                   duration: '3 hours',
                   description: 'Hike a scenic portion of the legendary Pacific Crest Trail near Donner Pass, enjoying spectacular views of Donner Lake and the surrounding Sierra Nevada.',
                   permitRequired: false,
-                  outfitters: ['Tahoe Jack's Adventure Authority', 'Pacific Crest Trail Association']
+                  outfitters: ["Tahoe Jack's Adventure Authority", 'Pacific Crest Trail Association']
                 },
                 {
                   name: 'Farewell Lunch at Donner Lake Kitchen',
