@@ -1,19 +1,39 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Navigation, CornerDownLeft } from 'lucide-react';
+import { MapPin, Navigation, CornerDownLeft, MapIcon } from 'lucide-react';
 import { Trip } from '@/types/trips';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
+import NativeNavigation from '@/plugins/NativeNavigationPlugin';
+import { Capacitor } from '@capacitor/core';
 
 const Maps: React.FC = () => {
   const [savedTrips, setSavedTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
   const [transportMode, setTransportMode] = useState<string>('driving');
+  const [isNativeAvailable, setIsNativeAvailable] = useState<boolean>(false);
   const isMobile = useIsMobile();
+
+  // Check if native navigation is available
+  useEffect(() => {
+    const checkNativeNavigation = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { available } = await NativeNavigation.isNavigationAvailable();
+          setIsNativeAvailable(available);
+          console.log('Native navigation available:', available);
+        } catch (error) {
+          console.error('Error checking native navigation:', error);
+          setIsNativeAvailable(false);
+        }
+      }
+    };
+    
+    checkNativeNavigation();
+  }, []);
 
   // Load saved trips from localStorage
   useEffect(() => {
@@ -33,7 +53,7 @@ const Maps: React.FC = () => {
     }
   }, []);
 
-  const handleGetDirections = () => {
+  const handleGetDirections = async () => {
     if (!selectedTripId) {
       toast({
         title: "Select a Trip",
@@ -43,11 +63,66 @@ const Maps: React.FC = () => {
       return;
     }
 
-    // Here we would integrate with the navigation system
-    toast({
-      title: "Starting Navigation",
-      description: "Turn-by-turn directions are being prepared...",
-    });
+    const selectedTrip = savedTrips.find(trip => trip.id === selectedTripId);
+    
+    if (!selectedTrip) {
+      toast({
+        title: "Error",
+        description: "Could not find selected trip details.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // For demo purposes, we're using mock coordinates
+      // In a real app, these would come from the trip data
+      const startLat = 37.7749;  // San Francisco coordinates as example
+      const startLng = -122.4194;
+      
+      // Parse destination coordinates from the trip location (simplified example)
+      // In a real app, you'd have proper geocoding to get coordinates
+      const endLat = 37.8199;  // Golden Gate coordinates as example
+      const endLng = -122.4783;
+      
+      if (isNativeAvailable && Capacitor.isNativePlatform()) {
+        // Use native navigation
+        const result = await NativeNavigation.startNavigation({
+          startLat,
+          startLng,
+          endLat,
+          endLng,
+          mode: transportMode,
+          tripTitle: selectedTrip.title
+        });
+        
+        if (result.success) {
+          toast({
+            title: "Navigation Started",
+            description: "Turn-by-turn directions are active in native maps app"
+          });
+        } else {
+          throw new Error(result.message);
+        }
+      } else {
+        // Fallback to web maps
+        const mode = transportMode === 'driving' ? 'driving' : 'walking';
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLng}&destination=${endLat},${endLng}&travelmode=${mode}`;
+        window.open(url, '_blank');
+        
+        toast({
+          title: "Web Navigation",
+          description: "Directions opened in web maps"
+        });
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Could not start navigation. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const selectedTrip = savedTrips.find(trip => trip.id === selectedTripId);
@@ -103,8 +178,18 @@ const Maps: React.FC = () => {
                 className="w-full bg-purple-600 hover:bg-purple-700"
                 onClick={handleGetDirections}
               >
-                Get Directions
+                {isNativeAvailable && Capacitor.isNativePlatform() 
+                  ? "Start Native Navigation" 
+                  : "Get Directions"}
               </Button>
+              
+              {Capacitor.isNativePlatform() && (
+                <p className="text-xs text-gray-600 text-center">
+                  {isNativeAvailable 
+                    ? "Will use device's native maps app" 
+                    : "Native navigation not available"}
+                </p>
+              )}
             </div>
           </Card>
 
@@ -131,7 +216,9 @@ const Maps: React.FC = () => {
                 </p>
                 {isMobile && (
                   <p className="text-sm text-purple-600">
-                    Uses native device navigation for optimal mobile experience
+                    {Capacitor.isNativePlatform() && isNativeAvailable
+                      ? "Will use native device navigation for optimal experience"
+                      : "Uses web-based mapping for directions"}
                   </p>
                 )}
               </div>
