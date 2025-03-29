@@ -17,25 +17,36 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const { mapboxToken } = useMapboxToken();
+  const { mapboxToken, loading, error } = useMapboxToken();
 
   // Initialize map when token is available
   useEffect(() => {
     if (!mapboxToken || !mapContainer.current || map.current) return;
     
+    // Verify token starts with pk. for public token
+    if (!mapboxToken.startsWith('pk.')) {
+      console.error('Invalid Mapbox token format - must be a public token (pk.*)');
+      return;
+    }
+    
+    console.log('Initializing map with valid public token');
     mapboxgl.accessToken = mapboxToken;
     
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/kseylerp/cm8i0dbtn015s01sq8v5fh0xn',
-      center: [center.lng, center.lat],
-      zoom: 9,
-      interactive: interactive
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/kseylerp/cm8i0dbtn015s01sq8v5fh0xn',
+        center: [center.lng, center.lat],
+        zoom: 9,
+        interactive: interactive
+      });
 
-    map.current.on('load', () => {
-      setMapLoaded(true);
-    });
+      map.current.on('load', () => {
+        setMapLoaded(true);
+      });
+    } catch (e) {
+      console.error('Error initializing map:', e);
+    }
 
     return () => {
       if (map.current) {
@@ -45,8 +56,24 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     };
   }, [center, interactive, mapboxToken]);
 
-  // We don't need the complex route/marker adding logic here anymore
-  // Those are now handled by the specialized components
+  if (error && !mapboxToken) {
+    return (
+      <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg flex items-center justify-center">
+        <div className="text-center p-4">
+          <p className="text-red-500">Error loading map</p>
+          <p className="text-sm text-gray-500">Please check your Mapbox configuration</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (loading && !mapboxToken) {
+    return (
+      <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg">

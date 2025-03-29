@@ -14,26 +14,32 @@ serve(async (req) => {
   }
 
   try {
-    // Get the Mapbox token from the environment variables
-    const token = Deno.env.get('MAPBOX_ACCESS_TOKEN') || Deno.env.get('MapBox public')
+    console.log('Starting get-mapbox-token function...')
     
-    if (!token) {
-      throw new Error('Mapbox token not found in environment variables')
+    // Get the Mapbox PUBLIC token from the environment variables
+    // First try the specific "MapBox public" secret
+    const token = Deno.env.get('MapBox public')
+    
+    if (token) {
+      console.log('Found token in secret: MapBox public')
+      console.log('Successfully retrieved Mapbox token')
+      
+      // Return the token
+      return new Response(
+        JSON.stringify({
+          token,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+          status: 200,
+        }
+      )
+    } else {
+      throw new Error('Mapbox public token not found in environment variables')
     }
-
-    // Return the token
-    return new Response(
-      JSON.stringify({
-        token,
-      }),
-      {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-        status: 200,
-      }
-    )
   } catch (error) {
     return new Response(
       JSON.stringify({
