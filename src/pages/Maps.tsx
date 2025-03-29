@@ -1,122 +1,182 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Navigation, CornerDownLeft } from 'lucide-react';
+import { Trip } from '@/types/trips';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/hooks/use-toast';
 
 const Maps: React.FC = () => {
+  const [savedTrips, setSavedTrips] = useState<Trip[]>([]);
+  const [selectedTripId, setSelectedTripId] = useState<string>('');
+  const [transportMode, setTransportMode] = useState<string>('driving');
+  const isMobile = useIsMobile();
+
+  // Load saved trips from localStorage
+  useEffect(() => {
+    const savedTripsData = localStorage.getItem('savedTrips');
+    if (savedTripsData) {
+      try {
+        const parsedTrips = JSON.parse(savedTripsData);
+        setSavedTrips(parsedTrips);
+      } catch (error) {
+        console.error('Error parsing saved trips:', error);
+        toast({
+          title: "Error",
+          description: "Could not load your saved trips.",
+          variant: "destructive"
+        });
+      }
+    }
+  }, []);
+
+  const handleGetDirections = () => {
+    if (!selectedTripId) {
+      toast({
+        title: "Select a Trip",
+        description: "Please select a saved trip to get directions.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Here we would integrate with the navigation system
+    toast({
+      title: "Starting Navigation",
+      description: "Turn-by-turn directions are being prepared...",
+    });
+  };
+
+  const selectedTrip = savedTrips.find(trip => trip.id === selectedTripId);
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
-      <h1 className="text-3xl font-bold mb-6">Turn-by-Turn Directions</h1>
-      <p className="text-lg text-gray-700 mb-8">
-        Get detailed navigation instructions for your outdoor adventures.
-      </p>
+    <div className="container mx-auto py-4 px-4 max-w-5xl space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold">Turn-by-Turn Navigation</h1>
+        <p className="text-gray-600">Get directions to your saved adventures</p>
+      </div>
       
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-4">
         <div className="md:col-span-1 space-y-4">
           <Card className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Route Planner</h2>
-            
             <div className="space-y-4">
               <div>
-                <label htmlFor="start" className="block text-sm font-medium mb-1">Starting Point</label>
-                <div className="flex">
-                  <Input id="start" placeholder="Enter starting location" />
-                  <Button variant="ghost" size="icon" className="ml-1">
-                    <MapPin size={18} />
+                <label className="block text-sm font-medium mb-2">Select Adventure</label>
+                <Select value={selectedTripId} onValueChange={setSelectedTripId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a saved trip" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {savedTrips.map(trip => (
+                      <SelectItem key={trip.id} value={trip.id}>
+                        {trip.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Transportation Mode</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    variant={transportMode === 'driving' ? 'default' : 'outline'}
+                    onClick={() => setTransportMode('driving')}
+                    className={transportMode === 'driving' ? 'bg-purple-600' : ''}
+                  >
+                    Driving
+                  </Button>
+                  <Button 
+                    variant={transportMode === 'walking' ? 'default' : 'outline'}
+                    onClick={() => setTransportMode('walking')}
+                    className={transportMode === 'walking' ? 'bg-purple-600' : ''}
+                  >
+                    Walking
                   </Button>
                 </div>
               </div>
-              
-              <div>
-                <label htmlFor="destination" className="block text-sm font-medium mb-1">Destination</label>
-                <div className="flex">
-                  <Input id="destination" placeholder="Enter destination" />
-                  <Button variant="ghost" size="icon" className="ml-1">
-                    <MapPin size={18} />
-                  </Button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Route Type</label>
-                <div className="flex space-x-2">
-                  <Button variant="outline" className="flex-1 bg-purple-50">Hiking</Button>
-                  <Button variant="outline" className="flex-1">Driving</Button>
-                  <Button variant="outline" className="flex-1">Biking</Button>
-                </div>
-              </div>
-              
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
+
+              <Button 
+                className="w-full bg-purple-600 hover:bg-purple-700"
+                onClick={handleGetDirections}
+              >
                 Get Directions
               </Button>
             </div>
           </Card>
-          
-          <Card className="p-4">
-            <h3 className="font-medium mb-2">Route Options</h3>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input type="checkbox" id="avoidHighways" className="mr-2" />
-                <label htmlFor="avoidHighways" className="text-sm">Avoid highways</label>
+
+          {selectedTrip && (
+            <Card className="p-4">
+              <h3 className="font-medium mb-2">Trip Details</h3>
+              <div className="space-y-2 text-sm">
+                <p><strong>Location:</strong> {selectedTrip.location}</p>
+                <p><strong>Duration:</strong> {selectedTrip.duration}</p>
+                <p><strong>Difficulty:</strong> {selectedTrip.difficultyLevel}</p>
               </div>
-              <div className="flex items-center">
-                <input type="checkbox" id="avoidTolls" className="mr-2" />
-                <label htmlFor="avoidTolls" className="text-sm">Avoid tolls</label>
-              </div>
-              <div className="flex items-center">
-                <input type="checkbox" id="preferScenic" className="mr-2" checked />
-                <label htmlFor="preferScenic" className="text-sm">Prefer scenic routes</label>
-              </div>
-              <div className="flex items-center">
-                <input type="checkbox" id="trailsOnly" className="mr-2" checked />
-                <label htmlFor="trailsOnly" className="text-sm">Trails only (hiking)</label>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
         
         <div className="md:col-span-2">
-          <Card className="h-full p-0 overflow-hidden">
-            <div className="h-[500px] bg-gray-100 flex items-center justify-center">
+          <Card className="h-[500px] p-0 overflow-hidden">
+            <div className="h-full bg-gray-100 flex items-center justify-center">
               <div className="text-center p-6">
                 <Navigation size={48} className="mx-auto mb-4 text-gray-400" />
-                <h3 className="text-xl font-medium mb-2">Map Viewer</h3>
-                <p className="text-gray-600 mb-4">Enter a route to see turn-by-turn directions and trail information</p>
-                <p className="text-sm text-gray-500">
-                  Our mobile app provides enhanced navigation with offline maps and GPS tracking.
+                <h3 className="text-xl font-medium mb-2">Navigation Ready</h3>
+                <p className="text-gray-600 mb-4">
+                  Select a saved trip to begin turn-by-turn navigation
                 </p>
+                {isMobile && (
+                  <p className="text-sm text-purple-600">
+                    Uses native device navigation for optimal mobile experience
+                  </p>
+                )}
               </div>
             </div>
           </Card>
         </div>
       </div>
-      
-      <Card className="mt-6 p-4">
-        <div className="flex items-center mb-4">
-          <CornerDownLeft className="mr-2 text-purple-600" />
-          <h2 className="text-xl font-semibold">Turn-by-Turn Directions</h2>
-        </div>
-        
-        <p className="text-gray-600 mb-4">
-          Enter a route above to see detailed step-by-step directions. Our trail directions include:
-        </p>
-        
-        <ul className="list-disc pl-5 space-y-1 text-gray-700">
-          <li>Detailed trail maps with elevation profiles</li>
-          <li>Trail conditions and difficulty ratings</li>
-          <li>Points of interest and rest areas</li>
-          <li>Water sources and campsite locations</li>
-          <li>Mobile-friendly directions that work offline</li>
-        </ul>
-        
-        <div className="mt-6 p-4 bg-purple-50 rounded-md">
-          <h3 className="font-medium mb-2">Mobile App Integration</h3>
-          <p className="text-sm text-gray-700">
-            For the best outdoor navigation experience, download our mobile app with native iOS and Android support. 
-            Get enhanced GPS tracking, offline maps, and voice-guided directions specifically designed for outdoor adventures.
-          </p>
+
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CornerDownLeft className="text-purple-600" />
+            <h2 className="text-xl font-semibold">Navigation Features</h2>
+          </div>
+          
+          <ul className="grid md:grid-cols-2 gap-4">
+            <li className="flex items-start gap-2">
+              <MapPin className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium">Turn-by-Turn Directions</h3>
+                <p className="text-sm text-gray-600">Detailed navigation with voice guidance</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <MapPin className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium">Offline Maps</h3>
+                <p className="text-sm text-gray-600">Download routes for offline use</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <MapPin className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium">Trail Information</h3>
+                <p className="text-sm text-gray-600">Elevation profiles and difficulty ratings</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <MapPin className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium">Mobile Optimized</h3>
+                <p className="text-sm text-gray-600">Native device integration for better performance</p>
+              </div>
+            </li>
+          </ul>
         </div>
       </Card>
     </div>
