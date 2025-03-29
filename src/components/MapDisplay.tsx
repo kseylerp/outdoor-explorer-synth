@@ -176,12 +176,16 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 
       // Fit map to journey bounds if provided
       if (journey.bounds && journey.bounds.length > 0) {
-        mapElem.fitBounds([
-          journey.bounds[0], // Southwest coordinates
-          journey.bounds[1]  // Northeast coordinates
-        ], {
-          padding: 50
-        });
+        // Convert number[][] to LngLatBoundsLike for mapbox
+        // Ensure we have exactly two points (southwest and northeast)
+        if (journey.bounds.length >= 2 && journey.bounds[0].length >= 2 && journey.bounds[1].length >= 2) {
+          const sw: [number, number] = [journey.bounds[0][0], journey.bounds[0][1]];
+          const ne: [number, number] = [journey.bounds[1][0], journey.bounds[1][1]];
+          
+          mapElem.fitBounds([sw, ne], {
+            padding: 50
+          });
+        }
       }
     }
   }, [mapLoaded, journey, markers]);
