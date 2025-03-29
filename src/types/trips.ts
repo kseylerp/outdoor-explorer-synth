@@ -23,6 +23,9 @@ export interface Segment {
     coordinates: number[][];
   };
   steps: Step[];
+  elevationGain?: number;
+  terrain?: string;
+  description?: string;
 }
 
 export interface Journey {
@@ -64,6 +67,8 @@ export interface Trip {
     name: string;
     coordinates: Coordinates;
     description?: string;
+    elevation?: string | number;
+    details?: string;
   }>;
   journey?: Journey;
   itinerary: ItineraryDay[];

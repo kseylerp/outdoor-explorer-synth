@@ -10,6 +10,8 @@ export interface MapMarker {
   name: string;
   coordinates: Coordinates;
   description?: string;
+  elevation?: string | number;
+  details?: string;
 }
 
 export interface MapDisplayProps {
