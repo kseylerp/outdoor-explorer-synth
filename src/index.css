@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -96,6 +99,22 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
   }
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-yugen-purple to-yugen-bright bg-clip-text text-transparent;
+}
+
+.trip-intensity-slider .trip-intensity-track {
+  @apply h-2 rounded-full bg-gray-200;
+}
+
+.trip-intensity-slider .trip-intensity-range {
+  @apply h-2 rounded-full bg-gradient-to-r from-yugen-purple to-yugen-bright;
+}
+
+.trip-intensity-slider .trip-intensity-thumb {
+  @apply h-5 w-5 rounded-full bg-white border-2 border-yugen-bright focus:outline-none;
 }

@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, MapPin, Clock, DollarSign } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin, Clock, DollarSign, Share2, Bookmark } from 'lucide-react';
 import MapDisplay from './MapDisplay';
+import TripIntensityBar from './TripIntensityBar';
 import { Trip } from '@/types/trips';
+import { useNavigate } from 'react-router-dom';
 
 interface TripCardProps {
   trip: Trip;
@@ -19,6 +21,7 @@ const TripCard: React.FC<TripCardProps> = ({
   onExpand
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
+  const navigate = useNavigate();
   
   const toggleExpand = () => {
     const newExpandedState = !isExpanded;
@@ -28,30 +31,37 @@ const TripCard: React.FC<TripCardProps> = ({
     }
   };
 
-  // Generate difficulty badge color
-  const getDifficultyColor = (level: string) => {
+  // Calculate intensity level based on difficulty
+  const getIntensityLevel = (level: string): number => {
     switch (level.toLowerCase()) {
-      case 'easy': return 'bg-green-500';
-      case 'moderate': return 'bg-yellow-500';
-      case 'challenging': 
-      case 'difficult': return 'bg-orange-500';
+      case 'easy': return 15;
+      case 'moderate': return 40;
+      case 'challenging': return 60;
+      case 'difficult': return 80;
       case 'expert': 
-      case 'extreme': return 'bg-red-500';
-      default: return 'bg-blue-500';
+      case 'extreme': return 95;
+      default: return 50;
     }
+  };
+  
+  const handleSaveTrip = () => {
+    navigate(`/trip/${trip.id}`);
+  };
+  
+  const handleShareTrip = () => {
+    // In a real app, this would open a sharing dialog
+    navigator.clipboard.writeText(`Check out this amazing trip: ${trip.title}`);
+    alert('Trip link copied to clipboard!');
   };
 
   return (
-    <Card className="w-full overflow-hidden transition-all duration-300">
+    <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="text-xl font-bold">{trip.title}</CardTitle>
             <CardDescription className="mt-1">{trip.description}</CardDescription>
           </div>
-          <Badge className={`${getDifficultyColor(trip.difficultyLevel)} text-white`}>
-            {trip.difficultyLevel}
-          </Badge>
         </div>
       </CardHeader>
       
@@ -62,7 +72,7 @@ const TripCard: React.FC<TripCardProps> = ({
               center={trip.mapCenter}
               markers={trip.markers}
               journey={trip.journey}
-              interactive={false}
+              interactive={true}
             />
           </div>
           
@@ -85,10 +95,25 @@ const TripCard: React.FC<TripCardProps> = ({
                   {trip.location}
                 </div>
               </div>
+              
+              <div className="mb-4">
+                <TripIntensityBar level={getIntensityLevel(trip.difficultyLevel)} readOnly />
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button onClick={handleSaveTrip} variant="default" className="bg-yugen-bright hover:bg-yugen-purple flex-1">
+                <Bookmark className="h-4 w-4 mr-2" />
+                Save Trip
+              </Button>
+              <Button onClick={handleShareTrip} variant="outline" className="flex-1">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
             </div>
             
             {trip.suggestedGuides && trip.suggestedGuides.length > 0 && (
-              <div>
+              <div className="mt-4">
                 <h3 className="font-semibold text-md mb-1">Suggested Guides:</h3>
                 <div className="flex flex-wrap gap-1">
                   {trip.suggestedGuides.map((guide, idx) => (

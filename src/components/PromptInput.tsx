@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Mic, Loader2 } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface PromptInputProps {
@@ -146,7 +146,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               onClick={handleSubmit}
               disabled={isProcessing || !prompt.trim()}
               size="icon"
-              className="rounded-full"
+              className="rounded-full bg-yugen-bright hover:bg-yugen-purple"
             >
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,28 +160,19 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               disabled={isProcessing || isProcessingVoice}
               size="icon"
               variant={isRecording ? "destructive" : "default"}
-              className="rounded-full"
+              className="rounded-full bg-yugen-bright hover:bg-yugen-purple"
             >
               {isProcessingVoice ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Mic className="h-4 w-4" />
+                <img 
+                  src="/lovable-uploads/165caac0-b6fb-4392-94c8-a742af6420bc.png" 
+                  alt="Voice AI" 
+                  className="h-5 w-5" 
+                />
               )}
             </Button>
           )}
-        </div>
-      </div>
-      
-      <div className="flex justify-center">
-        <div className="flex items-center gap-2">
-          <img 
-            src="/lovable-uploads/25e83a05-acce-4c01-80a9-2c1dcbabab87.png" 
-            alt="Voice powered by ElevenLabs" 
-            className="h-5 w-5" 
-          />
-          <span className="text-xs text-gray-500">
-            Voice powered by ElevenLabs
-          </span>
         </div>
       </div>
       

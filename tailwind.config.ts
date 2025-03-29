@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,7 +19,12 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'poppins': ['Poppins', 'sans-serif'],
+			},
 			colors: {
+				'yugen-purple': '#574780',
+				'yugen-bright': '#9870FF',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

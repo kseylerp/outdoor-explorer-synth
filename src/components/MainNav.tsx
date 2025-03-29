@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MapPin, Compass, Map, Home, Info } from 'lucide-react';
+import { Compass, Map, Home, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MainNav: React.FC = () => {
@@ -24,17 +24,17 @@ const MainNav: React.FC = () => {
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/8b8622ba-f80e-476f-b72c-53a6a407f074.png" 
+                src="/lovable-uploads/276785dd-4ac8-4986-89e4-8c33996a2328.png" 
                 alt="Yugen Logo" 
-                className="h-8" 
+                className="h-10" 
               />
             </Link>
           ) : (
             <Link to="/" className="mx-auto">
               <img 
-                src="/lovable-uploads/8b8622ba-f80e-476f-b72c-53a6a407f074.png" 
+                src="/lovable-uploads/276785dd-4ac8-4986-89e4-8c33996a2328.png" 
                 alt="Yugen Logo" 
-                className="h-8 w-8 object-contain" 
+                className="h-10 w-10 object-contain" 
               />
             </Link>
           )}
@@ -66,15 +66,6 @@ const MainNav: React.FC = () => {
               icon={<Compass size={20} />} 
               label="Explore" 
               active={isActive('/explore')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/destinations" 
-              icon={<MapPin size={20} />} 
-              label="Destinations" 
-              active={isActive('/destinations')} 
               expanded={expanded} 
               onClick={() => {}} 
             />
