@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Coordinates {
   lng: number;
@@ -57,27 +58,52 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
 
+  // Fetch Mapbox token from Supabase
   useEffect(() => {
-    // Initialize map only once
-    if (!map.current && mapContainer.current) {
-      // Get access token from environment
-      const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoia3NleWxlcnAiLCJhIjoiY21zbjd1eWRmMHF0azJybnNsN2RxdGYwOCJ9.h_LpGv5W13OT59tQiAopcA';
-      
-      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-      
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/kseylerp/cm8i0dbtn015s01sq8v5fh0xn',
-        center: [center.lng, center.lat],
-        zoom: 9,
-        interactive: interactive
-      });
+    const fetchMapboxToken = async () => {
+      try {
+        // Try to get the token from Supabase Function Secrets
+        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        
+        if (error) {
+          console.error('Error fetching Mapbox token:', error);
+          // Fallback to the hardcoded token if there's an error
+          setMapboxToken('pk.eyJ1Ijoia3NleWxlcnAiLCJhIjoiY21zbjd1eWRmMHF0azJybnNsN2RxdGYwOCJ9.h_LpGv5W13OT59tQiAopcA');
+        } else if (data?.token) {
+          setMapboxToken(data.token);
+        } else {
+          // Fallback to the hardcoded token if no data
+          setMapboxToken('pk.eyJ1Ijoia3NleWxlcnAiLCJhIjoiY21zbjd1eWRmMHF0azJybnNsN2RxdGYwOCJ9.h_LpGv5W13OT59tQiAopcA');
+        }
+      } catch (err) {
+        console.error('Exception fetching Mapbox token:', err);
+        // Fallback to the hardcoded token if there's an exception
+        setMapboxToken('pk.eyJ1Ijoia3NleWxlcnAiLCJhIjoiY21zbjd1eWRmMHF0azJybnNsN2RxdGYwOCJ9.h_LpGv5W13OT59tQiAopcA');
+      }
+    };
 
-      map.current.on('load', () => {
-        setMapLoaded(true);
-      });
-    }
+    fetchMapboxToken();
+  }, []);
+
+  // Initialize map when token is available
+  useEffect(() => {
+    if (!mapboxToken || !mapContainer.current || map.current) return;
+    
+    mapboxgl.accessToken = mapboxToken;
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/kseylerp/cm8i0dbtn015s01sq8v5fh0xn',
+      center: [center.lng, center.lat],
+      zoom: 9,
+      interactive: interactive
+    });
+
+    map.current.on('load', () => {
+      setMapLoaded(true);
+    });
 
     return () => {
       if (map.current) {
@@ -85,7 +111,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         map.current = null;
       }
     };
-  }, [center, interactive]);
+  }, [center, interactive, mapboxToken]);
 
   // Add markers and routes when map is loaded and journey data changes
   useEffect(() => {
