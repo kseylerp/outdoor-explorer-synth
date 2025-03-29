@@ -1,0 +1,209 @@
+
+# CLAUDE API TO TRIP INTERFACE MAPPING
+
+This document outlines how the JSON response from Claude API should map to the existing Trip interface and data structures in the Yugen application.
+
+## CURRENT TRIP INTERFACE
+
+```typescript
+// From src/types/trips.ts
+export interface Trip {
+  id: string;
+  title: string;
+  description: string;
+  whyWeChoseThis: string;
+  difficultyLevel: string;
+  priceEstimate: string;
+  duration: string;
+  location: string;
+  suggestedGuides?: string[];
+  mapCenter: Coordinates;
+  markers?: Array<{
+    name: string;
+    coordinates: Coordinates;
+    description?: string;
+    elevation?: string | number;
+    details?: string;
+  }>;
+  journey?: Journey;
+  itinerary: ItineraryDay[];
+}
+
+export interface Journey {
+  segments: Segment[];
+  totalDistance: number;
+  totalDuration: number;
+  bounds: number[][];
+}
+
+export interface Segment {
+  mode: string;
+  from: string;
+  to: string;
+  distance: number;
+  duration: number;
+  geometry: {
+    coordinates: number[][];
+  };
+  steps: Step[];
+  elevationGain?: number;
+  terrain?: string;
+  description?: string;
+}
+
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  description: string;
+  activities: Activity[];
+}
+
+export interface Activity {
+  name: string;
+  type: string;
+  duration: string;
+  description: string;
+  permitRequired: boolean;
+  permitDetails?: string;
+  outfitters?: string[];
+}
+```
+
+## CLAUDE API REQUIRED OUTPUT STRUCTURE
+
+To match our existing Trip interface, the Claude API should return a JSON structure with the following format for each trip option:
+
+```json
+{
+  "trips": [
+    {
+      "id": "1",  // Generated on our side
+      "title": "Trip Title",
+      "description": "Brief trip description",
+      "whyWeChoseThis": "Explanation of why this adventure matches the user's request",
+      "difficultyLevel": "Easy|Moderate|Challenging|Difficult|Expert",
+      "priceEstimate": "$-$$$", 
+      "duration": "X days",
+      "location": "Destination",
+      "suggestedGuides": ["Guide 1", "Guide 2"],
+      "mapCenter": {
+        "lng": -123.456,
+        "lat": 45.678
+      },
+      "markers": [
+        {
+          "name": "Point of Interest",
+          "coordinates": {
+            "lng": -123.456,
+            "lat": 45.678
+          },
+          "description": "Description of this location",
+          "elevation": "Optional elevation in feet", // or numeric value
+          "details": "Additional details about this location"
+        }
+      ],
+      "journey": {
+        "segments": [
+          {
+            "mode": "walking|driving|cycling|transit",
+            "from": "Starting Point",
+            "to": "Ending Point",
+            "distance": 5000, // in meters
+            "duration": 3600, // in seconds
+            "geometry": {
+              "coordinates": [
+                [-123.456, 45.678], // [longitude, latitude]
+                [-123.457, 45.679]
+              ]
+            },
+            "steps": [
+              {
+                "maneuver": {
+                  "instruction": "Drive to trailhead",
+                  "location": [-123.456, 45.678] // [longitude, latitude]
+                },
+                "distance": 5000, // in meters
+                "duration": 3600 // in seconds
+              }
+            ],
+            "elevationGain": 300, // optional, in meters
+            "terrain": "trail|paved|rocky|mixed", // optional
+            "description": "Description of this segment" // optional
+          }
+        ],
+        "totalDistance": 5000, // sum of all segment distances in meters
+        "totalDuration": 3600, // sum of all segment durations in seconds
+        "bounds": [
+          [-123.5, 45.6], // Southwest corner [lng, lat]
+          [-123.4, 45.7]  // Northeast corner [lng, lat]
+        ]
+      },
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Day 1 Title",
+          "description": "Overview of day 1",
+          "activities": [
+            {
+              "name": "Activity Name",
+              "type": "Hiking|Sightseeing|Dining|Accommodation|Transportation",
+              "duration": "2 hours",
+              "description": "Activity description",
+              "permitRequired": false,
+              "permitDetails": "Optional permit details if permitRequired is true",
+              "outfitters": ["Outfitter 1", "Outfitter 2"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## IMPORTANT MAPPING CONSIDERATIONS
+
+1. **Coordinates Format**:
+   - Claude API must return coordinates in [longitude, latitude] format
+   - Our application uses {lng: number, lat: number} format
+   - Conversion will be needed in the API integration code
+
+2. **Journey Segments**:
+   - Each activity in the itinerary that involves movement should have a corresponding journey segment
+   - For multi-modal journeys (e.g., drive to trailhead then hike), Claude should create separate segments
+
+3. **Routes and Waypoints**:
+   - Hiking routes need comprehensive waypoints for accurate trail representation
+   - Route geometry should include the return path for round-trips
+   - Every point of interest should be included as a marker
+
+4. **Distance and Duration**:
+   - Distance should be in meters
+   - Duration should be in seconds
+   - Activity durations should be in human-readable format (e.g., "2 hours")
+
+5. **Difficulty Levels**:
+   - Claude should map difficulty to our application's scale: "Easy", "Moderate", "Challenging", "Difficult", "Expert"
+
+6. **Required vs. Optional Fields**:
+   - All fields marked with ? in the Trip interface are optional
+   - All other fields are required and must be included in the Claude API response
+
+## CLAUDE API SYSTEM PROMPT RECOMMENDATIONS
+
+To ensure the Claude API returns data that aligns with our Trip interface, the system prompt should:
+
+1. Instruct Claude to generate trip options in the exact JSON format required
+2. Specify the required fields and their expected formats
+3. Emphasize the importance of accurate coordinates, distances, and durations
+4. Provide examples of how to structure the journey segments and itinerary activities
+5. Request that Claude include local guides, outfitters, and eco-friendly options
+6. Ensure Claude knows to prioritize less-traveled destinations and unique experiences
+
+## IMPLEMENTATION STEPS
+
+1. Validate the Claude API response against this mapping
+2. Build a transformation layer to convert the API response to our Trip interface
+3. Handle any missing or improperly formatted data
+4. Implement error handling for failed API calls
+5. Add caching to improve performance and reduce API calls
