@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Map, Home, Info, Settings, BookmarkIcon, Users, ShieldQuestion } from 'lucide-react';
+import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MainNav: React.FC = () => {
@@ -24,16 +24,16 @@ const MainNav: React.FC = () => {
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/276785dd-4ac8-4986-89e4-8c33996a2328.png" 
-                alt="Yugen Logo" 
+                src="/lovable-uploads/7045bb8c-4773-4ed2-86c3-8c19f95714f3.png" 
+                alt="Full Logo Yugen" 
                 className="h-10" 
               />
             </Link>
           ) : (
             <Link to="/" className="mx-auto">
               <img 
-                src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
-                alt="Yugen Logo" 
+                src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
+                alt="Truncated Logo" 
                 className="h-10 w-10 object-contain" 
               />
             </Link>
@@ -46,7 +46,7 @@ const MainNav: React.FC = () => {
             onClick={toggle}
           >
             <img 
-              src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
+              src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
               alt="Toggle" 
               className="h-6 w-6"
             />
@@ -130,7 +130,7 @@ const MainNav: React.FC = () => {
             onClick={toggle}
           >
             <img 
-              src="/lovable-uploads/415e5bda-5480-4158-9919-7aa03de8a8ba.png" 
+              src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
               alt="Toggle" 
               className="h-6 w-6 transform rotate-180"
             />
@@ -164,7 +164,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       className={`
         flex items-center px-2 py-2 text-sm font-medium rounded-md
         ${active 
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+          ? 'bg-purple-100 text-purple-700' 
           : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         }
         ${expanded ? '' : 'justify-center'}

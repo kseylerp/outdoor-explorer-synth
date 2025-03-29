@@ -64,7 +64,7 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
 
       // Add layer if it doesn't exist
       if (!map.getLayer(layerId)) {
-        const color = segment.mode === 'walking' ? '#4AB651' : '#3A85C5';
+        const color = segment.mode === 'walking' ? '#9870FF' : '#574780';
         
         map.addLayer({
           id: layerId,
@@ -76,8 +76,9 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
           },
           paint: {
             'line-color': color,
-            'line-width': 4,
-            'line-opacity': 0.8
+            'line-width': 6,
+            'line-opacity': 0.8,
+            'line-dasharray': segment.mode === 'walking' ? [0, 0] : [2, 1]
           }
         });
       }
@@ -96,7 +97,7 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
       });
     }
 
-    // Add click listeners for interactive segments
+    // Add click listeners for interactive segments with enhanced details
     journey.segments.forEach((segment, index) => {
       const layerId = `route-layer-${index}`;
       
@@ -104,14 +105,57 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
       map.on('click', layerId, (e) => {
         const coordinates = e.lngLat;
         
+        // Format the duration in hours and minutes
+        const hours = Math.floor(segment.duration / 3600);
+        const minutes = Math.floor((segment.duration % 3600) / 60);
+        const durationFormatted = hours > 0 
+          ? `${hours}h ${minutes}m` 
+          : `${minutes} minutes`;
+        
+        // Calculate pace if it's a walking segment
+        const pace = segment.mode === 'walking' 
+          ? (segment.duration / 60) / (segment.distance / 1000) 
+          : null;
+        
+        const paceFormatted = pace 
+          ? `${pace.toFixed(1)} min/km` 
+          : '';
+        
+        // Elevation gain if provided
+        const elevationInfo = segment.elevationGain 
+          ? `<p class="text-sm"><strong>Elevation Gain:</strong> ${segment.elevationGain}m</p>` 
+          : '';
+        
+        // Terrain type if provided
+        const terrainInfo = segment.terrain 
+          ? `<p class="text-sm"><strong>Terrain:</strong> ${segment.terrain}</p>` 
+          : '';
+        
+        // Format distance in km with one decimal place
+        const distanceFormatted = (segment.distance / 1000).toFixed(1);
+        
         const segmentDetails = `
-          <h3>${segment.from} to ${segment.to}</h3>
-          <p><strong>Mode:</strong> ${segment.mode}</p>
-          <p><strong>Distance:</strong> ${(segment.distance / 1000).toFixed(1)} km</p>
-          <p><strong>Duration:</strong> ${Math.floor(segment.duration / 60)} minutes</p>
+          <div class="route-popup">
+            <h3 class="text-lg font-bold text-purple-800 mb-2">${segment.from} to ${segment.to}</h3>
+            <div class="bg-purple-50 p-2 rounded mb-2">
+              <p class="text-sm mb-1"><strong>Mode:</strong> ${segment.mode.charAt(0).toUpperCase() + segment.mode.slice(1)}</p>
+              <p class="text-sm mb-1"><strong>Distance:</strong> ${distanceFormatted} km</p>
+              <p class="text-sm mb-1"><strong>Duration:</strong> ${durationFormatted}</p>
+              ${pace ? `<p class="text-sm mb-1"><strong>Pace:</strong> ${paceFormatted}</p>` : ''}
+              ${elevationInfo}
+              ${terrainInfo}
+            </div>
+            <p class="text-xs text-gray-600">${segment.description || ''}</p>
+          </div>
         `;
 
-        new mapboxgl.Popup()
+        // Create or update popup with segment details
+        new mapboxgl.Popup({
+          closeButton: true,
+          closeOnClick: false,
+          maxWidth: '300px',
+          className: 'route-segment-popup'
+        })
           .setLngLat([coordinates.lng, coordinates.lat])
           .setHTML(segmentDetails)
           .addTo(map);
@@ -126,6 +170,29 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
         map.getCanvas().style.cursor = '';
       });
     });
+
+    // Add CSS for styled popups
+    if (!document.getElementById('route-popup-styles')) {
+      const style = document.createElement('style');
+      style.id = 'route-popup-styles';
+      style.innerHTML = `
+        .route-segment-popup .mapboxgl-popup-content {
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          padding: 16px;
+          border-left: 4px solid #9870FF;
+        }
+        .route-popup h3 {
+          margin-top: 0;
+          margin-bottom: 8px;
+          color: #574780;
+        }
+        .route-popup p {
+          margin: 4px 0;
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     // Cleanup function
     return () => {
@@ -151,6 +218,12 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
         }
       } catch (error) {
         console.error('Error cleaning up map layers/sources:', error);
+      }
+      
+      // Remove the popup styles
+      const styleElement = document.getElementById('route-popup-styles');
+      if (styleElement) {
+        styleElement.remove();
       }
       
       // Reset refs

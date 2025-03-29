@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, ArrowRight, Info } from 'lucide-react';
+import { MapPin, Clock, Info } from 'lucide-react';
 import MapDisplay from './MapDisplay';
 import { Activity, ItineraryDay, Trip } from '@/types/trips';
 
@@ -25,7 +25,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           <Badge variant="outline" className="flex gap-1 items-center text-sm">
             <Clock className="h-3 w-3" /> {trip.duration}
           </Badge>
-          <Badge className="bg-blue-500 text-white">{trip.difficultyLevel}</Badge>
+          <Badge className="bg-purple-600 text-white">{trip.difficultyLevel}</Badge>
         </div>
       </CardHeader>
       
@@ -34,9 +34,9 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           <h3 className="text-lg font-semibold">About This Trip</h3>
           <p>{trip.description}</p>
           
-          <div className="bg-gray-50 p-4 rounded-md my-4">
-            <h4 className="text-md font-semibold flex items-center gap-2">
-              <Info className="h-4 w-4 text-blue-500" />
+          <div className="bg-purple-50 p-4 rounded-md my-4 border-l-4 border-purple-300">
+            <h4 className="text-md font-semibold flex items-center gap-2 text-purple-800">
+              <Info className="h-4 w-4 text-purple-600" />
               Why We Chose This
             </h4>
             <p className="text-sm">{trip.whyWeChoseThis}</p>
@@ -52,7 +52,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
               <h4 className="text-md font-semibold">Suggested Guides</h4>
               <div className="flex flex-wrap gap-1 mt-1">
                 {trip.suggestedGuides.map((guide, idx) => (
-                  <Badge key={idx} variant="outline">
+                  <Badge key={idx} variant="outline" className="bg-purple-50 text-purple-700">
                     {guide}
                   </Badge>
                 ))}
@@ -71,15 +71,20 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
               interactive={true}
             />
           </div>
+          <p className="text-xs text-gray-500 mt-2 text-center">Click on the map to enable interaction. Click routes or markers for detailed information.</p>
         </div>
         
         <div>
           <h3 className="text-lg font-semibold mb-4">Day-by-Day Itinerary</h3>
           
           <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 bg-purple-100">
               {trip.itinerary.map((day) => (
-                <TabsTrigger key={day.day} value={day.day.toString()}>
+                <TabsTrigger 
+                  key={day.day} 
+                  value={day.day.toString()}
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                >
                   Day {day.day}
                 </TabsTrigger>
               ))}
@@ -104,8 +109,8 @@ interface DayDetailsProps {
 const DayDetails: React.FC<DayDetailsProps> = ({ day }) => {
   return (
     <div>
-      <h4 className="text-xl font-semibold mb-2">{day.title}</h4>
-      <p className="mb-4 text-gray-600">{day.description}</p>
+      <h4 className="text-xl font-semibold mb-2 text-purple-800">{day.title}</h4>
+      <p className="mb-6 text-gray-600">{day.description}</p>
       
       <div className="space-y-4">
         {day.activities.map((activity, idx) => (
@@ -128,19 +133,19 @@ interface ActivityCardProps {
 const ActivityCard: React.FC<ActivityCardProps> = ({ activity, isLast }) => {
   return (
     <div className="relative">
-      <Card className="border-l-4 border-l-blue-500">
+      <Card className="border-l-4 border-l-purple-400 hover:shadow-md transition-shadow">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h5 className="font-semibold">{activity.name}</h5>
-            <Badge variant="outline">{activity.duration}</Badge>
+            <h5 className="font-semibold text-purple-700">{activity.name}</h5>
+            <Badge variant="outline" className="bg-purple-50">{activity.duration}</Badge>
           </div>
           
           <p className="text-sm text-gray-600 mb-3">{activity.description}</p>
           
           <div className="flex flex-wrap gap-2 mb-3">
-            <Badge variant="secondary">{activity.type}</Badge>
+            <Badge variant="secondary" className="bg-purple-100 text-purple-700">{activity.type}</Badge>
             {activity.permitRequired && (
-              <Badge variant="outline" className="bg-amber-100">
+              <Badge variant="outline" className="bg-amber-100 text-amber-800">
                 Permit Required
               </Badge>
             )}
@@ -161,12 +166,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, isLast }) => {
           )}
         </CardContent>
       </Card>
-      
-      {!isLast && (
-        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mx-auto my-2">
-          <ArrowRight className="h-4 w-4 text-gray-400" />
-        </div>
-      )}
     </div>
   );
 };

@@ -55,7 +55,7 @@ const TripCard: React.FC<TripCardProps> = ({
   };
 
   return (
-    <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200">
+    <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -102,7 +102,7 @@ const TripCard: React.FC<TripCardProps> = ({
             </div>
             
             <div className="flex gap-2">
-              <Button onClick={handleSaveTrip} variant="default" className="bg-yugen-bright hover:bg-yugen-purple flex-1">
+              <Button onClick={handleSaveTrip} variant="default" className="bg-purple-600 hover:bg-purple-700 flex-1">
                 <Bookmark className="h-4 w-4 mr-2" />
                 Save Trip
               </Button>
@@ -128,62 +128,64 @@ const TripCard: React.FC<TripCardProps> = ({
         </div>
       </CardContent>
       
-      {isExpanded && (
-        <div className="px-6 py-2">
-          <h3 className="font-semibold text-lg mb-2">Itinerary</h3>
-          {trip.itinerary.map((day, idx) => (
-            <div key={idx} className="mb-4">
-              <h4 className="font-semibold text-md mb-1">Day {day.day}: {day.title}</h4>
-              <p className="text-sm text-gray-600 mb-2">{day.description}</p>
-              
-              {day.activities.map((activity, actIdx) => (
-                <div key={actIdx} className="mb-2 ml-2 p-2 border-l-2 border-gray-200">
-                  <div className="flex justify-between">
-                    <h5 className="font-semibold text-sm">{activity.name}</h5>
-                    <span className="text-xs text-gray-500">{activity.duration}</span>
-                  </div>
-                  <p className="text-xs text-gray-600">{activity.description}</p>
-                  
-                  <div className="mt-1 flex flex-wrap gap-1 text-xs">
-                    <Badge variant="outline" className="text-xs">
-                      {activity.type}
-                    </Badge>
-                    {activity.permitRequired && (
-                      <Badge variant="outline" className="bg-amber-100 text-xs">
-                        Permit Required
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {activity.outfitters && activity.outfitters.length > 0 && (
-                    <div className="mt-1">
-                      <span className="text-xs font-medium">Suggested Outfitters: </span>
-                      <span className="text-xs text-gray-600">
-                        {activity.outfitters.join(', ')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-      
       <CardFooter className="pt-2 justify-center">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={toggleExpand}
-          className="w-full flex items-center justify-center"
+          className="w-full flex items-center justify-center bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700 font-medium"
         >
           {isExpanded ? (
-            <>Show Less <ChevronUp className="ml-1 h-4 w-4" /></>
+            <>Hide Itinerary <ChevronUp className="ml-1 h-4 w-4" /></>
           ) : (
             <>Show Itinerary <ChevronDown className="ml-1 h-4 w-4" /></>
           )}
         </Button>
       </CardFooter>
+      
+      {isExpanded && (
+        <div className="px-6 py-4 bg-purple-50 border-t border-purple-100">
+          <h3 className="font-semibold text-lg mb-4 text-purple-800">Itinerary</h3>
+          {trip.itinerary.map((day, idx) => (
+            <div key={idx} className="mb-6">
+              <h4 className="font-semibold text-md mb-2 text-purple-700">Day {day.day}: {day.title}</h4>
+              <p className="text-sm text-gray-600 mb-4">{day.description}</p>
+              
+              <div className="space-y-4">
+                {day.activities.map((activity, actIdx) => (
+                  <div key={actIdx} className="p-3 bg-white rounded-lg shadow-sm border-l-4 border-purple-300">
+                    <div className="flex justify-between">
+                      <h5 className="font-semibold text-sm">{activity.name}</h5>
+                      <span className="text-xs text-gray-500">{activity.duration}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">{activity.description}</p>
+                    
+                    <div className="mt-2 flex flex-wrap gap-1 text-xs">
+                      <Badge variant="outline" className="text-xs">
+                        {activity.type}
+                      </Badge>
+                      {activity.permitRequired && (
+                        <Badge variant="outline" className="bg-amber-100 text-xs">
+                          Permit Required
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {activity.outfitters && activity.outfitters.length > 0 && (
+                      <div className="mt-2">
+                        <span className="text-xs font-medium">Suggested Outfitters: </span>
+                        <span className="text-xs text-gray-600">
+                          {activity.outfitters.join(', ')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 };

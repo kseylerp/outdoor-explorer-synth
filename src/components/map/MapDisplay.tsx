@@ -17,6 +17,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapInteractive, setMapInteractive] = useState(interactive);
   const { mapboxToken, loading, error } = useMapboxToken();
 
   // Initialize map when token is available
@@ -35,26 +36,47 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/kseylerp/cm8i0dbtn015s01sq8v5fh0xn',
+        style: 'mapbox://styles/mapbox/outdoors-v11', // Use outdoors style for better trail visibility
         center: [center.lng, center.lat],
         zoom: 9,
-        interactive: interactive
+        interactive: mapInteractive
       });
 
       map.current.on('load', () => {
         setMapLoaded(true);
       });
+      
+      // Add click handler to enable interactive mode
+      if (interactive && !mapInteractive) {
+        mapContainer.current.addEventListener('click', enableInteractiveMode);
+      }
     } catch (e) {
       console.error('Error initializing map:', e);
     }
 
     return () => {
+      if (mapContainer.current) {
+        mapContainer.current.removeEventListener('click', enableInteractiveMode);
+      }
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
     };
-  }, [center, interactive, mapboxToken]);
+  }, [center, interactive, mapInteractive, mapboxToken]);
+
+  const enableInteractiveMode = () => {
+    if (!mapInteractive && map.current) {
+      setMapInteractive(true);
+      map.current.scrollZoom.enable();
+      map.current.boxZoom.enable();
+      map.current.dragPan.enable();
+      map.current.dragRotate.enable();
+      map.current.keyboard.enable();
+      map.current.doubleClickZoom.enable();
+      map.current.touchZoomRotate.enable();
+    }
+  };
 
   if (error && !mapboxToken) {
     return (
@@ -76,8 +98,16 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   }
 
   return (
-    <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg">
+    <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg relative">
       <div ref={mapContainer} className="w-full h-full min-h-[300px]" />
+      
+      {!mapInteractive && (
+        <div className="absolute inset-0 bg-black bg-opacity-0 flex items-center justify-center cursor-pointer z-10">
+          <div className="bg-white bg-opacity-90 rounded-md px-3 py-2 text-sm font-medium text-gray-700 shadow-md pointer-events-none">
+            Click to interact with map
+          </div>
+        </div>
+      )}
       
       {/* Only render child components when map is loaded */}
       {mapLoaded && map.current && (

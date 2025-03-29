@@ -146,7 +146,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               onClick={handleSubmit}
               disabled={isProcessing || !prompt.trim()}
               size="icon"
-              className="rounded-full bg-yugen-bright hover:bg-yugen-purple"
+              className="rounded-full bg-purple-600 hover:bg-purple-700"
             >
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,16 +160,19 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               disabled={isProcessing || isProcessingVoice}
               size="icon"
               variant={isRecording ? "destructive" : "default"}
-              className="rounded-full bg-yugen-bright hover:bg-yugen-purple"
+              className="rounded-full bg-purple-600 hover:bg-purple-700"
             >
               {isProcessingVoice ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <img 
-                  src="/lovable-uploads/165caac0-b6fb-4392-94c8-a742af6420bc.png" 
-                  alt="Voice AI" 
-                  className="h-5 w-5" 
-                />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5">
+                  <path d="M12 18.75C15.3137 18.75 18 16.0637 18 12.75V11.25M12 18.75C8.68629 18.75 6 16.0637 6 12.75V11.25M12 18.75V22.5M8.25 22.5H15.75M12 15.75C10.3431 15.75 9 14.4069 9 12.75V4.5C9 2.84315 10.3431 1.5 12 1.5C13.6569 1.5 15 2.84315 15 4.5V12.75C15 14.4069 13.6569 15.75 12 15.75Z" 
+                    stroke="white" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+                </svg>
               )}
             </Button>
           )}
