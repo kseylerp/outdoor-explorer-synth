@@ -1,4 +1,3 @@
-
 import { Journey } from '@/types/trips';
 
 export interface Coordinates {
@@ -19,4 +18,5 @@ export interface MapDisplayProps {
   markers?: MapMarker[];
   center?: Coordinates;
   interactive?: boolean;
+  routeType?: string;
 }

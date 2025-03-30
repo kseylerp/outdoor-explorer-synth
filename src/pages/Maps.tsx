@@ -1,24 +1,29 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { toast } from '@/hooks/use-toast';
 import NativeNavigation from '@/plugins/NativeNavigationPlugin';
 import { Capacitor } from '@capacitor/core';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-// Import new component files
+// Import component files
 import TripSelector from '@/components/maps/TripSelector';
 import NavigationOptions from '@/components/maps/NavigationOptions';
 import TripDetails from '@/components/maps/TripDetails';
-import NavigationMap from '@/components/maps/NavigationMap';
+import MapDisplay from '@/components/map/MapDisplay';
 import MapFeatures from '@/components/maps/MapFeatures';
 import NavigationControls from '@/components/maps/NavigationControls';
+import RouteTypeSelector from '@/components/maps/RouteTypeSelector';
 
 const Maps: React.FC = () => {
   const [savedTrips, setSavedTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
   const [transportMode, setTransportMode] = useState<string>('driving');
   const [isNativeAvailable, setIsNativeAvailable] = useState<boolean>(false);
+  const [controlsOpen, setControlsOpen] = useState<boolean>(false);
+  const [routeType, setRouteType] = useState<string>('all');
+  const isMobile = useIsMobile();
 
   // Check if native navigation is available
   useEffect(() => {
@@ -27,7 +32,6 @@ const Maps: React.FC = () => {
         try {
           const { available } = await NativeNavigation.isNavigationAvailable();
           setIsNativeAvailable(available);
-          console.log('Native navigation available:', available);
         } catch (error) {
           console.error('Error checking native navigation:', error);
           setIsNativeAvailable(false);
@@ -58,46 +62,68 @@ const Maps: React.FC = () => {
 
   const selectedTrip = savedTrips.find(trip => trip.id === selectedTripId);
 
+  // Toggle controls panel
+  const toggleControls = () => {
+    setControlsOpen(!controlsOpen);
+  };
+
   return (
-    <div className="container mx-auto py-4 px-4 max-w-5xl space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Turn-by-Turn Navigation</h1>
-        <p className="text-gray-600">Get directions to your saved adventures</p>
-      </div>
-      
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="md:col-span-1 space-y-4">
-          <Card className="p-4">
-            <div className="space-y-4">
+    <div className="h-screen overflow-hidden flex flex-col">
+      {/* Map takes full screen */}
+      <div className="w-full h-full flex-1 relative">
+        <MapDisplay 
+          journey={selectedTrip?.journey} 
+          markers={selectedTrip?.markers} 
+          interactive={true}
+          routeType={routeType}
+        />
+        
+        {/* Floating dropdown controls panel */}
+        <div className={`absolute top-4 right-4 z-10 transition-all duration-300 ${isMobile ? 'w-5/6' : 'w-96'}`}>
+          <div 
+            className="bg-white rounded-lg shadow-lg p-4 cursor-pointer flex justify-between items-center"
+            onClick={toggleControls}
+          >
+            <span className="font-medium">Navigation Controls</span>
+            {controlsOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {controlsOpen && (
+            <div className="bg-white rounded-lg shadow-lg mt-2 p-4 space-y-4">
               <TripSelector 
                 savedTrips={savedTrips}
                 selectedTripId={selectedTripId}
                 setSelectedTripId={setSelectedTripId}
               />
-
-              <NavigationOptions 
-                transportMode={transportMode}
-                setTransportMode={setTransportMode}
-              />
-
-              <NavigationControls 
-                selectedTripId={selectedTripId}
-                savedTrips={savedTrips}
-                transportMode={transportMode}
-                isNativeAvailable={isNativeAvailable}
-              />
+              
+              {selectedTrip && (
+                <>
+                  <RouteTypeSelector 
+                    routeType={routeType}
+                    setRouteType={setRouteType}
+                  />
+                  
+                  <NavigationOptions 
+                    transportMode={transportMode}
+                    setTransportMode={setTransportMode}
+                  />
+                  
+                  <NavigationControls 
+                    selectedTripId={selectedTripId}
+                    savedTrips={savedTrips}
+                    transportMode={transportMode}
+                    isNativeAvailable={isNativeAvailable}
+                  />
+                  
+                  <TripDetails trip={selectedTrip} />
+                </>
+              )}
+              
+              <MapFeatures />
             </div>
-          </Card>
-
-          <TripDetails trip={selectedTrip} />
-        </div>
-        
-        <div className="md:col-span-2">
-          <NavigationMap isNativeAvailable={isNativeAvailable} />
+          )}
         </div>
       </div>
-
-      <MapFeatures />
     </div>
   );
 };

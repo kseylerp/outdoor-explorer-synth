@@ -10,9 +10,10 @@ interface MapContentProps {
   map: mapboxgl.Map;
   markers?: MapMarker[];
   journey?: Journey;
+  routeType?: string;
 }
 
-const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) => {
+const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, routeType = 'all' }) => {
   // Validate markers are properly formed before rendering
   const validMarkers = Array.isArray(markers) ? markers.filter(marker => 
     marker && marker.coordinates && 
@@ -26,15 +27,27 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) =
     Array.isArray(journey.segments) && 
     journey.segments.length > 0;
     
-  // Log warning if journey is missing required properties
-  if (journey && (!journey.segments || !Array.isArray(journey.segments))) {
-    console.warn("Journey is missing required 'segments' array or it's not properly formatted", journey);
-  }
-  
-  // Log warning if journey is missing bounds
-  if (journey && (!journey.bounds || !Array.isArray(journey.bounds))) {
-    console.warn("Journey is missing required 'bounds' property or it's not properly formatted", journey);
-  }
+  // Filter segments by route type if specified
+  const filteredJourney = hasValidJourney && routeType !== 'all' 
+    ? {
+        ...journey,
+        segments: journey.segments.filter(segment => {
+          // Map the route type to segment mode
+          switch(routeType) {
+            case 'walk':
+              return segment.mode === 'walking' || segment.mode === 'hiking';
+            case 'bike':
+              return segment.mode === 'cycling';
+            case 'drive':
+              return segment.mode === 'driving';
+            case 'transit':
+              return segment.mode === 'transit';
+            default:
+              return true;
+          }
+        })
+      }
+    : journey;
   
   return (
     <>
@@ -43,7 +56,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) =
       )}
       
       {hasValidJourney && (
-        <RouteLayer map={map} journey={journey} />
+        <RouteLayer map={map} journey={filteredJourney} />
       )}
     </>
   );

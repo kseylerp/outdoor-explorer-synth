@@ -1,13 +1,12 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import TripCardHeader from './TripCardHeader';
 import TripCardMap from './TripCardMap';
 import TripCardInfo from './TripCardInfo';
 import TripCardButtons from './TripCardButtons';
-import ItineraryExpander from './ItineraryExpander';
 import TripItinerary from './TripItinerary';
 
 interface TripCardProps {
@@ -29,16 +28,8 @@ const TripCard: React.FC<TripCardProps> = ({
   showRemoveButton = false,
   onRemove
 }) => {
-  const [isExpanded, setIsExpanded] = useState(expanded);
+  const [routeType, setRouteType] = useState('all');
   const navigate = useNavigate();
-  
-  const toggleExpand = () => {
-    const newExpandedState = !isExpanded;
-    setIsExpanded(newExpandedState);
-    if (onExpand && newExpandedState) {
-      onExpand();
-    }
-  };
   
   const handleSaveTrip = () => {
     if (onSave) {
@@ -68,6 +59,7 @@ const TripCard: React.FC<TripCardProps> = ({
             center={trip.mapCenter}
             markers={trip.markers}
             journey={trip.journey}
+            routeType={routeType}
           />
           
           <TripCardInfo 
@@ -89,11 +81,10 @@ const TripCard: React.FC<TripCardProps> = ({
         />
       </CardContent>
       
-      <CardFooter className="pt-2 justify-center">
-        <ItineraryExpander isExpanded={isExpanded} onToggle={toggleExpand} />
-      </CardFooter>
-      
-      {isExpanded && <TripItinerary itinerary={trip.itinerary} />}
+      {/* Display Itinerary directly in the card */}
+      {trip.itinerary && trip.itinerary.length > 0 && (
+        <TripItinerary itinerary={trip.itinerary} />
+      )}
     </Card>
   );
 };
