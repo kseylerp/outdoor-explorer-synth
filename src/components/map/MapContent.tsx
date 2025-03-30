@@ -35,7 +35,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
           // Map the route type to segment mode
           switch(routeType) {
             case 'walk':
-              return segment.mode === 'walking';
+              return segment.mode === 'walking' || segment.mode === 'hiking';
             case 'bike':
               return segment.mode === 'cycling';
             case 'drive':

@@ -33,6 +33,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     interactive
   });
 
+  // Determine if we should show the route selector
+  const showRouteSelector = journey && 
+                           journey.segments && 
+                           journey.segments.length > 0 && 
+                           journey.segments.some(segment => segment.mode);
+
   return (
     <Card className={`w-full h-full ${isMobile ? 'h-[calc(100vh-4rem)]' : 'min-h-[300px]'} overflow-hidden rounded-lg relative`}>
       <div ref={mapContainer} className="w-full h-full min-h-[300px]" />
@@ -44,7 +50,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         onEnableInteractiveMode={enableInteractiveMode}
       />
       
-      {journey && journey.segments && journey.segments.length > 0 && mapLoaded && (
+      {showRouteSelector && mapLoaded && (
         <RouteTypeSelector routeType={routeType} setRouteType={setRouteType} />
       )}
       

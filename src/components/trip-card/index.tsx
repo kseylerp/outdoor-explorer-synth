@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import TripCardHeader from './TripCardHeader';
@@ -28,16 +28,8 @@ const TripCard: React.FC<TripCardProps> = ({
   showRemoveButton = false,
   onRemove
 }) => {
-  const [showItinerary, setShowItinerary] = useState(expanded);
+  const [routeType, setRouteType] = useState('all');
   const navigate = useNavigate();
-  
-  const toggleItinerary = () => {
-    const newState = !showItinerary;
-    setShowItinerary(newState);
-    if (onExpand && newState) {
-      onExpand();
-    }
-  };
   
   const handleSaveTrip = () => {
     if (onSave) {
@@ -67,7 +59,7 @@ const TripCard: React.FC<TripCardProps> = ({
             center={trip.mapCenter}
             markers={trip.markers}
             journey={trip.journey}
-            routeType="all"
+            routeType={routeType}
           />
           
           <TripCardInfo 
@@ -91,9 +83,7 @@ const TripCard: React.FC<TripCardProps> = ({
       
       {/* Display Itinerary directly in the card */}
       {trip.itinerary && trip.itinerary.length > 0 && (
-        <CardFooter className="p-0 border-t border-gray-200">
-          <TripItinerary itinerary={trip.itinerary} />
-        </CardFooter>
+        <TripItinerary itinerary={trip.itinerary} />
       )}
     </Card>
   );
