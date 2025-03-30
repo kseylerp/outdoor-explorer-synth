@@ -6,6 +6,7 @@ import { MapDisplayProps } from './types';
 import MapStatus from './MapStatus';
 import MapContent from './MapContent';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const MapDisplay: React.FC<MapDisplayProps> = ({
   journey,
@@ -15,6 +16,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   routeType = 'all',
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  
   const {
     map,
     mapLoaded,
@@ -29,7 +32,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   });
 
   return (
-    <Card className="w-full h-full min-h-[300px] overflow-hidden rounded-lg relative">
+    <Card className={`w-full h-full ${isMobile ? 'h-[calc(100vh-4rem)]' : 'min-h-[300px]'} overflow-hidden rounded-lg relative`}>
       <div ref={mapContainer} className="w-full h-full min-h-[300px]" />
       
       <MapStatus
