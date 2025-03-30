@@ -23,8 +23,8 @@ const MainNav: React.FC = () => {
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/7045bb8c-4773-4ed2-86c3-8c19f95714f3.png" 
-                alt="Full Logo Yugen" 
+                src="/lovable-uploads/03e672eb-9596-4f64-9f3d-6e9695d6b26a.png" 
+                alt="Full Logo Offbeat" 
                 className="h-10" 
               />
             </Link>
