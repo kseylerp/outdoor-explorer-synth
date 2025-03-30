@@ -14,9 +14,9 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
     <Card className="p-4">
       <h3 className="font-medium mb-2">Trip Details</h3>
       <div className="space-y-2 text-sm">
-        <p><strong>Location:</strong> {trip.location}</p>
-        <p><strong>Duration:</strong> {trip.duration}</p>
-        <p><strong>Difficulty:</strong> {trip.difficultyLevel}</p>
+        {trip.location && <p><strong>Location:</strong> {trip.location}</p>}
+        {trip.duration && <p><strong>Duration:</strong> {trip.duration}</p>}
+        {trip.difficultyLevel && <p><strong>Difficulty:</strong> {trip.difficultyLevel}</p>}
       </div>
     </Card>
   );

@@ -20,8 +20,8 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) =
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Validate journey is properly formed before rendering
-  const isValidJourney = journey && 
+  // Check if journey exists and has required properties
+  const hasValidJourney = journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
     journey.segments.length > 0 &&
@@ -35,7 +35,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) =
         <MarkerLayer map={map} markers={validMarkers} />
       )}
       
-      {isValidJourney && (
+      {hasValidJourney && (
         <RouteLayer map={map} journey={journey} />
       )}
     </>

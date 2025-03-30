@@ -16,7 +16,7 @@ export const validateAndTransformTrip = (trip: any): Trip => {
   // Check for required fields
   const requiredFields = [
     'title', 'description', 'whyWeChoseThis', 'difficultyLevel',
-    'priceEstimate', 'duration', 'location', 'mapCenter', 'itinerary'
+    'priceEstimate', 'duration', 'location', 'mapCenter'
   ];
   
   // Log missing fields but don't throw
@@ -43,13 +43,13 @@ export const validateAndTransformTrip = (trip: any): Trip => {
   // Create validated trip object with minimal default values
   const validatedTrip: Trip = {
     id: trip.id,
-    title: trip.title || 'No title available',
-    description: trip.description || 'No description available',
-    whyWeChoseThis: trip.whyWeChoseThis || 'No information available',
+    title: trip.title || 'Unknown Trip',
+    description: trip.description || '',
+    whyWeChoseThis: trip.whyWeChoseThis || '',
     difficultyLevel: trip.difficultyLevel || 'Unknown',
     priceEstimate: priceEstimateValue || 0,
-    duration: trip.duration || 'Unknown duration',
-    location: trip.location || 'Unknown location',
+    duration: trip.duration || '',
+    location: trip.location || '',
     mapCenter: trip.mapCenter || { lng: 0, lat: 0 },
     itinerary: trip.itinerary ? validateItinerary(trip.itinerary) : [],
   };
@@ -61,7 +61,7 @@ export const validateAndTransformTrip = (trip: any): Trip => {
   
   if (trip.markers && Array.isArray(trip.markers)) {
     validatedTrip.markers = trip.markers.map((marker: any) => ({
-      name: marker.name || 'Unknown marker',
+      name: marker.name || 'Unknown Point',
       coordinates: marker.coordinates || validatedTrip.mapCenter,
       description: marker.description,
       elevation: marker.elevation,

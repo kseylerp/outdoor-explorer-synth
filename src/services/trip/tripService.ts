@@ -30,25 +30,49 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
       throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
-    // If data is already in the expected format with a trip array
-    if (data.trip && Array.isArray(data.trip)) {
-      console.log('Received trip data in correct format:', data.trip.length, 'trips');
-      
-      // Validate each trip has required fields
-      const validatedTrips = data.trip.map((trip: any) => validateAndTransformTrip(trip));
-      return validatedTrips;
+    console.log("Received data structure from edge function:", JSON.stringify(data).substring(0, 200) + "...");
+    
+    // Log the data structure to help with debugging
+    if (data.trip) {
+      console.log("Data contains 'trip' property:", Array.isArray(data.trip) ? "Array" : typeof data.trip);
+    } else if (Array.isArray(data)) {
+      console.log("Data is an array of length:", data.length);
+    } else {
+      console.log("Data type:", typeof data);
+      if (typeof data === 'object') {
+        console.log("Object keys:", Object.keys(data));
+      }
     }
     
-    // If data is an array but not wrapped in a trip object
+    // Handle data directly if it's an array of trips
     if (Array.isArray(data)) {
-      console.log('Received trip data as array, transforming to correct format');
-      
-      // Validate each trip has required fields
+      console.log('Received trip data as array, validating trips');
       const validatedTrips = data.map((trip: any) => validateAndTransformTrip(trip));
       return validatedTrips;
     }
     
-    console.error('Invalid response format from trip-recommendations:', data);
+    // Check if data has a 'trip' property that is an array (Claude API format)
+    if (data.trip && Array.isArray(data.trip)) {
+      console.log('Received trip data in trip array format, validating trips');
+      const validatedTrips = data.trip.map((trip: any) => validateAndTransformTrip(trip));
+      return validatedTrips;
+    }
+    
+    // Check if data has a single trip object in a trip property
+    if (data.trip && typeof data.trip === 'object' && !Array.isArray(data.trip)) {
+      console.log('Received a single trip object in trip property, validating trip');
+      const validatedTrip = validateAndTransformTrip(data.trip);
+      return [validatedTrip];
+    }
+    
+    // If data is a single trip object, wrap it in an array
+    if (typeof data === 'object' && !Array.isArray(data) && data !== null) {
+      console.log('Received a single trip object, validating trip');
+      const validatedTrip = validateAndTransformTrip(data);
+      return [validatedTrip];
+    }
+    
+    console.error('Unexpected data format from trip-recommendations:', data);
     throw new Error('Invalid response format from API');
   } catch (error) {
     console.error('Error generating trips:', error);

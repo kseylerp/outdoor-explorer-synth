@@ -18,16 +18,19 @@ export const validateItinerary = (itinerary: any[]): ItineraryDay[] => {
       console.warn(`Day ${index} in itinerary is undefined or null`);
       return {
         day: index + 1,
-        title: `Day ${index + 1}`,
-        description: 'No description available',
+        title: '',
+        description: '',
         activities: []
       };
     }
     
+    // If day number is missing, use the index
+    const dayNumber = day.day !== undefined ? day.day : index + 1;
+    
     return {
-      day: day.day || index + 1,
-      title: day.title || `Day ${index + 1}`,
-      description: day.description || 'No description available',
+      day: dayNumber,
+      title: day.title || '',
+      description: day.description || '',
       activities: day.activities ? validateActivities(day.activities) : []
     };
   });
@@ -43,23 +46,33 @@ export const validateActivities = (activities: any[]): Activity[] => {
     if (!activity) {
       console.warn('An activity in the itinerary is undefined or null');
       return {
-        name: 'Unknown activity',
-        type: 'Other',
-        duration: 'Unknown',
-        description: 'No description available',
+        name: '',
+        type: '',
+        duration: '',
+        description: '',
         permitRequired: false
       };
     }
     
-    return {
-      name: activity.name || 'Unknown activity',
-      type: activity.type || 'Other',
-      duration: activity.duration || 'Unknown',
-      description: activity.description || 'No description available',
-      permitRequired: typeof activity.permitRequired === 'boolean' ? activity.permitRequired : false,
-      permitDetails: activity.permitDetails,
-      outfitters: activity.outfitters
+    // Only include permitRequired if it's explicitly defined, otherwise default to false
+    const activityData: Activity = {
+      name: activity.name || '',
+      type: activity.type || '',
+      duration: activity.duration || '',
+      description: activity.description || '',
+      permitRequired: typeof activity.permitRequired === 'boolean' ? activity.permitRequired : false
     };
+    
+    // Only add optional fields if they exist
+    if (activity.permitDetails) {
+      activityData.permitDetails = activity.permitDetails;
+    }
+    
+    if (activity.outfitters && Array.isArray(activity.outfitters)) {
+      activityData.outfitters = activity.outfitters;
+    }
+    
+    return activityData;
   });
 };
 
@@ -73,9 +86,9 @@ export const validateJourneySegments = (segments: any[]): Segment[] => {
     if (!segment) {
       console.warn('A segment in the journey is undefined or null');
       return {
-        mode: 'unknown',
-        from: 'Unknown start',
-        to: 'Unknown destination',
+        mode: '',
+        from: '',
+        to: '',
         distance: 0,
         duration: 0,
         geometry: {
@@ -85,20 +98,32 @@ export const validateJourneySegments = (segments: any[]): Segment[] => {
       };
     }
     
-    return {
-      mode: segment.mode || 'unknown',
-      from: segment.from || 'Unknown start',
-      to: segment.to || 'Unknown destination',
+    const validatedSegment: Segment = {
+      mode: segment.mode || '',
+      from: segment.from || '',
+      to: segment.to || '',
       distance: segment.distance || 0,
       duration: segment.duration || 0,
       geometry: {
         coordinates: segment.geometry?.coordinates || [[0, 0], [0, 0]]
       },
-      steps: segment.steps ? validateSteps(segment.steps) : [],
-      elevationGain: segment.elevationGain,
-      terrain: segment.terrain,
-      description: segment.description
+      steps: segment.steps ? validateSteps(segment.steps) : []
     };
+    
+    // Only add optional fields if they exist
+    if (segment.elevationGain !== undefined) {
+      validatedSegment.elevationGain = segment.elevationGain;
+    }
+    
+    if (segment.terrain) {
+      validatedSegment.terrain = segment.terrain;
+    }
+    
+    if (segment.description) {
+      validatedSegment.description = segment.description;
+    }
+    
+    return validatedSegment;
   });
 };
 
@@ -113,7 +138,7 @@ export const validateSteps = (steps: any[]): Step[] => {
       console.warn('A step in a journey segment is undefined or null');
       return {
         maneuver: {
-          instruction: 'No instruction available',
+          instruction: '',
           location: [0, 0]
         },
         distance: 0,
@@ -123,7 +148,7 @@ export const validateSteps = (steps: any[]): Step[] => {
     
     return {
       maneuver: {
-        instruction: step.maneuver?.instruction || 'No instruction available',
+        instruction: step.maneuver?.instruction || '',
         location: step.maneuver?.location || [0, 0]
       },
       distance: step.distance || 0,
