@@ -8,9 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { fetchTripRecommendations } from '@/services/claudeService';
 
-// Use mockTrips as a fallback
-import { mockTrips } from '@/services/tripService';
-
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -45,24 +42,19 @@ const Index: React.FC = () => {
           description: "We've found some perfect adventures for you.",
         });
       } else {
-        // Fallback to mock data if the API doesn't return valid trips
-        console.warn("API returned no trips, using fallback data");
-        setTrips(mockTrips.slice(0, 2));
-        
         toast({
-          title: "Using Demo Data",
-          description: "We're showing example adventures while our AI is being configured.",
+          title: "No Adventures Found",
+          description: "We couldn't find any suitable adventures. Please try a different prompt.",
+          variant: "destructive"
         });
       }
     } catch (error) {
       console.error('Error processing prompt:', error);
       
-      // Fallback to mock data
-      setTrips(mockTrips.slice(0, 2));
-      
       toast({
-        title: "Using Demo Data",
-        description: "We couldn't connect to our AI service. Showing example adventures instead.",
+        title: "Error",
+        description: "We couldn't connect to our AI service. Please try again later.",
+        variant: "destructive"
       });
     } finally {
       setIsProcessing(false);
