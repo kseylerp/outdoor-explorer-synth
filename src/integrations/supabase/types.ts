@@ -137,6 +137,57 @@ export type Database = {
           },
         ]
       }
+      saved_trips: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty_level: string | null
+          duration: string | null
+          id: string
+          itinerary: Json | null
+          journey: Json | null
+          location: string | null
+          map_center: Json | null
+          markers: Json | null
+          price_estimate: number | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          duration?: string | null
+          id?: string
+          itinerary?: Json | null
+          journey?: Json | null
+          location?: string | null
+          map_center?: Json | null
+          markers?: Json | null
+          price_estimate?: number | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          duration?: string | null
+          id?: string
+          itinerary?: Json | null
+          journey?: Json | null
+          location?: string | null
+          map_center?: Json | null
+          markers?: Json | null
+          price_estimate?: number | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trip_preferences: {
         Row: {
           created_at: string

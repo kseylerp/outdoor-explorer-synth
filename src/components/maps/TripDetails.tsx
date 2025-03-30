@@ -10,13 +10,24 @@ interface TripDetailsProps {
 const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   if (!trip) return null;
   
+  const renderMissingOrValue = (value: string | undefined | null, label: string) => {
+    if (!value) {
+      return (
+        <p>
+          <strong>{label}:</strong> <span className="text-red-500">Missing</span>
+        </p>
+      );
+    }
+    return <p><strong>{label}:</strong> {value}</p>;
+  };
+  
   return (
     <Card className="p-4">
       <h3 className="font-medium mb-2">Trip Details</h3>
       <div className="space-y-2 text-sm">
-        {trip.location && <p><strong>Location:</strong> {trip.location}</p>}
-        {trip.duration && <p><strong>Duration:</strong> {trip.duration}</p>}
-        {trip.difficultyLevel && <p><strong>Difficulty:</strong> {trip.difficultyLevel}</p>}
+        {renderMissingOrValue(trip.location, 'Location')}
+        {renderMissingOrValue(trip.duration, 'Duration')}
+        {renderMissingOrValue(trip.difficultyLevel, 'Difficulty')}
       </div>
     </Card>
   );

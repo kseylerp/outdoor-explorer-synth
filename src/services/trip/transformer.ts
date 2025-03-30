@@ -6,14 +6,20 @@ import {
   validateJourneySegments 
 } from './validation';
 
-// Function to validate and transform trip data without adding default values
+// Function to validate and transform trip data while preserving structure for missing data
 export const validateAndTransformTrip = (trip: any): Trip => {
-  // Only generate ID if not present
+  if (!trip) {
+    console.error('Trip data is null or undefined');
+    throw new Error('Trip data is missing');
+  }
+  
+  // Only generate ID if not present - Trip ID is always required
   if (!trip.id) {
+    console.warn('Trip is missing ID, generating a new one');
     trip.id = generateUniqueId();
   }
   
-  // Check for required fields
+  // Check for required fields and log detailed warnings
   const requiredFields = [
     'title', 'description', 'whyWeChoseThis', 'difficultyLevel',
     'priceEstimate', 'duration', 'location', 'mapCenter'
@@ -22,7 +28,7 @@ export const validateAndTransformTrip = (trip: any): Trip => {
   // Log missing fields but don't throw
   const missingFields = requiredFields.filter(field => !trip[field]);
   if (missingFields.length > 0) {
-    console.warn(`Trip is missing required fields: ${missingFields.join(', ')}`);
+    console.warn(`Trip (ID: ${trip.id}) is missing required fields: ${missingFields.join(', ')}`);
   }
   
   // Convert priceEstimate to number if it's a string
@@ -40,7 +46,7 @@ export const validateAndTransformTrip = (trip: any): Trip => {
     }
   }
   
-  // Create validated trip object with minimal default values
+  // Create validated trip object preserving structure for missing data
   const validatedTrip: Trip = {
     id: trip.id,
     title: trip.title || 'Unknown Trip',
@@ -70,6 +76,15 @@ export const validateAndTransformTrip = (trip: any): Trip => {
   }
   
   if (trip.journey) {
+    // Log validation warnings for journey data
+    if (!trip.journey.segments) {
+      console.warn(`Trip (ID: ${trip.id}) has journey but missing journey.segments`);
+    }
+    
+    if (!trip.journey.bounds) {
+      console.warn(`Trip (ID: ${trip.id}) has journey but missing journey.bounds`);
+    }
+    
     validatedTrip.journey = {
       segments: trip.journey.segments ? validateJourneySegments(trip.journey.segments) : [],
       totalDistance: trip.journey.totalDistance || 0,

@@ -20,15 +20,22 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) =
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Check if journey exists and has required properties
+  // Check if journey exists and has minimal required properties
   const hasValidJourney = journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
-    journey.segments.length > 0 &&
-    journey.bounds && 
-    Array.isArray(journey.bounds) && 
-    journey.bounds.length === 2;
+    journey.segments.length > 0;
     
+  // Log warning if journey is missing required properties
+  if (journey && (!journey.segments || !Array.isArray(journey.segments))) {
+    console.warn("Journey is missing required 'segments' array or it's not properly formatted", journey);
+  }
+  
+  // Log warning if journey is missing bounds
+  if (journey && (!journey.bounds || !Array.isArray(journey.bounds))) {
+    console.warn("Journey is missing required 'bounds' property or it's not properly formatted", journey);
+  }
+  
   return (
     <>
       {validMarkers.length > 0 && (
