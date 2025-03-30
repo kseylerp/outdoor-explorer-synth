@@ -553,11 +553,16 @@ async function callClaudeApi(prompt: string) {
 function generateFallbackTrips(prompt: string) {
   console.log("Generating fallback trips for prompt:", prompt);
   
-  // Extract location from prompt if possible
+  // Extract location from prompt with improved parsing
   let location = "Grand Canyon";
   const locationMatch = prompt.match(/(?:to|in|at|visit|explore)\s+(?:the\s+)?([A-Za-z\s]+)/i);
   if (locationMatch && locationMatch[1]) {
-    location = locationMatch[1].trim();
+    // Clean up the extracted location
+    location = locationMatch[1].trim().replace(/^(the|go to the)\s+/i, '');
+    // Capitalize first letter of each word
+    location = location.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   }
   
   // Extract duration if possible
@@ -565,19 +570,25 @@ function generateFallbackTrips(prompt: string) {
   const durationMatch = prompt.match(/(\d+)\s+(?:day|days|week|weeks)/i);
   if (durationMatch && durationMatch[1]) {
     const days = parseInt(durationMatch[1]);
-    duration = `${days} days`;
+    duration = `${days} day${days > 1 ? 's' : ''}`;
   }
   
-  // Generate random coordinates near the presumed location
+  // Generate coordinates based on location
   // Default to Grand Canyon coordinates
-  const baseLng = -112.1122;
-  const baseLat = 36.0544;
+  let baseLng = -112.1122;
+  let baseLat = 36.0544;
+  
+  // Use Taiwan coordinates if that's the location
+  if (location.toLowerCase().includes('taiwan')) {
+    baseLng = 121.5654;
+    baseLat = 25.0330;
+  }
   
   const randomCoord = (base: number, range: number) => {
     return base + (Math.random() * range * 2 - range);
   };
   
-  // Create fallback trips
+  // Create fallback trips with better formatting
   return {
     trips: [
       {
@@ -653,7 +664,7 @@ function generateFallbackTrips(prompt: string) {
           {
             day: 1,
             title: "Arrival Day",
-            description: "Arrive and get settled in your accommodation",
+            description: `Arrive in ${location} and get settled in your accommodation`,
             activities: [
               {
                 name: "Check-in",
@@ -666,7 +677,7 @@ function generateFallbackTrips(prompt: string) {
                 name: "Welcome Dinner",
                 type: "Dining",
                 duration: "2 hours",
-                description: "Enjoy a delicious welcome dinner",
+                description: `Enjoy a delicious welcome dinner with local ${location} cuisine`,
                 permitRequired: false
               }
             ]
@@ -674,13 +685,13 @@ function generateFallbackTrips(prompt: string) {
           {
             day: 2,
             title: "Exploration Day",
-            description: "Explore the main attractions",
+            description: `Explore the main attractions of ${location}`,
             activities: [
               {
                 name: "Guided Tour",
                 type: "Sightseeing",
                 duration: "4 hours",
-                description: "Guided tour of the main attractions",
+                description: `Guided tour of the main attractions in ${location}`,
                 permitRequired: false
               },
               {
