@@ -10,6 +10,8 @@ const corsHeaders = {
 
 // Get the API key from environment variables
 const claudeApiKey = Deno.env.get('my_api_key');
+console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
+
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
 const claudeModel = "claude-3-7-sonnet-20250219";
 
@@ -442,20 +444,20 @@ async function callClaudeApi(prompt: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": claudeApiKey,
-        "anthropic-version": "2023-06-01"
+        "anthropic-version": "2023-06-01",
+        "x-api-key": claudeApiKey
       },
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Claude API error:", errorText);
+      console.error(`Claude API error: ${response.status}`, errorText);
       throw new Error(`Claude API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("Claude API response received");
+    console.log("Claude API response received:", JSON.stringify(data).substring(0, 200) + "...");
     
     // Check if there's a tool response
     if (data.content && Array.isArray(data.content)) {
@@ -466,7 +468,22 @@ async function callClaudeApi(prompt: string) {
       
       if (toolBlock && toolBlock.input) {
         console.log("Successfully parsed Claude tool response");
-        return JSON.parse(toolBlock.input);
+        const parsedData = JSON.parse(toolBlock.input);
+        
+        // Validate the response format
+        if (!parsedData.trips || !Array.isArray(parsedData.trips)) {
+          console.error("Invalid response format: missing trips array");
+          throw new Error("Invalid response format: missing trips array");
+        }
+        
+        // Validate each trip has required fields
+        parsedData.trips.forEach((trip: any, index: number) => {
+          if (!trip.id || !trip.title || !trip.description || !trip.mapCenter) {
+            console.error(`Trip at index ${index} is missing required fields`);
+          }
+        });
+        
+        return parsedData;
       } else {
         // If there's no tool response, try to find a text block with JSON
         const textBlock = data.content.find(
@@ -474,15 +491,37 @@ async function callClaudeApi(prompt: string) {
         );
         
         if (textBlock) {
-          // Try to extract JSON from the text
           try {
+            // Try to extract JSON from the text
             const jsonMatch = textBlock.text.match(/```json\s*([\s\S]*?)\s*```/);
             if (jsonMatch && jsonMatch[1]) {
               console.log("Extracted JSON from code block in text response");
-              return JSON.parse(jsonMatch[1]);
+              const parsedData = JSON.parse(jsonMatch[1]);
+              
+              // Transform into expected format if necessary
+              if (!parsedData.trips && Array.isArray(parsedData)) {
+                console.log("Transforming array response to trips object");
+                return { trips: parsedData };
+              }
+              
+              return parsedData;
             } else {
-              console.log("No JSON code block found, attempting to parse entire text as JSON");
-              return JSON.parse(textBlock.text);
+              try {
+                // Attempt to parse the entire text as JSON
+                console.log("Attempting to parse entire text as JSON");
+                const parsedData = JSON.parse(textBlock.text);
+                
+                // Transform into expected format if necessary
+                if (!parsedData.trips && Array.isArray(parsedData)) {
+                  console.log("Transforming array response to trips object");
+                  return { trips: parsedData };
+                }
+                
+                return parsedData;
+              } catch (e) {
+                console.error("Failed to parse text as JSON:", e);
+                throw new Error("Failed to extract valid JSON from Claude response");
+              }
             }
           } catch (e) {
             console.error("Failed to extract JSON from text:", e);
@@ -492,7 +531,7 @@ async function callClaudeApi(prompt: string) {
       }
     }
     
-    console.error("Unexpected Claude API response format:", data);
+    console.error("Unexpected Claude API response format:", JSON.stringify(data).substring(0, 200) + "...");
     throw new Error("Unexpected Claude API response format");
   } catch (error) {
     console.error("Error calling Claude API:", error);
@@ -529,6 +568,8 @@ serve(async (req) => {
 
     // Call Claude API
     const claudeResponse = await callClaudeApi(prompt);
+    
+    console.log("Returning response to client");
     
     // Return the response
     return new Response(JSON.stringify(claudeResponse), {

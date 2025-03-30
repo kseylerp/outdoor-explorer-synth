@@ -12,6 +12,7 @@ const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [savedTripIds, setSavedTripIds] = useState<string[]>([]);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Load saved trip IDs from localStorage
@@ -29,6 +30,7 @@ const Index: React.FC = () => {
 
   const handleSubmitPrompt = async (prompt: string) => {
     setIsProcessing(true);
+    setErrorDetails(null);
     
     try {
       console.log('Submitting prompt to generate trips:', prompt);
@@ -49,6 +51,14 @@ const Index: React.FC = () => {
       });
     } catch (error) {
       console.error('Error processing prompt:', error);
+      
+      // Detailed error for debugging
+      if (error instanceof Error) {
+        setErrorDetails(error.message);
+      } else {
+        setErrorDetails('Unknown error occurred');
+      }
+      
       toast({
         title: "Error",
         description: "Could not process your request. Please try again.",
@@ -114,6 +124,13 @@ const Index: React.FC = () => {
       
       <Card className="p-6 shadow-md">
         <PromptInput onSubmit={handleSubmitPrompt} isProcessing={isProcessing} />
+        
+        {errorDetails && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
+            <p className="font-semibold">Error details (for debugging):</p>
+            <p className="font-mono text-xs mt-1">{errorDetails}</p>
+          </div>
+        )}
       </Card>
       
       {trips.length > 0 && (
