@@ -127,7 +127,7 @@ export const loadTripFromSupabase = async (id: string): Promise<Trip | null> => 
       id: data.trip_id,
       title: data.title,
       description: data.description || '',
-      whyWeChoseThis: data.why_we_chose_this || '',
+      whyWeChoseThis: '', // This field doesn't exist in the database, so we set a default empty string
       difficultyLevel: data.difficulty_level || '',
       priceEstimate: data.price_estimate || 0,
       duration: data.duration || '',
