@@ -15,7 +15,7 @@ interface MapContentProps {
 const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) => {
   return (
     <>
-      {markers.length > 0 && (
+      {markers && markers.length > 0 && (
         <MarkerLayer map={map} markers={markers} />
       )}
       
