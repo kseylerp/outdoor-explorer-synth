@@ -6,7 +6,9 @@ import TripCard from '@/components/TripCard';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { fetchTripRecommendations } from '@/services/claudeService';
+
+// Import the mockTrips from tripService
+import { mockTrips } from '@/services/tripService';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,29 +33,21 @@ const Index: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Call the Claude API via our Supabase Edge Function
-      const recommendedTrips = await fetchTripRecommendations(prompt);
+      // In a real app, this would call an API to process the prompt
+      // For demo purposes, we'll just simulate a delay and return mock data
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      if (recommendedTrips && recommendedTrips.length > 0) {
-        setTrips(recommendedTrips);
-        
-        toast({
-          title: "Adventures Found!",
-          description: "We've found some perfect adventures for you.",
-        });
-      } else {
-        toast({
-          title: "No Adventures Found",
-          description: "We couldn't find any suitable adventures. Please try a different prompt.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error processing prompt:', error);
+      setTrips(mockTrips.slice(0, 2));
       
       toast({
+        title: "Adventures Found!",
+        description: "We've found some perfect adventures for you.",
+      });
+    } catch (error) {
+      console.error('Error processing prompt:', error);
+      toast({
         title: "Error",
-        description: "We couldn't connect to our AI service. Please try again later.",
+        description: "Could not process your request. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -107,7 +101,7 @@ const Index: React.FC = () => {
       <div className="text-center space-y-2 mb-10">
         <h1 className="font-poppins">
           <span className="text-[#303030] text-[40px] font-normal tracking-[-1.5px] leading-[60px]">How can </span>
-          <span className="bg-gradient-to-r from-[#9870FF] via-[#98BBF7] to-[#9870FF] bg-clip-text text-transparent text-[40px] font-normal tracking-[-1.5px] leading-[60px]">offbeat</span>
+          <span className="bg-gradient-to-r from-[#9870FF] via-[#98BBF7] to-[#9870FF] bg-clip-text text-transparent text-[40px] font-normal tracking-[-1.5px] leading-[60px]">Yugen</span>
           <span className="text-[#353535] text-[40px] font-normal tracking-[-1.5px] leading-[60px]"> help you</span>
           <br />
           <span className="text-black text-[24px] font-light tracking-[-1px] leading-[30px]">discover, plan, and share your next adventure?</span>
