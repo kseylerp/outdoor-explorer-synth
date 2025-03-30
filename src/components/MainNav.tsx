@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const MainNav: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
+  const isMobile = useIsMobile();
+  
+  // Default to collapsed menu on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setExpanded(false);
+    }
+  }, [isMobile]);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -25,7 +35,7 @@ const MainNav: React.FC = () => {
               <img 
                 src="/lovable-uploads/03e672eb-9596-4f64-9f3d-6e9695d6b26a.png" 
                 alt="Full Logo Offbeat" 
-                className="h-10" 
+                className="h-13" /* Increased by 30% from h-10 */
               />
             </Link>
           ) : (
@@ -33,7 +43,7 @@ const MainNav: React.FC = () => {
               <img 
                 src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
                 alt="Truncated Logo" 
-                className="h-10 w-10 object-contain" 
+                className="h-13 w-13 object-contain" /* Increased by 30% from h-10 w-10 */
               />
             </Link>
           )}
@@ -48,8 +58,8 @@ const MainNav: React.FC = () => {
           </Button>
         </div>
         
-        {/* Main menu */}
-        <div className="flex-1 overflow-y-auto py-4">
+        {/* Main menu - hidden on mobile when collapsed */}
+        <div className={`flex-1 overflow-y-auto py-4 ${isMobile && !expanded ? 'hidden' : ''}`}>
           <nav className="space-y-1 px-2">
             <MenuItem 
               to="/" 
@@ -116,7 +126,7 @@ const MainNav: React.FC = () => {
           </nav>
         </div>
         
-        {/* Expand button when collapsed */}
+        {/* Mobile toggle button - only shown on mobile */}
         {!expanded && (
           <Button 
             variant="ghost" 
