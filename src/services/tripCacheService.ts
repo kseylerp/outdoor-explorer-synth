@@ -54,9 +54,11 @@ const prepareTripForStorage = (trip: Trip) => {
     location: trip.location,
     duration: trip.duration,
     difficulty_level: trip.difficultyLevel,
-    price_estimate: typeof trip.priceEstimate === 'string' 
-      ? parseFloat(trip.priceEstimate.toString()) 
-      : trip.priceEstimate,
+    price_estimate: typeof trip.priceEstimate === 'number' 
+      ? trip.priceEstimate 
+      : typeof trip.priceEstimate === 'string' && !isNaN(parseFloat(trip.priceEstimate)) 
+        ? parseFloat(trip.priceEstimate)
+        : 0,
     map_center: trip.mapCenter as unknown as Json,
     markers: trip.markers as unknown as Json,
     journey: trip.journey as unknown as Json,
@@ -89,7 +91,7 @@ const saveTripToSupabase = async (trip: Trip): Promise<void> => {
       // Insert new trip
       await supabase
         .from('saved_trips')
-        .insert(tripData);
+        .insert([tripData]);
     }
     
     console.log(`Trip ${trip.id} saved to Supabase successfully`);
@@ -125,7 +127,7 @@ export const loadTripFromSupabase = async (id: string): Promise<Trip | null> => 
       id: data.trip_id,
       title: data.title,
       description: data.description || '',
-      whyWeChoseThis: '', // Fill in if available
+      whyWeChoseThis: data.why_we_chose_this || '',
       difficultyLevel: data.difficulty_level || '',
       priceEstimate: data.price_estimate || 0,
       duration: data.duration || '',
