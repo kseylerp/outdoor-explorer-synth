@@ -1,170 +1,113 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { 
+  Compass, 
+  Map, 
+  Globe, 
+  BookMarked,
+  Menu, 
+  X,
+  Info
+} from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const MainNav: React.FC = () => {
-  const [expanded, setExpanded] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+  const isMobile = useIsMobile();
 
-  const toggle = () => {
-    setExpanded(!expanded);
-  };
+  // Automatically close nav when route changes on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  }, [location.pathname, isMobile]);
+
+  // Default to closed on mobile when component mounts
+  useEffect(() => {
+    setIsOpen(!isMobile);
+  }, [isMobile]);
+
+  const toggleNav = () => setIsOpen(!isOpen);
+
+  const NavItems = [
+    { name: 'Explore', icon: <Compass className="h-5 w-5" />, path: '/explore' },
+    { name: 'Saved Trips', icon: <BookMarked className="h-5 w-5" />, path: '/saved-trips' },
+    { name: 'Destinations', icon: <Globe className="h-5 w-5" />, path: '/destinations' },
+    { name: 'Maps', icon: <Map className="h-5 w-5" />, path: '/maps' },
+    { name: 'About', icon: <Info className="h-5 w-5" />, path: '/about' },
+  ];
+
+  // When closed on mobile, just show a narrow strip with the toggle button
+  if (isMobile && !isOpen) {
+    return (
+      <div className="fixed left-0 top-0 bottom-0 z-50 w-12 bg-white shadow-md flex flex-col items-center pt-4">
+        <Button 
+          onClick={toggleNav} 
+          variant="ghost" 
+          size="icon" 
+          className="mb-6"
+        >
+          <Menu className="h-6 w-6" />
+          <span className="sr-only">Open Menu</span>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className={`border-r border-gray-200 h-screen bg-sidebar transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
-      <div className="h-full flex flex-col">
-        {/* Header with logo and toggle button */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          {expanded ? (
-            <Link to="/" className="flex items-center">
-              <img 
-                src="/lovable-uploads/7045bb8c-4773-4ed2-86c3-8c19f95714f3.png" 
-                alt="Full Logo Yugen" 
-                className="h-10" 
-              />
-            </Link>
-          ) : (
-            <Link to="/" className="mx-auto">
-              <img 
-                src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
-                alt="Truncated Logo" 
-                className="h-10 w-10 object-contain" 
-              />
-            </Link>
-          )}
+    <div className={`fixed left-0 top-0 bottom-0 z-50 bg-white shadow-md transition-all duration-300 ${isMobile ? 'w-64' : 'w-64'}`}>
+      <div className="flex flex-col h-full p-4">
+        <div className="flex items-center justify-between mb-8">
+          <NavLink to="/" className="flex items-center" onClick={() => isMobile && setIsOpen(false)}>
+            <img 
+              src="/lovable-uploads/634c6424-71cf-4efb-ad76-3068d848e0a4.png" 
+              alt="Offbeat Logo" 
+              className="h-10"
+            />
+          </NavLink>
           
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`${expanded ? '' : 'hidden'}`} 
-            onClick={toggle}
-          >
-            <PanelLeft size={20} />
-          </Button>
+          {isMobile && (
+            <Button onClick={toggleNav} variant="ghost" size="icon">
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close Menu</span>
+            </Button>
+          )}
         </div>
         
-        {/* Main menu */}
-        <div className="flex-1 overflow-y-auto py-4">
-          <nav className="space-y-1 px-2">
-            <MenuItem 
-              to="/" 
-              icon={<Compass size={20} />} 
-              label="Explore" 
-              active={isActive('/') || isActive('/explore')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/saved-trips" 
-              icon={<BookmarkIcon size={20} />} 
-              label="Saved Trips" 
-              active={isActive('/saved-trips')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/maps" 
-              icon={<Map size={20} />} 
-              label="Maps" 
-              active={isActive('/maps')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/buddies" 
-              icon={<Users size={20} />} 
-              label="Buddies" 
-              active={isActive('/buddies')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/guides" 
-              icon={<ShieldQuestion size={20} />} 
-              label="Guides" 
-              active={isActive('/guides')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/about" 
-              icon={<Info size={20} />} 
-              label="About" 
-              active={isActive('/about')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-            
-            <MenuItem 
-              to="/settings" 
-              icon={<Settings size={20} />} 
-              label="Settings" 
-              active={isActive('/settings')} 
-              expanded={expanded} 
-              onClick={() => {}} 
-            />
-          </nav>
-        </div>
+        <nav className="flex-1">
+          <ul className="space-y-2">
+            {NavItems.map((item) => (
+              <li key={item.name}>
+                <NavLink 
+                  to={item.path}
+                  className={({ isActive }) => 
+                    `flex items-center px-4 py-3 rounded-md transition-colors ${
+                      isActive 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`
+                  }
+                >
+                  {item.icon}
+                  <span className="ml-3">{item.name}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
         
-        {/* Expand button when collapsed */}
-        {!expanded && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="absolute bottom-4 left-0 right-0 mx-auto" 
-            onClick={toggle}
-          >
-            <PanelLeft size={20} className="transform rotate-180" />
-          </Button>
-        )}
+        <div className="mt-auto pt-6 border-t border-gray-200">
+          <div className="px-4 py-2">
+            <h4 className="text-sm font-medium text-gray-400">
+              Version 1.0.0
+            </h4>
+          </div>
+        </div>
       </div>
     </div>
-  );
-};
-
-interface MenuItemProps {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  active: boolean;
-  expanded: boolean;
-  onClick: () => void;
-}
-
-const MenuItem: React.FC<MenuItemProps> = ({ 
-  to, 
-  icon, 
-  label, 
-  active, 
-  expanded, 
-  onClick 
-}) => {
-  return (
-    <Link
-      to={to}
-      className={`
-        flex items-center px-2 py-2 text-sm font-medium rounded-md
-        ${active 
-          ? 'bg-purple-100 text-purple-700' 
-          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-        }
-        ${expanded ? '' : 'justify-center'}
-      `}
-      onClick={onClick}
-    >
-      <div className="mr-3 flex-shrink-0">{icon}</div>
-      {expanded && <span>{label}</span>}
-    </Link>
   );
 };
 

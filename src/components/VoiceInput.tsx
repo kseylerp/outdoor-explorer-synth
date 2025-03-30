@@ -68,29 +68,14 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessing }) =
   const processAudio = async (audioBlob: Blob) => {
     try {
       // Simulate speech-to-text for now
-      // In a real implementation, you would send this to ElevenLabs or another service
-      
+      // In a real implementation, you would send this to a speech-to-text API
+
       // For demo, we'll just pretend we got a result after a short delay
       setTimeout(() => {
         const demoTranscript = "I want to plan a weekend hiking trip near Lake Tahoe with moderate difficulty trails and mountain views.";
         onTranscript(demoTranscript);
         setIsLoading(false);
       }, 2000);
-      
-      // Actual implementation would look something like:
-      /*
-      const formData = new FormData();
-      formData.append('audio', audioBlob);
-      
-      const response = await fetch('your-speech-to-text-endpoint', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const data = await response.json();
-      onTranscript(data.transcript);
-      setIsLoading(false);
-      */
     } catch (error) {
       console.error('Error processing audio:', error);
       toast({
