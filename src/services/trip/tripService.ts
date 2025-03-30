@@ -10,18 +10,24 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
     console.log("Calling trip-recommendations edge function with prompt:", prompt);
     
     // Call the Supabase Edge Function
-    const { data, error } = await supabase.functions.invoke('trip-recommendations', {
+    const { data, error, status } = await supabase.functions.invoke('trip-recommendations', {
       body: JSON.stringify({ prompt })
     });
     
     if (error) {
       console.error('Error calling trip-recommendations function:', error);
-      throw error;
+      throw new Error(`Edge Function Error: ${error.message}`);
     }
     
     if (!data) {
       console.error('Empty response from trip-recommendations');
       throw new Error('Empty response from API');
+    }
+    
+    // If the response contains an error message from the edge function
+    if (data.error) {
+      console.error('Error response from edge function:', data.error);
+      throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
     // If data is already in the expected format with a trips array
@@ -40,12 +46,6 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
       // Validate each trip has required fields
       const validatedTrips = data.map((trip: any) => validateAndTransformTrip(trip));
       return validatedTrips;
-    }
-    
-    // Handle error response from the edge function
-    if (data.error) {
-      console.error('Error response from edge function:', data.error);
-      throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
     console.error('Invalid response format from trip-recommendations:', data);

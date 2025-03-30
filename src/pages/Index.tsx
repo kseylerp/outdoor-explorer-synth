@@ -31,6 +31,7 @@ const Index: React.FC = () => {
   const handleSubmitPrompt = async (prompt: string) => {
     setIsProcessing(true);
     setErrorDetails(null);
+    setTrips([]); // Clear any previous trips
     
     try {
       console.log('Submitting prompt to generate trips:', prompt);
