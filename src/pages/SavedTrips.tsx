@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import TripCard from '@/components/TripCard';
+import TripCard from '@/components/trip-card';
 import { Trip } from '@/types/trips';
 import { toast } from '@/hooks/use-toast';
 
