@@ -30,16 +30,16 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
       throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
-    // If data is already in the expected format with a trips array
-    if (data.trips && Array.isArray(data.trips)) {
-      console.log('Received trip data in correct format:', data.trips.length, 'trips');
+    // If data is already in the expected format with a trip array
+    if (data.trip && Array.isArray(data.trip)) {
+      console.log('Received trip data in correct format:', data.trip.length, 'trips');
       
       // Validate each trip has required fields
-      const validatedTrips = data.trips.map((trip: any) => validateAndTransformTrip(trip));
+      const validatedTrips = data.trip.map((trip: any) => validateAndTransformTrip(trip));
       return validatedTrips;
     }
     
-    // If data is an array but not wrapped in a trips object
+    // If data is an array but not wrapped in a trip object
     if (Array.isArray(data)) {
       console.log('Received trip data as array, transforming to correct format');
       

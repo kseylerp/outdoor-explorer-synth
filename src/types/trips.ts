@@ -58,7 +58,7 @@ export interface Trip {
   description: string;
   whyWeChoseThis: string;
   difficultyLevel: string;
-  priceEstimate: string;
+  priceEstimate: number;
   duration: string;
   location: string;
   suggestedGuides?: string[];

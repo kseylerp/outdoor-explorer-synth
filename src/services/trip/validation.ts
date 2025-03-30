@@ -1,118 +1,133 @@
 
-import { Trip, ItineraryDay, Activity, Journey, Segment, Step } from '@/types/trips';
+import { ItineraryDay, Activity, Segment, Step } from '@/types/trips';
 
 // Helper to generate a unique ID
 export const generateUniqueId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
-// Helper to validate itinerary
+// Helper to validate itinerary without adding defaults
 export const validateItinerary = (itinerary: any[]): ItineraryDay[] => {
-  if (!itinerary || !Array.isArray(itinerary) || itinerary.length === 0) {
-    // Create default itinerary with one day
-    return [{
-      day: 1,
-      title: 'Adventure Day',
-      description: 'Enjoy your adventure',
-      activities: [{
-        name: 'Exploration',
-        type: 'Sightseeing',
-        duration: 'All day',
-        description: 'Explore the area',
-        permitRequired: false
-      }]
-    }];
+  if (!itinerary || !Array.isArray(itinerary)) {
+    console.warn('Itinerary is missing or not an array');
+    return [];
   }
   
-  return itinerary.map((day, index) => ({
-    day: day.day || index + 1,
-    title: day.title || `Day ${index + 1}`,
-    description: day.description || 'No description available',
-    activities: validateActivities(day.activities || [])
-  }));
+  return itinerary.map((day, index) => {
+    if (!day) {
+      console.warn(`Day ${index} in itinerary is undefined or null`);
+      return {
+        day: index + 1,
+        title: `Day ${index + 1}`,
+        description: 'No description available',
+        activities: []
+      };
+    }
+    
+    return {
+      day: day.day || index + 1,
+      title: day.title || `Day ${index + 1}`,
+      description: day.description || 'No description available',
+      activities: day.activities ? validateActivities(day.activities) : []
+    };
+  });
 };
 
-// Helper to validate activities
+// Helper to validate activities without adding defaults
 export const validateActivities = (activities: any[]): Activity[] => {
-  if (!activities || !Array.isArray(activities) || activities.length === 0) {
-    return [{
-      name: 'Exploration',
-      type: 'Sightseeing',
-      duration: 'All day',
-      description: 'Explore the area',
-      permitRequired: false
-    }];
+  if (!activities || !Array.isArray(activities)) {
+    return [];
   }
   
-  return activities.map(activity => ({
-    name: activity.name || 'Activity',
-    type: activity.type || 'Sightseeing',
-    duration: activity.duration || 'Varies',
-    description: activity.description || 'No description available',
-    permitRequired: activity.permitRequired || false,
-    permitDetails: activity.permitDetails,
-    outfitters: activity.outfitters
-  }));
+  return activities.map(activity => {
+    if (!activity) {
+      console.warn('An activity in the itinerary is undefined or null');
+      return {
+        name: 'Unknown activity',
+        type: 'Other',
+        duration: 'Unknown',
+        description: 'No description available',
+        permitRequired: false
+      };
+    }
+    
+    return {
+      name: activity.name || 'Unknown activity',
+      type: activity.type || 'Other',
+      duration: activity.duration || 'Unknown',
+      description: activity.description || 'No description available',
+      permitRequired: typeof activity.permitRequired === 'boolean' ? activity.permitRequired : false,
+      permitDetails: activity.permitDetails,
+      outfitters: activity.outfitters
+    };
+  });
 };
 
 // Helper to validate journey segments
 export const validateJourneySegments = (segments: any[]): Segment[] => {
-  if (!segments || !Array.isArray(segments) || segments.length === 0) {
-    return [{
-      mode: 'walking',
-      from: 'Starting Point',
-      to: 'Destination',
-      distance: 1000,
-      duration: 1200,
-      geometry: {
-        coordinates: [[-98.5795, 39.8283], [-98.5895, 39.8383]]
-      },
-      steps: [{
-        maneuver: {
-          instruction: 'Follow the path',
-          location: [-98.5795, 39.8283]
-        },
-        distance: 1000,
-        duration: 1200
-      }]
-    }];
+  if (!segments || !Array.isArray(segments)) {
+    return [];
   }
   
-  return segments.map(segment => ({
-    mode: segment.mode || 'walking',
-    from: segment.from || 'Starting Point',
-    to: segment.to || 'Destination',
-    distance: segment.distance || 0,
-    duration: segment.duration || 0,
-    geometry: {
-      coordinates: segment.geometry?.coordinates || [[-98.5795, 39.8283], [-98.5895, 39.8383]]
-    },
-    steps: validateSteps(segment.steps || []),
-    elevationGain: segment.elevationGain,
-    terrain: segment.terrain,
-    description: segment.description
-  }));
+  return segments.map(segment => {
+    if (!segment) {
+      console.warn('A segment in the journey is undefined or null');
+      return {
+        mode: 'unknown',
+        from: 'Unknown start',
+        to: 'Unknown destination',
+        distance: 0,
+        duration: 0,
+        geometry: {
+          coordinates: [[0, 0], [0, 0]]
+        },
+        steps: []
+      };
+    }
+    
+    return {
+      mode: segment.mode || 'unknown',
+      from: segment.from || 'Unknown start',
+      to: segment.to || 'Unknown destination',
+      distance: segment.distance || 0,
+      duration: segment.duration || 0,
+      geometry: {
+        coordinates: segment.geometry?.coordinates || [[0, 0], [0, 0]]
+      },
+      steps: segment.steps ? validateSteps(segment.steps) : [],
+      elevationGain: segment.elevationGain,
+      terrain: segment.terrain,
+      description: segment.description
+    };
+  });
 };
 
 // Helper to validate steps
 export const validateSteps = (steps: any[]): Step[] => {
-  if (!steps || !Array.isArray(steps) || steps.length === 0) {
-    return [{
-      maneuver: {
-        instruction: 'Follow the path',
-        location: [-98.5795, 39.8283]
-      },
-      distance: 1000,
-      duration: 1200
-    }];
+  if (!steps || !Array.isArray(steps)) {
+    return [];
   }
   
-  return steps.map(step => ({
-    maneuver: {
-      instruction: step.maneuver?.instruction || 'Continue',
-      location: step.maneuver?.location || [-98.5795, 39.8283]
-    },
-    distance: step.distance || 0,
-    duration: step.duration || 0
-  }));
+  return steps.map(step => {
+    if (!step) {
+      console.warn('A step in a journey segment is undefined or null');
+      return {
+        maneuver: {
+          instruction: 'No instruction available',
+          location: [0, 0]
+        },
+        distance: 0,
+        duration: 0
+      };
+    }
+    
+    return {
+      maneuver: {
+        instruction: step.maneuver?.instruction || 'No instruction available',
+        location: step.maneuver?.location || [0, 0]
+      },
+      distance: step.distance || 0,
+      duration: step.duration || 0
+    };
+  });
 };

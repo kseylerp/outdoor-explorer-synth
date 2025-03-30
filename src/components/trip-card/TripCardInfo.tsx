@@ -7,7 +7,7 @@ import TripIntensityBar from '@/components/TripIntensityBar';
 interface TripCardInfoProps {
   whyWeChoseThis: string;
   duration: string;
-  priceEstimate: string;
+  priceEstimate: number;
   location: string;
   difficultyLevel: string;
   suggestedGuides?: string[];
@@ -34,24 +34,30 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
     }
   };
 
+  // Format price as a string with dollar sign
+  const formatPrice = (price: number): string => {
+    if (price <= 0) return 'Price not available';
+    return `$${price.toLocaleString()}`;
+  };
+
   return (
     <div className="flex flex-col justify-between w-full sm:w-1/2">
       <div>
         <h3 className="font-semibold text-md mb-1">Why We Chose This:</h3>
-        <p className="text-sm text-gray-600 mb-4">{whyWeChoseThis}</p>
+        <p className="text-sm text-gray-600 mb-4">{whyWeChoseThis || 'No information available'}</p>
         
         <div className="flex flex-wrap gap-2 mb-4">
           <div className="flex items-center text-sm">
             <Clock className="h-4 w-4 mr-1 text-gray-500" />
-            {duration}
+            {duration || 'Duration not specified'}
           </div>
           <div className="flex items-center text-sm">
             <DollarSign className="h-4 w-4 mr-1 text-gray-500" />
-            {priceEstimate}
+            {formatPrice(priceEstimate)}
           </div>
           <div className="flex items-center text-sm">
             <MapPin className="h-4 w-4 mr-1 text-gray-500" />
-            {location}
+            {location || 'Location not specified'}
           </div>
         </div>
         

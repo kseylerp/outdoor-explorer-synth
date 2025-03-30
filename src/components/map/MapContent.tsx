@@ -13,13 +13,29 @@ interface MapContentProps {
 }
 
 const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey }) => {
+  // Validate markers are properly formed before rendering
+  const validMarkers = Array.isArray(markers) ? markers.filter(marker => 
+    marker && marker.coordinates && 
+    typeof marker.coordinates.lng === 'number' && 
+    typeof marker.coordinates.lat === 'number'
+  ) : [];
+  
+  // Validate journey is properly formed before rendering
+  const isValidJourney = journey && 
+    journey.segments && 
+    Array.isArray(journey.segments) && 
+    journey.segments.length > 0 &&
+    journey.bounds && 
+    Array.isArray(journey.bounds) && 
+    journey.bounds.length === 2;
+    
   return (
     <>
-      {markers && markers.length > 0 && (
-        <MarkerLayer map={map} markers={markers} />
+      {validMarkers.length > 0 && (
+        <MarkerLayer map={map} markers={validMarkers} />
       )}
       
-      {journey && (
+      {isValidJourney && (
         <RouteLayer map={map} journey={journey} />
       )}
     </>

@@ -37,7 +37,7 @@ async function callClaudeApi(prompt: string) {
       model: claudeModel,
       max_tokens: 8192,
       temperature: 0.8,
-      system: "You are an outdoor activity planning assistant. Provide detailed trip options in JSON format according to the given schema.\n\nYou MUST return a JSON object with a 'trips' array containing 2 trip options. Each trip must include id, title, description, location, mapCenter, journey with route segments, and daily itinerary with activities. For coordinates, use [longitude, latitude] format in journey.segments.geometry.coordinates and journey.segments.steps.maneuver.location. Use realistic coordinates for all locations.\n\nMake sure that all required properties exist and are properly formatted.",
+      system: "You are an outdoor activity planning assistant. Provide detailed trip options in JSON format according to the given schema.\n\nYou MUST return a JSON object with a 'trip' array containing 2 trip options. Each trip must include id, title, description, location, mapCenter, journey with route segments, and daily itinerary with activities. For coordinates, use [longitude, latitude] format in journey.segments.geometry.coordinates and journey.segments.steps.maneuver.location. Use realistic coordinates for all locations.\n\nMake sure that all required properties exist and are properly formatted.",
       messages: [
         {
           role: "user",
@@ -57,7 +57,7 @@ async function callClaudeApi(prompt: string) {
           input_schema: {
             type: "object",
             properties: {
-              trips: {
+              trip: {
                 type: "array",
                 description: "List of trip recommendations",
                 items: {
@@ -106,8 +106,8 @@ async function callClaudeApi(prompt: string) {
                       description: "Difficulty level of the trip"
                     },
                     priceEstimate: {
-                      type: "string",
-                      description: "Estimated price of the trip"
+                      type: "number",
+                      description: "Estimated price of the trip in dollars"
                     },
                     duration: {
                       type: "string",
@@ -431,7 +431,7 @@ async function callClaudeApi(prompt: string) {
               }
             },
             required: [
-              "trips"
+              "trip"
             ]
           }
         }
@@ -477,11 +477,11 @@ async function callClaudeApi(prompt: string) {
               : toolUseBlock.input;
             
             // Validate and return the trips data
-            if (tripData.trips && Array.isArray(tripData.trips)) {
+            if (tripData.trip && Array.isArray(tripData.trip)) {
               return tripData;
             } else {
-              console.error("Invalid response format in tool_use: missing trips array");
-              throw new Error("Invalid response format: missing trips array");
+              console.error("Invalid response format in tool_use: missing trip array");
+              throw new Error("Invalid response format: missing trip array");
             }
           } catch (e) {
             console.error("Failed to parse JSON from tool_use:", e);
@@ -502,15 +502,15 @@ async function callClaudeApi(prompt: string) {
               try {
                 const parsedJson = JSON.parse(jsonMatch[1]);
                 
-                // Check if the parsed JSON has a trips array or is an array itself
-                if (parsedJson.trips && Array.isArray(parsedJson.trips)) {
+                // Check if the parsed JSON has a trip array or is an array itself
+                if (parsedJson.trip && Array.isArray(parsedJson.trip)) {
                   return parsedJson;
                 } else if (Array.isArray(parsedJson)) {
-                  // If it's just an array, wrap it in a trips object
-                  return { trips: parsedJson };
+                  // If it's just an array, wrap it in a trip object
+                  return { trip: parsedJson };
                 } else if (typeof parsedJson === 'object') {
-                  // If it's a single trip object, wrap it in a trips array
-                  return { trips: [parsedJson] };
+                  // If it's a single trip object, wrap it in a trip array
+                  return { trip: [parsedJson] };
                 }
               } catch (e) {
                 console.error("Failed to parse JSON from code block:", e);

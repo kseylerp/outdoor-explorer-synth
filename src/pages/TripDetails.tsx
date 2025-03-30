@@ -21,7 +21,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
           description: "Experience the breathtaking beauty of Lake Tahoe's lesser-known trails on this 3-day adventure through alpine meadows and pristine forests.",
           whyWeChoseThis: "This trip offers the perfect balance of accessibility and seclusion, with stunning views and moderate trails suitable for most hikers seeking a genuine wilderness experience without extreme difficulty.",
           difficultyLevel: 'Moderate',
-          priceEstimate: '$350-450 per person',
+          priceEstimate: 450, // Changed from string to number
           duration: '3 days',
           location: 'Lake Tahoe, California',
           suggestedGuides: ['Sierra Mountain Guides', 'Tahoe Adventure Company'],
@@ -232,7 +232,7 @@ const fetchTripById = (id: string): Promise<Trip | null> => {
           description: 'Discover the diverse landscapes of the Tahoe region through an exciting combination of mountain hiking and water activities.',
           whyWeChoseThis: 'This trip is designed for those who want variety in their outdoor adventures, combining invigorating hiking with refreshing water activities for a complete Tahoe experience.',
           difficultyLevel: 'Easy-Moderate',
-          priceEstimate: '$400-500 per person',
+          priceEstimate: 500, // Changed from string to number
           duration: '3 days',
           location: 'North Lake Tahoe, California',
           suggestedGuides: ['Tahoe Trips & Trails', "Tahoe Jack's Adventure Authority"],
@@ -450,17 +450,14 @@ const TripDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadTrip = async () => {
       try {
         if (!id) {
-          toast({
-            title: "Error",
-            description: "Trip ID is missing",
-            variant: "destructive"
-          });
-          navigate('/');
+          setError("Trip ID is missing");
+          setLoading(false);
           return;
         }
 
@@ -468,23 +465,16 @@ const TripDetailsPage: React.FC = () => {
         const tripData = await fetchTripById(id);
         
         if (!tripData) {
-          toast({
-            title: "Trip Not Found",
-            description: "We couldn't find the trip you're looking for",
-            variant: "destructive"
-          });
-          navigate('/');
+          setError("Trip not found");
+          setLoading(false);
           return;
         }
 
         setTrip(tripData);
+        setError(null);
       } catch (error) {
         console.error("Error loading trip:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load trip details",
-          variant: "destructive"
-        });
+        setError("Failed to load trip details");
       } finally {
         setLoading(false);
       }
@@ -508,6 +498,14 @@ const TripDetailsPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center min-h-[50vh]">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-4 text-lg">Loading trip details...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Trip</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Button onClick={() => navigate('/')}>
+            Return to Adventures
+          </Button>
         </div>
       ) : trip ? (
         <TripDetailsComponent trip={trip} />
