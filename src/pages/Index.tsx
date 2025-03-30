@@ -118,6 +118,15 @@ const Index: React.FC = () => {
           How can <span className="offbeat-gradient">offbeat</span> help you
         </h1>
         <p className="text-sm font-light">discover, plan, and share your next adventure?</p>
+        
+        {/* Hero image */}
+        <div className="mt-4 rounded-lg overflow-hidden shadow-lg">
+          <img 
+            src="/lovable-uploads/0ba65455-e8cd-43cb-a3c6-29ac8385a920.png" 
+            alt="Mountain landscape with glacier and forest" 
+            className="w-full h-auto object-cover"
+          />
+        </div>
       </div>
       
       <Card className="p-6 shadow-md">
