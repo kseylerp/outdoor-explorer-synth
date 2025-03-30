@@ -42,6 +42,12 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
       return validatedTrips;
     }
     
+    // Handle error response from the edge function
+    if (data.error) {
+      console.error('Error response from edge function:', data.error);
+      throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
+    }
+    
     console.error('Invalid response format from trip-recommendations:', data);
     throw new Error('Invalid response format from API');
   } catch (error) {

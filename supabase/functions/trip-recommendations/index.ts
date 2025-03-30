@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -549,166 +548,6 @@ async function callClaudeApi(prompt: string) {
   }
 }
 
-// Fallback trip generator for when the API fails
-function generateFallbackTrips(prompt: string) {
-  console.log("Generating fallback trips for prompt:", prompt);
-  
-  // Extract location from prompt with improved parsing
-  let location = "Grand Canyon";
-  const locationMatch = prompt.match(/(?:to|in|at|visit|explore)\s+(?:the\s+)?([A-Za-z\s]+)/i);
-  if (locationMatch && locationMatch[1]) {
-    // Clean up the extracted location
-    location = locationMatch[1].trim().replace(/^(the|go to the)\s+/i, '');
-    // Capitalize first letter of each word
-    location = location.split(' ').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
-  }
-  
-  // Extract duration if possible
-  let duration = "7 days";
-  const durationMatch = prompt.match(/(\d+)\s+(?:day|days|week|weeks)/i);
-  if (durationMatch && durationMatch[1]) {
-    const days = parseInt(durationMatch[1]);
-    duration = `${days} day${days > 1 ? 's' : ''}`;
-  }
-  
-  // Generate coordinates based on location
-  // Default to Grand Canyon coordinates
-  let baseLng = -112.1122;
-  let baseLat = 36.0544;
-  
-  // Use Taiwan coordinates if that's the location
-  if (location.toLowerCase().includes('taiwan')) {
-    baseLng = 121.5654;
-    baseLat = 25.0330;
-  }
-  
-  const randomCoord = (base: number, range: number) => {
-    return base + (Math.random() * range * 2 - range);
-  };
-  
-  // Create fallback trips with better formatting
-  return {
-    trips: [
-      {
-        id: "fallback-" + Date.now().toString(36),
-        title: `${location} Adventure`,
-        description: `Explore the natural beauty of ${location} with this custom adventure package.`,
-        whyWeChoseThis: "This adventure matches your request for an outdoor experience in this location.",
-        difficultyLevel: "Moderate",
-        priceEstimate: "$1,500 - $2,500",
-        duration: duration,
-        location: location,
-        mapCenter: { lng: baseLng, lat: baseLat },
-        markers: [
-          {
-            name: "Starting Point",
-            coordinates: { lng: randomCoord(baseLng, 0.05), lat: randomCoord(baseLat, 0.05) },
-            description: "Your journey begins here"
-          },
-          {
-            name: "Scenic Viewpoint",
-            coordinates: { lng: randomCoord(baseLng, 0.05), lat: randomCoord(baseLat, 0.05) },
-            description: "Amazing views of the surrounding landscape"
-          },
-          {
-            name: "Rest Area",
-            coordinates: { lng: randomCoord(baseLng, 0.05), lat: randomCoord(baseLat, 0.05) },
-            description: "A good place to rest and recharge"
-          }
-        ],
-        journey: {
-          segments: [
-            {
-              mode: "walking",
-              from: "Starting Point",
-              to: "Scenic Viewpoint",
-              distance: 2500,
-              duration: 1800,
-              geometry: {
-                coordinates: [
-                  [randomCoord(baseLng, 0.05), randomCoord(baseLat, 0.05)],
-                  [randomCoord(baseLng, 0.05), randomCoord(baseLat, 0.05)],
-                  [randomCoord(baseLng, 0.05), randomCoord(baseLat, 0.05)]
-                ]
-              },
-              steps: [
-                {
-                  maneuver: {
-                    instruction: "Start your journey here",
-                    location: [randomCoord(baseLng, 0.05), randomCoord(baseLat, 0.05)]
-                  },
-                  distance: 800,
-                  duration: 600
-                },
-                {
-                  maneuver: {
-                    instruction: "Continue along the trail",
-                    location: [randomCoord(baseLng, 0.05), randomCoord(baseLat, 0.05)]
-                  },
-                  distance: 1700,
-                  duration: 1200
-                }
-              ]
-            }
-          ],
-          totalDistance: 2500,
-          totalDuration: 1800,
-          bounds: [
-            [baseLng - 0.1, baseLat - 0.1],
-            [baseLng + 0.1, baseLat + 0.1]
-          ]
-        },
-        itinerary: [
-          {
-            day: 1,
-            title: "Arrival Day",
-            description: `Arrive in ${location} and get settled in your accommodation`,
-            activities: [
-              {
-                name: "Check-in",
-                type: "Logistics",
-                duration: "1 hour",
-                description: "Check in to your accommodation",
-                permitRequired: false
-              },
-              {
-                name: "Welcome Dinner",
-                type: "Dining",
-                duration: "2 hours",
-                description: `Enjoy a delicious welcome dinner with local ${location} cuisine`,
-                permitRequired: false
-              }
-            ]
-          },
-          {
-            day: 2,
-            title: "Exploration Day",
-            description: `Explore the main attractions of ${location}`,
-            activities: [
-              {
-                name: "Guided Tour",
-                type: "Sightseeing",
-                duration: "4 hours",
-                description: `Guided tour of the main attractions in ${location}`,
-                permitRequired: false
-              },
-              {
-                name: "Hiking",
-                type: "Outdoor Activity",
-                duration: "3 hours",
-                description: "Hike along scenic trails",
-                permitRequired: false
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-}
-
 // Main request handler
 serve(async (req) => {
   // Handle CORS
@@ -735,52 +574,43 @@ serve(async (req) => {
     }
 
     console.log("Processing prompt:", prompt);
-
-    // Set a timeout for the Claude API call to prevent long-running functions
-    const TIMEOUT_MS = 20000; // 20 seconds - reduced from 50s to ensure function completes faster
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Claude API call timed out")), TIMEOUT_MS)
-    );
     
-    // Call Claude API with timeout
-    let claudeResponse;
+    // Call Claude API without a timeout
     try {
-      claudeResponse = await Promise.race([
-        callClaudeApi(prompt),
-        timeoutPromise
-      ]);
+      const claudeResponse = await callClaudeApi(prompt);
+      
+      console.log("Returning response to client");
+      
+      // Return the response
+      return new Response(JSON.stringify(claudeResponse), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     } catch (error) {
-      console.error("Error or timeout calling Claude API:", error);
+      console.error("Error calling Claude API:", error);
       
-      // Generate fallback content instead of failing completely
-      console.log("Generating fallback response");
-      claudeResponse = generateFallbackTrips(prompt);
-      
+      // Return an error response instead of fallback data
       return new Response(
-        JSON.stringify(claudeResponse),
+        JSON.stringify({ 
+          error: "Failed to generate trip recommendations", 
+          details: error.message
+        }),
         {
-          status: 200, // Return 200 with fallback data instead of 500
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         }
       );
     }
-    
-    console.log("Returning response to client");
-    
-    // Return the response
-    return new Response(JSON.stringify(claudeResponse), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
   } catch (error) {
     console.error("Error processing request:", error);
     
-    // Generate fallback content for any other errors
-    const fallbackData = generateFallbackTrips("fallback");
-    
+    // Return an error response instead of fallback data
     return new Response(
-      JSON.stringify(fallbackData),
+      JSON.stringify({ 
+        error: "Failed to process request", 
+        details: error.message
+      }),
       {
-        status: 200, // Return 200 with fallback data instead of 500
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       }
     );
