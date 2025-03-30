@@ -1,1 +1,13 @@
+
 project_id = "htypnghgkpqiuhauslmn"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[[api.function]]
+verify_jwt = false
+name = "trip-recommendations"
+path = "trip-recommendations"
+import_map = "import_map.json"

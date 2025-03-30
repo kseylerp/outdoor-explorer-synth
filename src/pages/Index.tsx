@@ -6,9 +6,7 @@ import TripCard from '@/components/TripCard';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-
-// Import the mockTrips from tripService
-import { mockTrips } from '@/services/tripService';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -33,11 +31,23 @@ const Index: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // In a real app, this would call an API to process the prompt
-      // For demo purposes, we'll just simulate a delay and return mock data
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the Supabase Edge Function that connects to Claude API
+      const { data, error } = await supabase.functions.invoke('trip-recommendations', {
+        body: { prompt }
+      });
       
-      setTrips(mockTrips.slice(0, 2));
+      if (error) {
+        throw new Error(`Error calling API: ${error.message}`);
+      }
+      
+      if (!data || !data.trips || !Array.isArray(data.trips) || data.trips.length === 0) {
+        throw new Error('No trip recommendations received');
+      }
+      
+      console.log('Received trips data:', data.trips);
+      
+      // Set the trips from the API response
+      setTrips(data.trips);
       
       toast({
         title: "Adventures Found!",
