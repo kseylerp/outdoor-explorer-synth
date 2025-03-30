@@ -63,7 +63,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
             
             // Simulated response for demo purposes
             setTimeout(() => {
-              const simulatedText = "I want to go hiking in Yosemite National Park for three days.";
+              const simulatedText = "I would like to do a weekend trip hiking Yosemite on trails with fewer people.";
               setPrompt(simulatedText);
               setIsProcessingVoice(false);
               
@@ -133,12 +133,12 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
       <div className="relative">
         <Textarea
           ref={textareaRef}
-          placeholder="Describe your dream adventure (e.g., 'Weekend hiking trip in Yosemite with waterfalls and moderate trails')"
+          placeholder="I would like to do a weekend trip hiking Yosemite on trails with fewer people."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isProcessing || isProcessingVoice}
-          className="min-h-24 pr-12 resize-none"
+          className="min-h-24 pr-12 resize-none font-patano text-base"
         />
         <div className="absolute right-2 bottom-2">
           {prompt.trim() ? (
@@ -146,7 +146,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               onClick={handleSubmit}
               disabled={isProcessing || !prompt.trim()}
               size="icon"
-              className="rounded-full bg-purple-600 hover:bg-purple-700"
+              className="rounded-full bg-[#9870FF] hover:bg-[#7E69AB]"
             >
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
               disabled={isProcessing || isProcessingVoice}
               size="icon"
               variant={isRecording ? "destructive" : "default"}
-              className="rounded-full bg-purple-600 hover:bg-purple-700"
+              className="rounded-full bg-[#9870FF] hover:bg-[#7E69AB]"
             >
               {isProcessingVoice ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -180,7 +180,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
       </div>
       
       {isProcessing && (
-        <div className="text-center text-sm text-gray-500 animate-pulse">
+        <div className="text-center text-base font-patano text-gray-800 animate-pulse">
           Our AI is crafting your perfect adventure experience...
         </div>
       )}

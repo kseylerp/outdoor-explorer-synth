@@ -21,6 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
+				'patano': ['Patano Sans', 'sans-serif'],
 			},
 			colors: {
 				'yugen-purple': '#574780',

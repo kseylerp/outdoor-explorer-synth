@@ -11,7 +11,7 @@ const TripCardHeader: React.FC<TripCardHeaderProps> = ({ title, description }) =
   return (
     <div>
       <CardTitle className="text-xl font-bold">{title}</CardTitle>
-      <CardDescription className="mt-1">{description}</CardDescription>
+      <CardDescription className="mt-1 font-patano text-base text-gray-800">{description}</CardDescription>
     </div>
   );
 };

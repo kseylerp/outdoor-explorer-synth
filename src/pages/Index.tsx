@@ -114,10 +114,10 @@ const Index: React.FC = () => {
   return (
     <div className="container max-w-5xl mx-auto p-4 space-y-8">
       <div className="text-center space-y-2 mb-8">
-        <h1>
-          How can <span className="offbeat-gradient">offbeat</span> help you
+        <h1 className="font-patano">
+          <span className="offbeat-gradient">offbeat</span> adventure
         </h1>
-        <p className="text-sm font-light">discover, plan, and share your next adventure?</p>
+        <p className="text-base font-patano">off-the-beaten path trips, powered by local guides</p>
       </div>
       
       <Card className="p-6 shadow-md">
@@ -138,7 +138,7 @@ const Index: React.FC = () => {
             {trips.map((trip, index) => (
               <div key={trip.id} className="relative">
                 <div className="absolute -top-2 left-4 z-10">
-                  <span className="bg-purple-600 text-white px-3 py-1 text-sm font-medium rounded-full">
+                  <span className="bg-[#9870FF] text-white px-3 py-1 text-sm font-medium rounded-full">
                     Option {index + 1}
                   </span>
                 </div>

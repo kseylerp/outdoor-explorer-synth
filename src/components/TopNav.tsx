@@ -27,17 +27,17 @@ const TopNav: React.FC = () => {
             <img 
               src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" 
               alt="Offbeat Logo" 
-              className="h-8 object-contain"
+              className="h-11 object-contain" /* Increased logo size by 35% from h-8 to h-11 */
             />
           </Link>
         </div>
       )}
       
       <div className="flex gap-4 ml-auto">
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild className="font-patano">
           <Link to="/login">Log In</Link>
         </Button>
-        <Button asChild>
+        <Button asChild className="font-patano">
           <Link to="/signup">Sign Up</Link>
         </Button>
       </div>

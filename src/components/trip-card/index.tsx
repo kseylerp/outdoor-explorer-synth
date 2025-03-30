@@ -54,7 +54,7 @@ const TripCard: React.FC<TripCardProps> = ({
       </CardHeader>
       
       <CardContent className="pb-2">
-        <div className="mb-3 flex flex-col sm:flex-row gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <TripCardMap 
             center={trip.mapCenter}
             markers={trip.markers}
