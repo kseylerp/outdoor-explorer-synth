@@ -551,5 +551,5 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
   }
 };
 
-// Update TripDetails page to use the new fetchTripById function
-export { fetchTripById, fetchGuides, fetchActivities };
+// Export other functions from the service
+export { fetchGuides, fetchActivities };

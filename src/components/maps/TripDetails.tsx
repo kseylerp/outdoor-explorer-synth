@@ -28,6 +28,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
         {renderMissingOrValue(trip.location, 'Location')}
         {renderMissingOrValue(trip.duration, 'Duration')}
         {renderMissingOrValue(trip.difficultyLevel, 'Difficulty')}
+        {renderMissingOrValue(trip.priceEstimate?.toString(), 'Price Estimate')}
       </div>
     </Card>
   );

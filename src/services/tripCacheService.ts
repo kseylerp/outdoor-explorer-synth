@@ -1,6 +1,8 @@
 
 import { Trip } from '@/types/trips';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
+import { jsonToCoordinates, jsonToMarkers, jsonToJourney, jsonToItinerary } from './trip/tripMappers';
 
 // In-memory cache for trips to avoid unnecessary API calls
 const tripCache: Map<string, { trip: Trip, timestamp: number }> = new Map();
@@ -43,15 +45,32 @@ export const clearTripCacheById = (id: string): void => {
   tripCache.delete(id);
 };
 
+// Helper function to convert Trip to database-friendly format
+const prepareTripForStorage = (trip: Trip) => {
+  return {
+    trip_id: trip.id,
+    title: trip.title,
+    description: trip.description,
+    location: trip.location,
+    duration: trip.duration,
+    difficulty_level: trip.difficultyLevel,
+    price_estimate: typeof trip.priceEstimate === 'string' 
+      ? parseFloat(trip.priceEstimate.toString()) 
+      : trip.priceEstimate,
+    map_center: trip.mapCenter as unknown as Json,
+    markers: trip.markers as unknown as Json,
+    journey: trip.journey as unknown as Json,
+    itinerary: trip.itinerary as unknown as Json
+  };
+};
+
 // Save trip data to Supabase
 const saveTripToSupabase = async (trip: Trip): Promise<void> => {
   try {
     if (!trip || !trip.id) return;
     
-    // Prepare data for Supabase (ensuring numeric price)
-    const priceEstimate = typeof trip.priceEstimate === 'string' 
-      ? parseFloat(trip.priceEstimate) 
-      : trip.priceEstimate;
+    // Prepare data for Supabase with type conversions
+    const tripData = prepareTripForStorage(trip);
     
     // First check if trip already exists
     const { data: existingTrip } = await supabase
@@ -64,37 +83,13 @@ const saveTripToSupabase = async (trip: Trip): Promise<void> => {
       // Update existing trip
       await supabase
         .from('saved_trips')
-        .update({
-          title: trip.title,
-          description: trip.description,
-          location: trip.location,
-          duration: trip.duration,
-          difficulty_level: trip.difficultyLevel,
-          price_estimate: priceEstimate,
-          map_center: trip.mapCenter,
-          markers: trip.markers,
-          journey: trip.journey,
-          itinerary: trip.itinerary,
-          updated_at: new Date()
-        })
+        .update(tripData)
         .eq('trip_id', trip.id);
     } else {
       // Insert new trip
       await supabase
         .from('saved_trips')
-        .insert({
-          trip_id: trip.id,
-          title: trip.title,
-          description: trip.description,
-          location: trip.location,
-          duration: trip.duration,
-          difficulty_level: trip.difficultyLevel,
-          price_estimate: priceEstimate,
-          map_center: trip.mapCenter,
-          markers: trip.markers,
-          journey: trip.journey,
-          itinerary: trip.itinerary
-        });
+        .insert(tripData);
     }
     
     console.log(`Trip ${trip.id} saved to Supabase successfully`);
@@ -125,7 +120,7 @@ export const loadTripFromSupabase = async (id: string): Promise<Trip | null> => 
     
     if (!data) return null;
     
-    // Transform Supabase data to Trip format
+    // Transform Supabase data to Trip format using our mapper functions
     const trip: Trip = {
       id: data.trip_id,
       title: data.title,
@@ -135,10 +130,10 @@ export const loadTripFromSupabase = async (id: string): Promise<Trip | null> => 
       priceEstimate: data.price_estimate || 0,
       duration: data.duration || '',
       location: data.location || '',
-      mapCenter: data.map_center || { lng: 0, lat: 0 },
-      markers: data.markers || [],
-      journey: data.journey || undefined,
-      itinerary: data.itinerary || [],
+      mapCenter: jsonToCoordinates(data.map_center),
+      markers: jsonToMarkers(data.markers),
+      journey: jsonToJourney(data.journey),
+      itinerary: jsonToItinerary(data.itinerary),
     };
     
     // Cache the trip we just loaded
