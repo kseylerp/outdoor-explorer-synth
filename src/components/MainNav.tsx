@@ -33,9 +33,9 @@ const MainNav: React.FC = () => {
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img 
-                src="/lovable-uploads/03e672eb-9596-4f64-9f3d-6e9695d6b26a.png" 
+                src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" 
                 alt="Full Logo Offbeat" 
-                className="h-13" /* Increased by 30% from h-10 */
+                className="h-10" 
               />
             </Link>
           ) : (
@@ -43,7 +43,7 @@ const MainNav: React.FC = () => {
               <img 
                 src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
                 alt="Truncated Logo" 
-                className="h-13 w-13 object-contain" /* Increased by 30% from h-10 w-10 */
+                className="h-8 w-8 object-contain"
               />
             </Link>
           )}

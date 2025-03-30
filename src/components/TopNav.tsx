@@ -25,9 +25,9 @@ const TopNav: React.FC = () => {
           
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" 
+              src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" 
               alt="Offbeat Logo" 
-              className="h-10 w-10 object-contain"
+              className="h-8 object-contain"
             />
           </Link>
         </div>
