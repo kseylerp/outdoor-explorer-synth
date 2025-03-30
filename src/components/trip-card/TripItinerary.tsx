@@ -14,12 +14,12 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
       </div>;
   }
   return <div className="w-full bg-purple-50 border-t border-purple-100">
-      <div className="px-6 py-4 bg-[#FCFCFC]/0">
-        <h3 className="font-semibold text-lg mb-4 text-[#9870FF]">Itinerary</h3>
+      <div className="px-6 py-4 bg-gray-100">
+        <h3 className="font-semibold text-lg mb-4 text-zinc-700">Itinerary</h3>
         
         <Accordion type="multiple" className="space-y-4">
           {itinerary.map((day, idx) => <AccordionItem key={idx} value={`day-${day.day}`} className="bg-white rounded-lg shadow-sm overflow-hidden border-none">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline bg-[525252] bg-gray-50">
                 <div className="flex flex-col items-start text-left">
                   <div className="font-semibold text-md text-[#525252]">
                     Day {day.day}: {day.title || 'Activities'}
@@ -34,16 +34,16 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                 {day.description && day.description.length > 100 && <p className="text-base text-gray-800 font-patano mb-4">{day.description}</p>}
                 
                 <div className="space-y-4">
-                  {day.activities && day.activities.length > 0 ? day.activities.map((activity, actIdx) => <div key={actIdx} className="p-3 bg-white rounded-lg shadow-sm border-l-4 border-[#9870FF]">
+                  {day.activities && day.activities.length > 0 ? day.activities.map((activity, actIdx) => <div key={actIdx} className="p-3 shadow-sm border-l-4 border-[#9870FF] rounded-md bg-zinc-50">
                         <div className="flex justify-between">
                           <h5 className="font-semibold text-gray-800">{activity.name || 'Unnamed Activity'}</h5>
                           {activity.duration && <span className="text-gray-800 font-patano">{activity.duration}</span>}
                         </div>
                         
-                        {activity.description && <p className="text-base text-gray-800 font-patano mt-1">{activity.description}</p>}
+                        {activity.description && <p className="text-sm text-gray-600 line-clamp-3">{activity.description}</p>}
                         
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {activity.type && <Badge variant="outline" className="text-base text-gray-800">
+                          {activity.type && <Badge variant="outline" className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
                               {activity.type}
                             </Badge>}
                           
