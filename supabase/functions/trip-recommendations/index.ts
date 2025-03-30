@@ -102,212 +102,27 @@ async function callClaudeApi(prompt: string) {
                 }
               } catch (e) {
                 console.error("Failed to parse JSON from code block:", e);
+                throw new Error("Failed to parse JSON from Claude API response");
               }
             }
           }
           
-          // If no proper JSON found in code blocks, try to create fallback trips
-          return createFallbackTrips(prompt);
+          // If no proper JSON found in code blocks, throw an error
+          throw new Error("No valid JSON found in Claude API response");
         }
       }
       
-      // If we couldn't find any useful data, create fallback trips
-      return createFallbackTrips(prompt);
+      // If we couldn't find any useful data, throw an error
+      throw new Error("Invalid response format from Claude API");
       
     } catch (error) {
       console.error("Error calling Claude API:", error);
-      return createFallbackTrips(prompt);
+      throw error;
     }
   } catch (error) {
     console.error("Error in callClaudeApi function:", error);
-    return createFallbackTrips(prompt);
+    throw error;
   }
-}
-
-// Helper function to create fallback trips when Claude API fails to return proper data
-function createFallbackTrips(prompt: string) {
-  console.log("Creating fallback trips for prompt:", prompt);
-  
-  // Extract location info from the prompt
-  const locationMatch = prompt.match(/(?:to|in|at|around)\s+([A-Za-z\s]+National Park|[A-Za-z\s]+Mountains|[A-Za-z\s]+Canyon|[A-Za-z\s]+Valley|[A-Za-z\s]+Lake|[A-Za-z\s]+Forest|[A-Za-z\s]+Coast|[A-Za-z\s]+Beach|[A-Za-z\s]+Island|[A-Za-z]+)/i);
-  const location = locationMatch ? locationMatch[1].trim() : "Grand Canyon";
-  
-  // Default coordinates based on common outdoor locations
-  let mapCenter = { lng: -112.1401, lat: 36.0544 }; // Default to Grand Canyon
-  
-  // Adjust coordinates based on extracted location
-  if (location.toLowerCase().includes("yosemite")) {
-    mapCenter = { lng: -119.5383, lat: 37.8651 };
-  } else if (location.toLowerCase().includes("zion")) {
-    mapCenter = { lng: -113.0263, lat: 37.2982 };
-  } else if (location.toLowerCase().includes("yellowstone")) {
-    mapCenter = { lng: -110.5885, lat: 44.4280 };
-  }
-  
-  // Extract activities from the prompt
-  const activities = [];
-  if (prompt.toLowerCase().includes("hik")) activities.push("Hiking");
-  if (prompt.toLowerCase().includes("raft")) activities.push("Rafting");
-  if (prompt.toLowerCase().includes("kayak")) activities.push("Kayaking");
-  if (prompt.toLowerCase().includes("camp")) activities.push("Camping");
-  if (prompt.toLowerCase().includes("climb")) activities.push("Climbing");
-  if (prompt.toLowerCase().includes("bike")) activities.push("Mountain Biking");
-  if (activities.length === 0) activities.push("Hiking", "Camping");
-  
-  // Extract duration from the prompt
-  const durationMatch = prompt.match(/(\d+)\s*days?/i);
-  const duration = durationMatch ? `${durationMatch[1]} days` : "7 days";
-  const numDays = parseInt(durationMatch ? durationMatch[1] : "7");
-  
-  // Create a simple journey path
-  const createSimpleJourney = () => {
-    const lng = mapCenter.lng;
-    const lat = mapCenter.lat;
-    
-    return {
-      segments: [
-        {
-          mode: "walking",
-          from: "Trailhead",
-          to: "Scenic Viewpoint",
-          distance: 5000,
-          duration: 7200,
-          geometry: {
-            coordinates: [
-              [lng - 0.02, lat - 0.02],
-              [lng - 0.01, lat - 0.01],
-              [lng, lat],
-              [lng + 0.01, lat + 0.01],
-              [lng + 0.02, lat + 0.02]
-            ]
-          },
-          steps: [
-            {
-              maneuver: {
-                instruction: "Start at the trailhead",
-                location: [lng - 0.02, lat - 0.02]
-              },
-              distance: 2000,
-              duration: 2400
-            },
-            {
-              maneuver: {
-                instruction: "Continue on the trail",
-                location: [lng, lat]
-              },
-              distance: 3000,
-              duration: 4800
-            }
-          ],
-          elevationGain: 150,
-          terrain: "trail",
-          description: "A beautiful trail with stunning views"
-        }
-      ],
-      totalDistance: 5000,
-      totalDuration: 7200,
-      bounds: [
-        [lng - 0.03, lat - 0.03],
-        [lng + 0.03, lat + 0.03]
-      ]
-    };
-  };
-  
-  // Create itinerary
-  const createItinerary = () => {
-    const itinerary = [];
-    
-    for (let i = 1; i <= numDays; i++) {
-      const dayActivities = [];
-      // Add 1-3 activities per day
-      const numActivities = Math.min(Math.floor(Math.random() * 3) + 1, activities.length);
-      
-      for (let j = 0; j < numActivities; j++) {
-        const activityType = activities[j % activities.length];
-        dayActivities.push({
-          name: `${activityType} - Day ${i}`,
-          type: activityType,
-          duration: activityType.includes("Hik") ? "4 hours" : "3 hours",
-          description: `Enjoy ${activityType.toLowerCase()} in the beautiful ${location} area.`,
-          permitRequired: Math.random() > 0.7,
-          permitDetails: Math.random() > 0.7 ? "Permits available at visitor center" : undefined,
-          outfitters: Math.random() > 0.5 ? [`Local ${activityType} Guides`] : undefined
-        });
-      }
-      
-      itinerary.push({
-        day: i,
-        title: `Day ${i} - Exploring ${location}`,
-        description: `Spend the day exploring the beautiful scenery of ${location}.`,
-        activities: dayActivities
-      });
-    }
-    
-    return itinerary;
-  };
-  
-  // Create markers
-  const createMarkers = () => {
-    const lng = mapCenter.lng;
-    const lat = mapCenter.lat;
-    
-    return [
-      {
-        name: "Visitor Center",
-        coordinates: { lng, lat },
-        description: `${location} Visitor Center - Start your journey here`,
-        elevation: "6,200 ft"
-      },
-      {
-        name: "Scenic Viewpoint",
-        coordinates: { lng: lng + 0.02, lat: lat + 0.02 },
-        description: "Amazing panoramic views",
-        elevation: "7,400 ft"
-      },
-      {
-        name: "Trailhead",
-        coordinates: { lng: lng - 0.02, lat: lat - 0.02 },
-        description: "Main trail access point",
-        elevation: "5,800 ft"
-      }
-    ];
-  };
-  
-  // Create two trip options
-  return {
-    trips: [
-      {
-        id: "fallback-1",
-        title: `${location} Adventure`,
-        description: `Experience the natural beauty of ${location} with a ${duration} adventure filled with ${activities.join(", ")}.`,
-        whyWeChoseThis: `${location} offers some of the most spectacular scenery and outdoor experiences in the region.`,
-        difficultyLevel: "Moderate",
-        priceEstimate: "$1,000 - $1,500",
-        duration,
-        location,
-        suggestedGuides: [`${location} Adventure Guides`, "Local Experts"],
-        mapCenter,
-        markers: createMarkers(),
-        journey: createSimpleJourney(),
-        itinerary: createItinerary()
-      },
-      {
-        id: "fallback-2",
-        title: `Off the Beaten Path: ${location}`,
-        description: `Discover hidden gems in ${location} with this customized ${duration} trip.`,
-        whyWeChoseThis: `This trip takes you to less-traveled areas of ${location} for a more intimate wilderness experience.`,
-        difficultyLevel: "Challenging",
-        priceEstimate: "$1,200 - $1,800",
-        duration,
-        location,
-        suggestedGuides: [`${location} Wilderness Guides`],
-        mapCenter,
-        markers: createMarkers(),
-        journey: createSimpleJourney(),
-        itinerary: createItinerary()
-      }
-    ]
-  };
 }
 
 // Main request handler
@@ -337,33 +152,32 @@ serve(async (req) => {
 
     console.log("Processing prompt:", prompt);
     
-    // Call Claude API
-    const claudeResponse = await callClaudeApi(prompt);
-    
-    // Check if there was an error in the Claude API call
-    if (claudeResponse.error) {
-      console.error("Error response from Claude API:", claudeResponse.error);
+    try {
+      // Call Claude API
+      const claudeResponse = await callClaudeApi(prompt);
       
-      // Return an error response with status code 400
+      console.log("Returning successful response to client");
+      
+      // Return the successful response
+      return new Response(JSON.stringify(claudeResponse), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      console.error("Error from Claude API:", error);
+      
+      // Return an error response
       return new Response(
         JSON.stringify({ 
-          error: claudeResponse.error, 
-          details: claudeResponse.details || "See edge function logs for more details"
+          error: "Failed to generate trip recommendations", 
+          details: error.message
         }),
         {
-          status: 400,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         }
       );
     }
-    
-    console.log("Returning successful response to client");
-    
-    // Return the successful response
-    return new Response(JSON.stringify(claudeResponse), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
   } catch (error) {
     console.error("Error processing request:", error);
     
