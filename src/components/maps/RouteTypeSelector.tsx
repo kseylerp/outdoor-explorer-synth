@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bike, Car, Map, Navigation, Bus, WalkIcon } from 'lucide-react';
+import { Bike, Car, Map, Navigation, Bus, Footprints } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface RouteTypeSelectorProps {
@@ -21,7 +21,7 @@ const RouteTypeSelector: React.FC<RouteTypeSelectorProps> = ({
           <span>All</span>
         </ToggleGroupItem>
         <ToggleGroupItem value="walk" aria-label="Walking routes">
-          <WalkIcon className="h-4 w-4 mr-2" />
+          <Footprints className="h-4 w-4 mr-2" />
           <span>Walk</span>
         </ToggleGroupItem>
         <ToggleGroupItem value="bike" aria-label="Biking routes">
