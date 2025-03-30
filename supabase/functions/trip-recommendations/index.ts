@@ -35,9 +35,9 @@ async function callClaudeApi(prompt: string) {
     
     const payload = {
       model: claudeModel,
-      max_tokens: 8192,
-      temperature: 0.8,
-      system: "You are an outdoor activity planning assistant. Provide detailed trip options in JSON format according to the given schema.\n\nYou MUST return a JSON object with a 'trip' array containing 2 trip options. Each trip must include id, title, description, location, mapCenter, journey with route segments, and daily itinerary with activities. For coordinates, use [longitude, latitude] format in journey.segments.geometry.coordinates and journey.segments.steps.maneuver.location. Use realistic coordinates for all locations.\n\nMake sure that all required properties exist and are properly formatted.",
+      max_tokens: 6000,
+      temperature: 1,
+      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness",
       messages: [
         {
           role: "user",

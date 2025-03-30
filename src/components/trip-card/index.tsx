@@ -7,7 +7,6 @@ import TripCardHeader from './TripCardHeader';
 import TripCardMap from './TripCardMap';
 import TripCardInfo from './TripCardInfo';
 import TripCardButtons from './TripCardButtons';
-import ItineraryExpander from './ItineraryExpander';
 import TripItinerary from './TripItinerary';
 
 interface TripCardProps {
@@ -29,13 +28,13 @@ const TripCard: React.FC<TripCardProps> = ({
   showRemoveButton = false,
   onRemove
 }) => {
-  const [isExpanded, setIsExpanded] = useState(expanded);
+  const [showItinerary, setShowItinerary] = useState(expanded);
   const navigate = useNavigate();
   
-  const toggleExpand = () => {
-    const newExpandedState = !isExpanded;
-    setIsExpanded(newExpandedState);
-    if (onExpand && newExpandedState) {
+  const toggleItinerary = () => {
+    const newState = !showItinerary;
+    setShowItinerary(newState);
+    if (onExpand && newState) {
       onExpand();
     }
   };
@@ -90,11 +89,12 @@ const TripCard: React.FC<TripCardProps> = ({
         />
       </CardContent>
       
-      <CardFooter className="p-0">
-        <ItineraryExpander isExpanded={isExpanded} onToggle={toggleExpand}>
+      {/* Display Itinerary directly in the card */}
+      {trip.itinerary && trip.itinerary.length > 0 && (
+        <CardFooter className="p-0 border-t border-gray-200">
           <TripItinerary itinerary={trip.itinerary} />
-        </ItineraryExpander>
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 };

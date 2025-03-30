@@ -1,10 +1,11 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card } from '@/components/ui/card';
 import { MapDisplayProps } from './types';
 import MapStatus from './MapStatus';
 import MapContent from './MapContent';
+import RouteTypeSelector from './RouteTypeSelector';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -13,10 +14,11 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   markers = [],
   center = { lng: -122.4194, lat: 37.7749 }, // Default to San Francisco
   interactive = false,
-  routeType = 'all',
+  routeType: initialRouteType = 'all',
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const [routeType, setRouteType] = useState(initialRouteType);
   
   const {
     map,
@@ -41,6 +43,10 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         isInteractive={mapInteractive}
         onEnableInteractiveMode={enableInteractiveMode}
       />
+      
+      {journey && journey.segments && journey.segments.length > 0 && mapLoaded && (
+        <RouteTypeSelector routeType={routeType} setRouteType={setRouteType} />
+      )}
       
       {/* Only render child components when map is loaded */}
       {mapLoaded && map && (
