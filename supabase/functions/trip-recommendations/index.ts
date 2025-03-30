@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -9,7 +8,7 @@ const corsHeaders = {
 };
 
 // Claude client configuration
-const claudeApiKey = Deno.env.get('Offbeat-mobile-claude');
+const claudeApiKey = Deno.env.get('my_api_key');
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
 const claudeModel = "claude-3-7-sonnet-20250219";
 
