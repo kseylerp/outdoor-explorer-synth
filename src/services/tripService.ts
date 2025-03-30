@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Trip } from '@/types/trips';
 
@@ -7,10 +6,9 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
   try {
     console.log("Calling trip-recommendations edge function with prompt:", prompt);
     
-    // Call the Supabase Edge Function with a 30-second request timeout
+    // Call the Supabase Edge Function without a timeout
     const { data, error } = await supabase.functions.invoke('trip-recommendations', {
-      body: JSON.stringify({ prompt }),
-      signal: AbortSignal.timeout(30000) // 30 second timeout using standard AbortSignal
+      body: JSON.stringify({ prompt })
     });
     
     if (error) {
