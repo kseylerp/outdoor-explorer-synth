@@ -6,7 +6,7 @@ import TripCard from '@/components/TripCard';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { generateTrips } from '@/services/tripService';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,23 +31,17 @@ const Index: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Call the Supabase Edge Function that connects to Claude API
-      const { data, error } = await supabase.functions.invoke('trip-recommendations', {
-        body: { prompt }
-      });
+      console.log('Submitting prompt to generate trips:', prompt);
+      const tripsData = await generateTrips(prompt);
       
-      if (error) {
-        throw new Error(`Error calling API: ${error.message}`);
-      }
-      
-      if (!data || !data.trips || !Array.isArray(data.trips) || data.trips.length === 0) {
+      if (!tripsData || tripsData.length === 0) {
         throw new Error('No trip recommendations received');
       }
       
-      console.log('Received trips data:', data.trips);
+      console.log('Received trips data:', tripsData);
       
       // Set the trips from the API response
-      setTrips(data.trips);
+      setTrips(tripsData);
       
       toast({
         title: "Adventures Found!",

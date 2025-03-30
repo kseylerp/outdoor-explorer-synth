@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -7,7 +8,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Claude client configuration
+// Get the API key from environment variables
 const claudeApiKey = Deno.env.get('my_api_key');
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
 const claudeModel = "claude-3-7-sonnet-20250219";
@@ -23,6 +24,11 @@ function handleCors(req: Request) {
 // Helper for Claude API requests
 async function callClaudeApi(prompt: string) {
   console.log("Calling Claude API with prompt:", prompt);
+  
+  if (!claudeApiKey) {
+    console.error("API key is not set in environment variables");
+    throw new Error("API key is not set in environment variables");
+  }
   
   const payload = {
     model: claudeModel,
@@ -436,7 +442,7 @@ async function callClaudeApi(prompt: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": claudeApiKey!,
+        "x-api-key": claudeApiKey,
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify(payload)
