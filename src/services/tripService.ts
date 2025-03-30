@@ -7,9 +7,10 @@ export const generateTrips = async (prompt: string): Promise<Trip[]> => {
   try {
     console.log("Calling trip-recommendations edge function with prompt:", prompt);
     
-    // Call the Supabase Edge Function
+    // Call the Supabase Edge Function with a timeout of 30 seconds
     const { data, error } = await supabase.functions.invoke('trip-recommendations', {
-      body: { prompt }
+      body: { prompt },
+      timeout: 30000 // 30 second timeout
     });
     
     if (error) {
