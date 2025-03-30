@@ -68,6 +68,7 @@ const TripCard: React.FC<TripCardProps> = ({
             center={trip.mapCenter}
             markers={trip.markers}
             journey={trip.journey}
+            routeType="all"
           />
           
           <TripCardInfo 
@@ -89,11 +90,11 @@ const TripCard: React.FC<TripCardProps> = ({
         />
       </CardContent>
       
-      <CardFooter className="pt-2 justify-center">
-        <ItineraryExpander isExpanded={isExpanded} onToggle={toggleExpand} />
+      <CardFooter className="p-0">
+        <ItineraryExpander isExpanded={isExpanded} onToggle={toggleExpand}>
+          <TripItinerary itinerary={trip.itinerary} />
+        </ItineraryExpander>
       </CardFooter>
-      
-      {isExpanded && <TripItinerary itinerary={trip.itinerary} />}
     </Card>
   );
 };

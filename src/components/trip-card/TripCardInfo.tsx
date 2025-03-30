@@ -43,7 +43,7 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
   return (
     <div className="flex flex-col justify-between w-full sm:w-1/2">
       <div>
-        <h3 className="font-semibold text-md mb-1">Why We Chose This:</h3>
+        <h3 className="text-sm font-bold mb-1 text-purple-700">Why We Chose This:</h3>
         <p className="text-sm text-gray-600 mb-4">{whyWeChoseThis || 'No information available'}</p>
         
         <div className="flex flex-wrap gap-2 mb-4">
@@ -68,7 +68,7 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
       
       {suggestedGuides && suggestedGuides.length > 0 && (
         <div className="mt-4">
-          <h3 className="font-semibold text-md mb-1">Suggested Guides:</h3>
+          <h3 className="text-sm font-bold mb-1 text-purple-700">Suggested Guides:</h3>
           <div className="flex flex-wrap gap-1">
             {suggestedGuides.map((guide, idx) => (
               <Badge key={idx} variant="outline" className="text-xs">

@@ -4,6 +4,49 @@ import { Segment } from '@/types/trips';
 import { createSegmentPopupHTML } from './popup-utils';
 
 /**
+ * Get route display properties based on travel mode
+ */
+const getRouteProperties = (mode: string) => {
+  switch (mode) {
+    case 'walking':
+      return {
+        color: '#9870FF', // Purple
+        width: 5,
+        opacity: 0.9,
+        dasharray: [0, 0]
+      };
+    case 'cycling':
+      return {
+        color: '#56B870', // Green
+        width: 5,
+        opacity: 0.9,
+        dasharray: [2, 1]
+      };
+    case 'driving':
+      return {
+        color: '#3887BE', // Blue
+        width: 5,
+        opacity: 0.9,
+        dasharray: [0, 0]
+      };
+    case 'transit':
+      return {
+        color: '#F97316', // Orange
+        width: 5,
+        opacity: 0.9,
+        dasharray: [3, 2]
+      };
+    default:
+      return {
+        color: '#574780', // Default purple
+        width: 5,
+        opacity: 0.8,
+        dasharray: [0, 0]
+      };
+  }
+};
+
+/**
  * Add a route segment to the map
  */
 export const addRouteSegment = (
@@ -17,6 +60,9 @@ export const addRouteSegment = (
 
   const sourceId = `route-source-${index}`;
   const layerId = `route-layer-${index}`;
+
+  // Get route properties based on mode
+  const routeProps = getRouteProperties(segment.mode);
 
   // Add source if it doesn't exist
   if (!map.getSource(sourceId)) {
@@ -48,8 +94,6 @@ export const addRouteSegment = (
 
   // Add layer if it doesn't exist
   if (!map.getLayer(layerId)) {
-    const color = segment.mode === 'walking' ? '#9870FF' : '#574780';
-    
     map.addLayer({
       id: layerId,
       type: 'line',
@@ -59,10 +103,10 @@ export const addRouteSegment = (
         'line-cap': 'round'
       },
       paint: {
-        'line-color': color,
-        'line-width': 6,
-        'line-opacity': 0.8,
-        'line-dasharray': segment.mode === 'walking' ? [0, 0] : [2, 1]
+        'line-color': routeProps.color,
+        'line-width': routeProps.width,
+        'line-opacity': routeProps.opacity,
+        'line-dasharray': routeProps.dasharray
       }
     });
   }
