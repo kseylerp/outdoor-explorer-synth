@@ -25,399 +25,401 @@ function handleCors(req: Request) {
 
 // Helper for Claude API requests
 async function callClaudeApi(prompt: string) {
-  console.log("Calling Claude API with prompt:", prompt);
-  
-  if (!claudeApiKey) {
-    console.error("API key is not set in environment variables");
-    throw new Error("API key is not set in environment variables");
-  }
-  
-  const payload = {
-    model: claudeModel,
-    max_tokens: 20000,
-    temperature: 1,
-    system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\nKey requirements:\n- Prioritize off-the-beaten-path locations and local operators\n- Create separate route segments for multi-modal journeys\n- Include sufficient waypoints to accurately represent trails\n- Ensure all coordinates use [longitude, latitude] format\n- Link each activity to its corresponding route data\n- Generate complete route geometry for MapBox visualization",
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: prompt
-          }
-        ]
-      }
-    ],
-    tools: [
-      {
-        type: "custom",
-        name: "trip_format",
-        description: "Formats the JSON response for the web app.",
-        input_schema: {
-          type: "object",
-          properties: {
-            trips: {
-              type: "array",
-              description: "List of trip recommendations",
-              items: {
-                type: "object",
-                required: [
-                  "id",
-                  "title",
-                  "description",
-                  "whyWeChoseThis",
-                  "difficultyLevel",
-                  "priceEstimate",
-                  "duration",
-                  "location",
-                  "suggestedGuides",
-                  "mapCenter",
-                  "markers",
-                  "journey",
-                  "itinerary"
-                ],
-                properties: {
-                  id: {
-                    type: "string",
-                    description: "Unique identifier for the trip"
-                  },
-                  title: {
-                    type: "string",
-                    description: "Title of the trip"
-                  },
-                  description: {
-                    type: "string",
-                    description: "Brief description of the trip"
-                  },
-                  whyWeChoseThis: {
-                    type: "string",
-                    description: "Explanation of why this adventure matches the user's request"
-                  },
-                  difficultyLevel: {
-                    type: "string",
-                    enum: [
-                      "Easy",
-                      "Moderate",
-                      "Challenging",
-                      "Difficult",
-                      "Expert"
-                    ],
-                    description: "Difficulty level of the trip"
-                  },
-                  priceEstimate: {
-                    type: "string",
-                    description: "Estimated price of the trip"
-                  },
-                  duration: {
-                    type: "string",
-                    description: "Duration of the trip, e.g., '3 days'"
-                  },
-                  location: {
-                    type: "string",
-                    description: "Destination of the trip"
-                  },
-                  suggestedGuides: {
-                    type: "array",
-                    description: "List of recommended guides for the trip",
-                    items: {
-                      type: "string"
-                    }
-                  },
-                  mapCenter: {
-                    type: "object",
-                    required: [
-                      "lng",
-                      "lat"
-                    ],
-                    description: "Center coordinates for the trip map",
-                    properties: {
-                      lng: {
-                        type: "number",
-                        description: "Longitude of the map center"
-                      },
-                      lat: {
-                        type: "number",
-                        description: "Latitude of the map center"
+  try {
+    console.log("Calling Claude API with prompt:", prompt);
+    
+    if (!claudeApiKey) {
+      console.error("API key is not set in environment variables");
+      throw new Error("API key is not set in environment variables");
+    }
+    
+    const payload = {
+      model: claudeModel,
+      max_tokens: 20000,
+      temperature: 1,
+      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\nKey requirements:\n- Prioritize off-the-beaten-path locations and local operators\n- Create separate route segments for multi-modal journeys\n- Include sufficient waypoints to accurately represent trails\n- Ensure all coordinates use [longitude, latitude] format\n- Link each activity to its corresponding route data\n- Generate complete route geometry for MapBox visualization",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt
+            }
+          ]
+        }
+      ],
+      tools: [
+        {
+          type: "custom",
+          name: "trip_format",
+          description: "Formats the JSON response for the web app.",
+          input_schema: {
+            type: "object",
+            properties: {
+              trips: {
+                type: "array",
+                description: "List of trip recommendations",
+                items: {
+                  type: "object",
+                  required: [
+                    "id",
+                    "title",
+                    "description",
+                    "whyWeChoseThis",
+                    "difficultyLevel",
+                    "priceEstimate",
+                    "duration",
+                    "location",
+                    "suggestedGuides",
+                    "mapCenter",
+                    "markers",
+                    "journey",
+                    "itinerary"
+                  ],
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "Unique identifier for the trip"
+                    },
+                    title: {
+                      type: "string",
+                      description: "Title of the trip"
+                    },
+                    description: {
+                      type: "string",
+                      description: "Brief description of the trip"
+                    },
+                    whyWeChoseThis: {
+                      type: "string",
+                      description: "Explanation of why this adventure matches the user's request"
+                    },
+                    difficultyLevel: {
+                      type: "string",
+                      enum: [
+                        "Easy",
+                        "Moderate",
+                        "Challenging",
+                        "Difficult",
+                        "Expert"
+                      ],
+                      description: "Difficulty level of the trip"
+                    },
+                    priceEstimate: {
+                      type: "string",
+                      description: "Estimated price of the trip"
+                    },
+                    duration: {
+                      type: "string",
+                      description: "Duration of the trip, e.g., '3 days'"
+                    },
+                    location: {
+                      type: "string",
+                      description: "Destination of the trip"
+                    },
+                    suggestedGuides: {
+                      type: "array",
+                      description: "List of recommended guides for the trip",
+                      items: {
+                        type: "string"
                       }
-                    }
-                  },
-                  markers: {
-                    type: "array",
-                    description: "Points of interest for the trip",
-                    items: {
+                    },
+                    mapCenter: {
                       type: "object",
                       required: [
-                        "name",
-                        "coordinates",
-                        "description"
+                        "lng",
+                        "lat"
                       ],
+                      description: "Center coordinates for the trip map",
                       properties: {
-                        name: {
-                          type: "string",
-                          description: "Name of the point of interest"
+                        lng: {
+                          type: "number",
+                          description: "Longitude of the map center"
                         },
-                        coordinates: {
-                          type: "object",
-                          required: [
-                            "lng",
-                            "lat"
-                          ],
-                          description: "Coordinates of the point of interest",
-                          properties: {
-                            lng: {
-                              type: "number",
-                              description: "Longitude of the point of interest"
-                            },
-                            lat: {
-                              type: "number",
-                              description: "Latitude of the point of interest"
-                            }
-                          }
-                        },
-                        description: {
-                          type: "string",
-                          description: "Description of the location"
-                        },
-                        elevation: {
-                          type: "string",
-                          description: "Optional elevation information in feet"
-                        },
-                        details: {
-                          type: "string",
-                          description: "Additional details about the location"
+                        lat: {
+                          type: "number",
+                          description: "Latitude of the map center"
                         }
                       }
-                    }
-                  },
-                  journey: {
-                    type: "object",
-                    required: [
-                      "segments",
-                      "totalDistance",
-                      "totalDuration",
-                      "bounds"
-                    ],
-                    description: "Journey details for the trip",
-                    properties: {
-                      segments: {
-                        type: "array",
-                        description: "Segments of the journey",
-                        items: {
-                          type: "object",
-                          required: [
-                            "mode",
-                            "from",
-                            "to",
-                            "distance",
-                            "duration",
-                            "geometry",
-                            "steps"
-                          ],
-                          properties: {
-                            mode: {
-                              type: "string",
-                              enum: [
-                                "walking",
-                                "driving",
-                                "cycling",
-                                "transit"
-                              ],
-                              description: "Mode of transportation for this segment"
-                            },
-                            from: {
-                              type: "string",
-                              description: "Starting point for this segment"
-                            },
-                            to: {
-                              type: "string",
-                              description: "Ending point for this segment"
-                            },
-                            distance: {
-                              type: "number",
-                              description: "Distance in meters"
-                            },
-                            duration: {
-                              type: "number",
-                              description: "Duration in seconds"
-                            },
-                            geometry: {
-                              type: "object",
-                              required: [
-                                "coordinates"
-                              ],
-                              description: "Geometry of the route",
-                              properties: {
-                                coordinates: {
-                                  type: "array",
-                                  description: "Array of coordinate pairs for the route",
-                                  items: {
-                                    type: "array",
-                                    description: "Coordinate pair [longitude, latitude]",
-                                    items: {
-                                      type: "number"
-                                    },
-                                    minItems: 2,
-                                    maxItems: 2
-                                  }
-                                }
-                              }
-                            },
-                            steps: {
-                              type: "array",
-                              description: "Steps within this segment",
-                              items: {
-                                type: "object",
-                                required: [
-                                  "maneuver",
-                                  "distance",
-                                  "duration"
-                                ],
-                                properties: {
-                                  maneuver: {
-                                    type: "object",
-                                    required: [
-                                      "instruction",
-                                      "location"
-                                    ],
-                                    properties: {
-                                      instruction: {
-                                        type: "string",
-                                        description: "Instruction for this step"
-                                      },
-                                      location: {
-                                        type: "array",
-                                        description: "Location coordinates [longitude, latitude]",
-                                        items: {
-                                          type: "number"
-                                        },
-                                        minItems: 2,
-                                        maxItems: 2
-                                      }
-                                    }
-                                  },
-                                  distance: {
-                                    type: "number",
-                                    description: "Distance in meters"
-                                  },
-                                  duration: {
-                                    type: "number",
-                                    description: "Duration in seconds"
-                                  }
-                                }
-                              }
-                            },
-                            elevationGain: {
-                              type: "number",
-                              description: "Elevation gain in meters"
-                            },
-                            terrain: {
-                              type: "string",
-                              enum: [
-                                "trail",
-                                "paved",
-                                "rocky",
-                                "mixed"
-                              ],
-                              description: "Type of terrain for this segment"
-                            },
-                            description: {
-                              type: "string",
-                              description: "Description of this segment"
-                            }
-                          }
-                        }
-                      },
-                      totalDistance: {
-                        type: "number",
-                        description: "Total distance of the journey in meters"
-                      },
-                      totalDuration: {
-                        type: "number",
-                        description: "Total duration of the journey in seconds"
-                      },
-                      bounds: {
-                        type: "array",
-                        description: "Bounding box for the journey [southwest, northeast]",
-                        items: {
-                          type: "array",
-                          description: "Coordinate pair [longitude, latitude]",
-                          items: {
-                            type: "number"
+                    },
+                    markers: {
+                      type: "array",
+                      description: "Points of interest for the trip",
+                      items: {
+                        type: "object",
+                        required: [
+                          "name",
+                          "coordinates",
+                          "description"
+                        ],
+                        properties: {
+                          name: {
+                            type: "string",
+                            description: "Name of the point of interest"
                           },
-                          minItems: 2,
-                          maxItems: 2
-                        },
-                        minItems: 2,
-                        maxItems: 2
+                          coordinates: {
+                            type: "object",
+                            required: [
+                              "lng",
+                              "lat"
+                            ],
+                            description: "Coordinates of the point of interest",
+                            properties: {
+                              lng: {
+                                type: "number",
+                                description: "Longitude of the point of interest"
+                              },
+                              lat: {
+                                type: "number",
+                                description: "Latitude of the point of interest"
+                              }
+                            }
+                          },
+                          description: {
+                            type: "string",
+                            description: "Description of the location"
+                          },
+                          elevation: {
+                            type: "string",
+                            description: "Optional elevation information in feet"
+                          },
+                          details: {
+                            type: "string",
+                            description: "Additional details about the location"
+                          }
+                        }
                       }
-                    }
-                  },
-                  itinerary: {
-                    type: "array",
-                    description: "Daily itinerary for the trip",
-                    items: {
+                    },
+                    journey: {
                       type: "object",
                       required: [
-                        "day",
-                        "title",
-                        "description",
-                        "activities"
+                        "segments",
+                        "totalDistance",
+                        "totalDuration",
+                        "bounds"
                       ],
+                      description: "Journey details for the trip",
                       properties: {
-                        day: {
-                          type: "integer",
-                          description: "Day number in the itinerary"
-                        },
-                        title: {
-                          type: "string",
-                          description: "Title for this day"
-                        },
-                        description: {
-                          type: "string",
-                          description: "Overview of this day's activities"
-                        },
-                        activities: {
+                        segments: {
                           type: "array",
-                          description: "Activities for this day",
+                          description: "Segments of the journey",
                           items: {
                             type: "object",
                             required: [
-                              "name",
-                              "type",
+                              "mode",
+                              "from",
+                              "to",
+                              "distance",
                               "duration",
-                              "description",
-                              "permitRequired"
+                              "geometry",
+                              "steps"
                             ],
                             properties: {
-                              name: {
+                              mode: {
                                 type: "string",
-                                description: "Name of the activity"
+                                enum: [
+                                  "walking",
+                                  "driving",
+                                  "cycling",
+                                  "transit"
+                                ],
+                                description: "Mode of transportation for this segment"
                               },
-                              type: {
+                              from: {
                                 type: "string",
-                                description: "Type of activity"
+                                description: "Starting point for this segment"
+                              },
+                              to: {
+                                type: "string",
+                                description: "Ending point for this segment"
+                              },
+                              distance: {
+                                type: "number",
+                                description: "Distance in meters"
                               },
                               duration: {
+                                type: "number",
+                                description: "Duration in seconds"
+                              },
+                              geometry: {
+                                type: "object",
+                                required: [
+                                  "coordinates"
+                                ],
+                                description: "Geometry of the route",
+                                properties: {
+                                  coordinates: {
+                                    type: "array",
+                                    description: "Array of coordinate pairs for the route",
+                                    items: {
+                                      type: "array",
+                                      description: "Coordinate pair [longitude, latitude]",
+                                      items: {
+                                        type: "number"
+                                      },
+                                      minItems: 2,
+                                      maxItems: 2
+                                    }
+                                  }
+                                }
+                              },
+                              steps: {
+                                type: "array",
+                                description: "Steps within this segment",
+                                items: {
+                                  type: "object",
+                                  required: [
+                                    "maneuver",
+                                    "distance",
+                                    "duration"
+                                  ],
+                                  properties: {
+                                    maneuver: {
+                                      type: "object",
+                                      required: [
+                                        "instruction",
+                                        "location"
+                                      ],
+                                      properties: {
+                                        instruction: {
+                                          type: "string",
+                                          description: "Instruction for this step"
+                                        },
+                                        location: {
+                                          type: "array",
+                                          description: "Location coordinates [longitude, latitude]",
+                                          items: {
+                                            type: "number"
+                                          },
+                                          minItems: 2,
+                                          maxItems: 2
+                                        }
+                                      }
+                                    },
+                                    distance: {
+                                      type: "number",
+                                      description: "Distance in meters"
+                                    },
+                                    duration: {
+                                      type: "number",
+                                      description: "Duration in seconds"
+                                    }
+                                  }
+                                }
+                              },
+                              elevationGain: {
+                                type: "number",
+                                description: "Elevation gain in meters"
+                              },
+                              terrain: {
                                 type: "string",
-                                description: "Duration of the activity in human-readable format"
+                                enum: [
+                                  "trail",
+                                  "paved",
+                                  "rocky",
+                                  "mixed"
+                                ],
+                                description: "Type of terrain for this segment"
                               },
                               description: {
                                 type: "string",
-                                description: "Description of the activity"
-                              },
-                              permitRequired: {
-                                type: "boolean",
-                                description: "Whether a permit is required for this activity"
-                              },
-                              permitDetails: {
-                                type: "string",
-                                description: "Details about required permits"
-                              },
-                              outfitters: {
-                                type: "array",
-                                description: "Recommended outfitters for this activity",
-                                items: {
-                                  type: "string"
+                                description: "Description of this segment"
+                              }
+                            }
+                          }
+                        },
+                        totalDistance: {
+                          type: "number",
+                          description: "Total distance of the journey in meters"
+                        },
+                        totalDuration: {
+                          type: "number",
+                          description: "Total duration of the journey in seconds"
+                        },
+                        bounds: {
+                          type: "array",
+                          description: "Bounding box for the journey [southwest, northeast]",
+                          items: {
+                            type: "array",
+                            description: "Coordinate pair [longitude, latitude]",
+                            items: {
+                              type: "number"
+                            },
+                            minItems: 2,
+                            maxItems: 2
+                          },
+                          minItems: 2,
+                          maxItems: 2
+                        }
+                      }
+                    },
+                    itinerary: {
+                      type: "array",
+                      description: "Daily itinerary for the trip",
+                      items: {
+                        type: "object",
+                        required: [
+                          "day",
+                          "title",
+                          "description",
+                          "activities"
+                        ],
+                        properties: {
+                          day: {
+                            type: "integer",
+                            description: "Day number in the itinerary"
+                          },
+                          title: {
+                            type: "string",
+                            description: "Title for this day"
+                          },
+                          description: {
+                            type: "string",
+                            description: "Overview of this day's activities"
+                          },
+                          activities: {
+                            type: "array",
+                            description: "Activities for this day",
+                            items: {
+                              type: "object",
+                              required: [
+                                "name",
+                                "type",
+                                "duration",
+                                "description",
+                                "permitRequired"
+                              ],
+                              properties: {
+                                name: {
+                                  type: "string",
+                                  description: "Name of the activity"
+                                },
+                                type: {
+                                  type: "string",
+                                  description: "Type of activity"
+                                },
+                                duration: {
+                                  type: "string",
+                                  description: "Duration of the activity in human-readable format"
+                                },
+                                description: {
+                                  type: "string",
+                                  description: "Description of the activity"
+                                },
+                                permitRequired: {
+                                  type: "boolean",
+                                  description: "Whether a permit is required for this activity"
+                                },
+                                permitDetails: {
+                                  type: "string",
+                                  description: "Details about required permits"
+                                },
+                                outfitters: {
+                                  type: "array",
+                                  description: "Recommended outfitters for this activity",
+                                  items: {
+                                    type: "string"
+                                  }
                                 }
                               }
                             }
@@ -428,88 +430,82 @@ async function callClaudeApi(prompt: string) {
                   }
                 }
               }
-            }
-          },
-          required: [
-            "trips"
-          ]
-        }
-      }
-    ]
-  };
-
-  try {
-    console.log("Sending request to Claude API");
-    const response = await fetch(claudeApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01",
-        "x-api-key": claudeApiKey
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Claude API error: ${response.status}`, errorText);
-      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log("Claude API response received:", JSON.stringify(data).substring(0, 200) + "...");
-    
-    // Check if there's a tool response
-    if (data.content && Array.isArray(data.content)) {
-      // Find the tool response
-      const toolBlock = data.content.find(
-        (item: any) => item.type === "tool_use"
-      );
-      
-      if (toolBlock && toolBlock.input) {
-        console.log("Successfully parsed Claude tool response");
-        const parsedData = JSON.parse(toolBlock.input);
-        
-        // Validate the response format
-        if (!parsedData.trips || !Array.isArray(parsedData.trips)) {
-          console.error("Invalid response format: missing trips array");
-          throw new Error("Invalid response format: missing trips array");
-        }
-        
-        // Validate each trip has required fields
-        parsedData.trips.forEach((trip: any, index: number) => {
-          if (!trip.id || !trip.title || !trip.description || !trip.mapCenter) {
-            console.error(`Trip at index ${index} is missing required fields`);
+            },
+            required: [
+              "trips"
+            ]
           }
-        });
-        
-        return parsedData;
-      } else {
-        // If there's no tool response, try to find a text block with JSON
-        const textBlock = data.content.find(
-          (item: any) => item.type === "text"
+        }
+      ]
+    };
+
+    try {
+      console.log("Sending request to Claude API");
+      const response = await fetch(claudeApiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "anthropic-version": "2023-06-01",
+          "x-api-key": claudeApiKey
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Claude API error: ${response.status}`, errorText);
+        throw new Error(`Claude API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("Claude API response received:", JSON.stringify(data).substring(0, 200) + "...");
+      
+      // Check if there's a tool response
+      if (data.content && Array.isArray(data.content)) {
+        // Find the tool response
+        const toolBlock = data.content.find(
+          (item: any) => item.type === "tool_use"
         );
         
-        if (textBlock) {
+        if (toolBlock && toolBlock.input) {
+          console.log("Successfully parsed Claude tool response");
           try {
-            // Try to extract JSON from the text
-            const jsonMatch = textBlock.text.match(/```json\s*([\s\S]*?)\s*```/);
-            if (jsonMatch && jsonMatch[1]) {
-              console.log("Extracted JSON from code block in text response");
-              const parsedData = JSON.parse(jsonMatch[1]);
-              
-              // Transform into expected format if necessary
-              if (!parsedData.trips && Array.isArray(parsedData)) {
-                console.log("Transforming array response to trips object");
-                return { trips: parsedData };
+            // The input property is already a parsed object, not a string, so we don't need to parse it
+            const parsedData = typeof toolBlock.input === 'string' 
+              ? JSON.parse(toolBlock.input) 
+              : toolBlock.input;
+            
+            // Validate the response format
+            if (!parsedData.trips || !Array.isArray(parsedData.trips)) {
+              console.error("Invalid response format: missing trips array");
+              throw new Error("Invalid response format: missing trips array");
+            }
+            
+            // Validate each trip has required fields
+            parsedData.trips.forEach((trip: any, index: number) => {
+              if (!trip.id || !trip.title || !trip.description || !trip.mapCenter) {
+                console.error(`Trip at index ${index} is missing required fields`);
               }
-              
-              return parsedData;
-            } else {
-              try {
-                // Attempt to parse the entire text as JSON
-                console.log("Attempting to parse entire text as JSON");
-                const parsedData = JSON.parse(textBlock.text);
+            });
+            
+            return parsedData;
+          } catch (e) {
+            console.error("Error processing tool response:", e);
+            throw new Error(`Failed to process Claude tool response: ${e.message}`);
+          }
+        } else {
+          // If there's no tool response, try to find a text block with JSON
+          const textBlock = data.content.find(
+            (item: any) => item.type === "text"
+          );
+          
+          if (textBlock) {
+            try {
+              // Try to extract JSON from the text
+              const jsonMatch = textBlock.text.match(/```json\s*([\s\S]*?)\s*```/);
+              if (jsonMatch && jsonMatch[1]) {
+                console.log("Extracted JSON from code block in text response");
+                const parsedData = JSON.parse(jsonMatch[1]);
                 
                 // Transform into expected format if necessary
                 if (!parsedData.trips && Array.isArray(parsedData)) {
@@ -518,23 +514,40 @@ async function callClaudeApi(prompt: string) {
                 }
                 
                 return parsedData;
-              } catch (e) {
-                console.error("Failed to parse text as JSON:", e);
-                throw new Error("Failed to extract valid JSON from Claude response");
+              } else {
+                try {
+                  // Attempt to parse the entire text as JSON
+                  console.log("Attempting to parse entire text as JSON");
+                  const parsedData = JSON.parse(textBlock.text);
+                  
+                  // Transform into expected format if necessary
+                  if (!parsedData.trips && Array.isArray(parsedData)) {
+                    console.log("Transforming array response to trips object");
+                    return { trips: parsedData };
+                  }
+                  
+                  return parsedData;
+                } catch (e) {
+                  console.error("Failed to parse text as JSON:", e);
+                  throw new Error("Failed to extract valid JSON from Claude response");
+                }
               }
+            } catch (e) {
+              console.error("Failed to extract JSON from text:", e);
+              throw new Error("Failed to extract valid JSON from Claude response");
             }
-          } catch (e) {
-            console.error("Failed to extract JSON from text:", e);
-            throw new Error("Failed to extract valid JSON from Claude response");
           }
         }
       }
+      
+      console.error("Unexpected Claude API response format:", JSON.stringify(data).substring(0, 200) + "...");
+      throw new Error("Unexpected Claude API response format");
+    } catch (error) {
+      console.error("Error calling Claude API:", error);
+      throw error;
     }
-    
-    console.error("Unexpected Claude API response format:", JSON.stringify(data).substring(0, 200) + "...");
-    throw new Error("Unexpected Claude API response format");
   } catch (error) {
-    console.error("Error calling Claude API:", error);
+    console.error("Error in callClaudeApi function:", error);
     throw error;
   }
 }
@@ -566,8 +579,33 @@ serve(async (req) => {
 
     console.log("Processing prompt:", prompt);
 
-    // Call Claude API
-    const claudeResponse = await callClaudeApi(prompt);
+    // Set a timeout for the Claude API call to prevent long-running functions
+    const TIMEOUT_MS = 50000; // 50 seconds
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Claude API call timed out")), TIMEOUT_MS)
+    );
+    
+    // Call Claude API with timeout
+    let claudeResponse;
+    try {
+      claudeResponse = await Promise.race([
+        callClaudeApi(prompt),
+        timeoutPromise
+      ]);
+    } catch (error) {
+      console.error("Error or timeout calling Claude API:", error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Error processing request", 
+          details: error.message,
+          fallback: true
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
+    }
     
     console.log("Returning response to client");
     
