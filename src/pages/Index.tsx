@@ -6,6 +6,7 @@ import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { generateTrips } from '@/services/tripService';
+
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -25,6 +26,7 @@ const Index: React.FC = () => {
       }
     }
   }, []);
+
   const handleSubmitPrompt = async (prompt: string) => {
     setIsProcessing(true);
     setErrorDetails(null);
@@ -62,9 +64,11 @@ const Index: React.FC = () => {
       setIsProcessing(false);
     }
   };
+
   const handleViewTripDetails = (tripId: string) => {
     navigate(`/trip/${tripId}`);
   };
+
   const handleSaveTrip = (trip: Trip) => {
     // Get existing saved trips
     const savedTripsData = localStorage.getItem('savedTrips');
@@ -98,16 +102,19 @@ const Index: React.FC = () => {
       });
     }
   };
+
   return <div className="container max-w-5xl mx-auto p-4 space-y-8">
       <div className="text-center space-y-2 mb-8">
-        <h1 className="font-poppins px-5 font-bold text-5xl letter-spacing: -10px">
-          <span className="offbeat-gradient mx-">offbeat</span> adventure
+        <h1 className="font-poppins tracking-[-4px] font-bold text-5xl">
+          Let's find an <span className="offbeat-gradient">offbeat</span> adventure
         </h1>
-        <p className="font-patano text-lg font-medium">off-the-beaten path trips, powered by local guides</p>
+        <p className="font-patano text-lg">Powered by local guides: explore, plan, experience better trips</p>
       </div>
       
       <Card className="p-6 shadow-md">
-        <PromptInput onSubmit={handleSubmitPrompt} isProcessing={isProcessing} />
+        <PromptInput onSubmit={handleSubmitPrompt} isProcessing={isProcessing} 
+          placeholder="I would like to do a weekend trip hiking Yosemite on trails with fewer people."
+        />
         
         {errorDetails && <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
             <p className="font-semibold">Error details (for debugging):</p>
@@ -130,4 +137,5 @@ const Index: React.FC = () => {
         </div>}
     </div>;
 };
+
 export default Index;

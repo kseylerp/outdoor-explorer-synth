@@ -21,34 +21,13 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Check if journey exists and has minimal required properties
+  // All segments will be displayed with different styling instead of filtering
+  // We'll use the routeType just for informational purposes in the UI
   const hasValidJourney = journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
     journey.segments.length > 0;
     
-  // Filter segments by route type if specified
-  const filteredJourney = hasValidJourney && routeType !== 'all' 
-    ? {
-        ...journey,
-        segments: journey.segments.filter(segment => {
-          // Map the route type to segment mode
-          switch(routeType) {
-            case 'walk':
-              return segment.mode === 'walking' || segment.mode === 'hiking';
-            case 'bike':
-              return segment.mode === 'cycling';
-            case 'drive':
-              return segment.mode === 'driving';
-            case 'transit':
-              return segment.mode === 'transit';
-            default:
-              return true;
-          }
-        })
-      }
-    : journey;
-  
   return (
     <>
       {validMarkers.length > 0 && (
@@ -56,7 +35,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
       )}
       
       {hasValidJourney && (
-        <RouteLayer map={map} journey={filteredJourney} />
+        <RouteLayer map={map} journey={journey} />
       )}
     </>
   );

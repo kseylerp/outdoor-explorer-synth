@@ -1,4 +1,3 @@
-
 import mapboxgl from 'mapbox-gl';
 import { Segment } from '@/types/trips';
 
@@ -131,7 +130,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     }
   };
   
-  // Create popup HTML content
+  // Create popup HTML content with enhanced information
   const createPopupContent = (segment: Segment): string => {
     const mode = segment.mode.charAt(0).toUpperCase() + segment.mode.slice(1);
     const distance = formatDistance(segment.distance);
@@ -139,7 +138,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     
     let html = `
       <div class="route-popup">
-        <div class="route-popup-header">
+        <div class="route-popup-header" style="background-color: ${modeColors[segment.mode as keyof typeof modeColors] || '#757575'}; color: white;">
           <div class="route-popup-title">${mode} Route</div>
         </div>
         <div class="route-popup-content">
@@ -178,7 +177,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     if (segment.description) {
       html += `
         <div class="route-popup-description">
-          ${segment.description}
+          <strong>Notes:</strong> ${segment.description}
         </div>
       `;
     }
@@ -224,20 +223,19 @@ export const addPopupStyles = () => {
   styleElement.id = 'route-popup-styles';
   styleElement.innerHTML = `
     .route-popup {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Patano Sans', system-ui, sans-serif;
       padding: 0;
       max-width: 280px;
     }
     
     .route-popup-header {
       padding: 10px;
-      border-bottom: 1px solid #e2e8f0;
+      border-radius: 8px 8px 0 0;
     }
     
     .route-popup-title {
       font-weight: 600;
       font-size: 16px;
-      color: #1a202c;
     }
     
     .route-popup-content {
@@ -248,6 +246,7 @@ export const addPopupStyles = () => {
       margin-bottom: 10px;
       font-size: 14px;
       line-height: 1.5;
+      color: #333;
     }
     
     .route-popup-stats {
@@ -256,6 +255,7 @@ export const addPopupStyles = () => {
       gap: 8px;
       margin-bottom: 10px;
       font-size: 14px;
+      color: #333;
     }
     
     .route-popup-stat {
@@ -265,7 +265,7 @@ export const addPopupStyles = () => {
     .route-popup-description {
       font-size: 14px;
       line-height: 1.5;
-      color: #4a5568;
+      color: #333;
       border-top: 1px solid #e2e8f0;
       padding-top: 10px;
       margin-top: 5px;

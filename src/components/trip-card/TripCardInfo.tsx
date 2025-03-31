@@ -1,5 +1,6 @@
 
 import React from 'react';
+import DifficultyBadge from './DifficultyBadge';
 
 interface TripCardInfoProps {
   whyWeChoseThis: string;
@@ -28,7 +29,7 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
   return (
     <div className="flex-1 space-y-3">
       {/* Trip Info Key Details */}
-      <div className="grid grid-cols-2 gap-2 text-sm">
+      <div className="grid grid-cols-2 gap-2 text-sm font-patano text-gray-700">
         <div>
           <span className="text-gray-600 block">Duration</span>
           <span className="font-medium">{duration}</span>
@@ -43,23 +44,23 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
         </div>
         <div>
           <span className="text-gray-600 block">Difficulty</span>
-          <span className="font-medium">{difficultyLevel}</span>
+          <DifficultyBadge level={difficultyLevel} />
         </div>
       </div>
       
       {/* Why We Chose This */}
       <div>
-        <h4 className="text-[14px] font-bold text-purple-700">Why we chose this</h4>
-        <p className="text-sm text-gray-600 line-clamp-3">{whyWeChoseThis}</p>
+        <h4 className="text-[14px] font-bold text-[#9870FF]">Why we chose this</h4>
+        <p className="text-sm font-patano text-gray-700 line-clamp-3">{whyWeChoseThis}</p>
       </div>
       
       {/* Suggested Guides */}
       {suggestedGuides && suggestedGuides.length > 0 && (
         <div>
-          <h4 className="text-[14px] font-bold text-purple-700">Suggested Guides</h4>
+          <h4 className="text-[14px] font-bold text-[#9870FF]">Suggested Guides</h4>
           <div className="flex flex-wrap gap-1 mt-1">
             {suggestedGuides.map((guide, idx) => (
-              <span key={idx} className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
+              <span key={idx} className="inline-block bg-purple-100 text-[#9870FF] text-xs px-2 py-1 rounded font-patano">
                 {guide}
               </span>
             ))}
