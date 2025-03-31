@@ -100,10 +100,10 @@ const Index: React.FC = () => {
   };
   return <div className="container max-w-5xl mx-auto p-4 space-y-8">
       <div className="text-center space-y-2 mb-8">
-        <h1 className="font-poppins px-5 font-bold text-5xl letter-spacing: -10px">
+        <h1 className="font-poppins px-5 font-bold text-5xl letter-spacing -2px">Let's find an 
           <span className="offbeat-gradient mx-">offbeat</span> adventure
         </h1>
-        <p className="font-patano text-lg font-medium">off-the-beaten path trips, powered by local guides</p>
+        <p className="font-patano text-lg font-medium">Powered by local guides: discover, plan, and experience better trips</p>
       </div>
       
       <Card className="p-6 shadow-md">
