@@ -1,3 +1,4 @@
+
 import mapboxgl from 'mapbox-gl';
 import { Segment } from '@/types/trips';
 
@@ -6,8 +7,10 @@ const modeColors = {
   walking: '#4CAF50',
   hiking: '#8BC34A',
   cycling: '#2196F3',
+  biking: '#2196F3',  // Alias for cycling
   driving: '#FF9800',
   transit: '#9C27B0',
+  ferry: '#00BCD4',
   default: '#757575'
 };
 
@@ -25,6 +28,10 @@ const modeLineStyles = {
     width: 3,
     dashArray: []
   },
+  biking: {
+    width: 3,
+    dashArray: []
+  },
   driving: {
     width: 5,
     dashArray: []
@@ -32,6 +39,10 @@ const modeLineStyles = {
   transit: {
     width: 5,
     dashArray: [3, 2]
+  },
+  ferry: {
+    width: 4,
+    dashArray: [4, 2]
   },
   default: {
     width: 4,
@@ -108,7 +119,7 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
   }
 };
 
-export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, layerId: string) => {
+export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, layerId: string, showElevation = false) => {
   // Format duration as hours and minutes
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -155,8 +166,8 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
             </div>
     `;
     
-    // Add elevation gain if available
-    if (segment.elevationGain) {
+    // Add elevation gain if available and elevation is requested
+    if (showElevation && segment.elevationGain) {
       html += `
         <div class="route-popup-stat">
           <strong>Elevation Gain:</strong> ${segment.elevationGain}m
@@ -178,6 +189,37 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
       html += `
         <div class="route-popup-description">
           <strong>Notes:</strong> ${segment.description}
+        </div>
+      `;
+    }
+    
+    // Add steps/waypoints if available (for walking, hiking, etc.)
+    if (segment.steps && segment.steps.length > 0) {
+      html += `
+        <div class="route-popup-waypoints">
+          <strong>Waypoints:</strong>
+          <ul class="route-popup-waypoint-list">
+      `;
+      
+      // Add up to 3 steps to avoid overwhelming the popup
+      const stepsToShow = segment.steps.slice(0, 3);
+      stepsToShow.forEach(step => {
+        if (step.maneuver && step.maneuver.instruction) {
+          html += `
+            <li class="route-popup-waypoint-item">
+              ${step.maneuver.instruction} (${formatDistance(step.distance)})
+            </li>
+          `;
+        }
+      });
+      
+      // Add a "more" indicator if there are more steps
+      if (segment.steps.length > 3) {
+        html += `<li class="route-popup-waypoint-more">...and ${segment.steps.length - 3} more waypoints</li>`;
+      }
+      
+      html += `
+          </ul>
         </div>
       `;
     }
@@ -269,6 +311,30 @@ export const addPopupStyles = () => {
       border-top: 1px solid #e2e8f0;
       padding-top: 10px;
       margin-top: 5px;
+    }
+    
+    .route-popup-waypoints {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      margin-top: 5px;
+    }
+    
+    .route-popup-waypoint-list {
+      margin: 5px 0 0 0;
+      padding-left: 15px;
+    }
+    
+    .route-popup-waypoint-item {
+      margin-bottom: 4px;
+    }
+    
+    .route-popup-waypoint-more {
+      font-style: italic;
+      color: #666;
+      margin-top: 4px;
     }
     
     .mapboxgl-popup-content {

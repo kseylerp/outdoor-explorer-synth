@@ -12,14 +12,12 @@ import NavigationOptions from '@/components/maps/NavigationOptions';
 import TripDetails from '@/components/maps/TripDetails';
 import MapDisplay from '@/components/map/MapDisplay';
 import NavigationControls from '@/components/maps/NavigationControls';
-import RouteTypeSelector from '@/components/maps/RouteTypeSelector';
 
 const Maps: React.FC = () => {
   const [savedTrips, setSavedTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
   const [transportMode, setTransportMode] = useState<string>('driving');
   const [isNativeAvailable, setIsNativeAvailable] = useState<boolean>(false);
-  const [routeType, setRouteType] = useState<string>('all');
   const isMobile = useIsMobile();
 
   // Check if native navigation is available
@@ -67,7 +65,7 @@ const Maps: React.FC = () => {
           journey={selectedTrip?.journey} 
           markers={selectedTrip?.markers} 
           interactive={true}
-          routeType="all" // Always show all route types
+          showElevation={true}
         />
         
         {/* Simple control panel for trip selection */}

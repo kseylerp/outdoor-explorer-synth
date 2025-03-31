@@ -10,10 +10,15 @@ interface MapContentProps {
   map: mapboxgl.Map;
   markers?: MapMarker[];
   journey?: Journey;
-  routeType?: string;
+  showElevation?: boolean;
 }
 
-const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, routeType = 'all' }) => {
+const MapContent: React.FC<MapContentProps> = ({ 
+  map, 
+  markers = [], 
+  journey,
+  showElevation = false
+}) => {
   // Validate markers are properly formed before rendering
   const validMarkers = Array.isArray(markers) ? markers.filter(marker => 
     marker && marker.coordinates && 
@@ -21,8 +26,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // All segments will be displayed with different styling instead of filtering
-  // We'll use the routeType just for informational purposes in the UI
+  // Check if journey data is valid
   const hasValidJourney = journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
@@ -35,7 +39,11 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
       )}
       
       {hasValidJourney && (
-        <RouteLayer map={map} journey={journey} />
+        <RouteLayer 
+          map={map} 
+          journey={journey} 
+          showElevation={showElevation}
+        />
       )}
     </>
   );
