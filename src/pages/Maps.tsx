@@ -75,7 +75,6 @@ const Maps: React.FC = () => {
           journey={selectedTrip?.journey} 
           markers={selectedTrip?.markers} 
           interactive={true}
-          routeType={routeType}
         />
         
         {/* Floating dropdown controls panel */}
