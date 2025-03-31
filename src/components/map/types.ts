@@ -1,4 +1,7 @@
+
 import { Coordinates, Journey } from '@/types/trips';
+
+export type { Coordinates };  // Export the Coordinates type
 
 export interface MapMarker {
   name: string;

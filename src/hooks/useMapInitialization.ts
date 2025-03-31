@@ -1,4 +1,3 @@
-
 import { useState, useEffect, RefObject } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
@@ -29,11 +28,9 @@ export const useMapInitialization = ({
   const [mapInteractive, setMapInteractive] = useState(interactive);
   const { mapboxToken, loading, error } = useMapboxToken();
 
-  // Initialize map when token is available
   useEffect(() => {
     if (!mapboxToken || !mapContainer.current || map) return;
     
-    // Verify token starts with pk. for public token
     if (!mapboxToken.startsWith('pk.')) {
       console.error('Invalid Mapbox token format - must be a public token (pk.*)');
       return;
@@ -45,7 +42,7 @@ export const useMapInitialization = ({
     try {
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v11', // Use outdoors style for better trail visibility
+        style: 'mapbox://styles/mapbox/outdoors-v11',
         center: [center.lng, center.lat],
         zoom: 9,
         interactive: mapInteractive
@@ -57,7 +54,6 @@ export const useMapInitialization = ({
       
       setMap(newMap);
       
-      // Add click handler to enable interactive mode
       if (interactive && !mapInteractive) {
         mapContainer.current.addEventListener('click', enableInteractiveMode);
       }

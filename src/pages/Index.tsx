@@ -14,7 +14,6 @@ const Index: React.FC = () => {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Load saved trip IDs from localStorage
   useEffect(() => {
     const savedTripsData = localStorage.getItem('savedTrips');
     if (savedTripsData) {
@@ -40,7 +39,6 @@ const Index: React.FC = () => {
       }
       console.log('Received trips data:', tripsData);
 
-      // Set the trips from the API response
       setTrips(tripsData);
       toast({
         title: "Adventures Found!",
@@ -49,7 +47,6 @@ const Index: React.FC = () => {
     } catch (error) {
       console.error('Error processing prompt:', error);
 
-      // Detailed error for debugging
       if (error instanceof Error) {
         setErrorDetails(error.message);
       } else {
@@ -70,7 +67,6 @@ const Index: React.FC = () => {
   };
 
   const handleSaveTrip = (trip: Trip) => {
-    // Get existing saved trips
     const savedTripsData = localStorage.getItem('savedTrips');
     let savedTrips: Trip[] = [];
     if (savedTripsData) {
@@ -81,9 +77,7 @@ const Index: React.FC = () => {
       }
     }
 
-    // Check if trip is already saved
     if (savedTripIds.includes(trip.id)) {
-      // Remove the trip if it's already saved
       const updatedTrips = savedTrips.filter(savedTrip => savedTrip.id !== trip.id);
       localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
       setSavedTripIds(savedTripIds.filter(id => id !== trip.id));
@@ -92,7 +86,6 @@ const Index: React.FC = () => {
         description: "The adventure has been removed from your saved trips."
       });
     } else {
-      // Add the trip if it's not saved
       const updatedTrips = [...savedTrips, trip];
       localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
       setSavedTripIds([...savedTripIds, trip.id]);
@@ -112,7 +105,9 @@ const Index: React.FC = () => {
       </div>
       
       <Card className="p-6 shadow-md">
-        <PromptInput onSubmit={handleSubmitPrompt} isProcessing={isProcessing} 
+        <PromptInput 
+          onSubmit={handleSubmitPrompt} 
+          isProcessing={isProcessing} 
           placeholder="I would like to do a weekend trip hiking Yosemite on trails with fewer people."
         />
         
