@@ -10,15 +10,10 @@ interface MapContentProps {
   map: mapboxgl.Map;
   markers?: MapMarker[];
   journey?: Journey;
-  showElevation?: boolean;
+  routeType?: string;
 }
 
-const MapContent: React.FC<MapContentProps> = ({ 
-  map, 
-  markers = [], 
-  journey,
-  showElevation = false
-}) => {
+const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, routeType = 'all' }) => {
   // Validate markers are properly formed before rendering
   const validMarkers = Array.isArray(markers) ? markers.filter(marker => 
     marker && marker.coordinates && 
@@ -26,12 +21,34 @@ const MapContent: React.FC<MapContentProps> = ({
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Check if journey data is valid
+  // Check if journey exists and has minimal required properties
   const hasValidJourney = journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
     journey.segments.length > 0;
     
+  // Filter segments by route type if specified
+  const filteredJourney = hasValidJourney && routeType !== 'all' 
+    ? {
+        ...journey,
+        segments: journey.segments.filter(segment => {
+          // Map the route type to segment mode
+          switch(routeType) {
+            case 'walk':
+              return segment.mode === 'walking' || segment.mode === 'hiking';
+            case 'bike':
+              return segment.mode === 'cycling';
+            case 'drive':
+              return segment.mode === 'driving';
+            case 'transit':
+              return segment.mode === 'transit';
+            default:
+              return true;
+          }
+        })
+      }
+    : journey;
+  
   return (
     <>
       {validMarkers.length > 0 && (
@@ -39,11 +56,7 @@ const MapContent: React.FC<MapContentProps> = ({
       )}
       
       {hasValidJourney && (
-        <RouteLayer 
-          map={map} 
-          journey={journey} 
-          showElevation={showElevation}
-        />
+        <RouteLayer map={map} journey={filteredJourney} />
       )}
     </>
   );

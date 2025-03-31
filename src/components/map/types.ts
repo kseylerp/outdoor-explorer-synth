@@ -1,7 +1,9 @@
+import { Journey } from '@/types/trips';
 
-import { Coordinates, Journey } from '@/types/trips';
-
-export type { Coordinates };  // Export the Coordinates type
+export interface Coordinates {
+  lng: number;
+  lat: number;
+}
 
 export interface MapMarker {
   name: string;
@@ -9,7 +11,6 @@ export interface MapMarker {
   description?: string;
   elevation?: string | number;
   details?: string;
-  activityNote?: string;
 }
 
 export interface MapDisplayProps {
@@ -17,5 +18,5 @@ export interface MapDisplayProps {
   markers?: MapMarker[];
   center?: Coordinates;
   interactive?: boolean;
-  showElevation?: boolean;
+  routeType?: string;
 }

@@ -7,10 +7,8 @@ const modeColors = {
   walking: '#4CAF50',
   hiking: '#8BC34A',
   cycling: '#2196F3',
-  biking: '#2196F3',  // Alias for cycling
   driving: '#FF9800',
   transit: '#9C27B0',
-  ferry: '#00BCD4',
   default: '#757575'
 };
 
@@ -28,10 +26,6 @@ const modeLineStyles = {
     width: 3,
     dashArray: []
   },
-  biking: {
-    width: 3,
-    dashArray: []
-  },
   driving: {
     width: 5,
     dashArray: []
@@ -39,10 +33,6 @@ const modeLineStyles = {
   transit: {
     width: 5,
     dashArray: [3, 2]
-  },
-  ferry: {
-    width: 4,
-    dashArray: [4, 2]
   },
   default: {
     width: 4,
@@ -119,7 +109,7 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
   }
 };
 
-export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, layerId: string, showElevation = false) => {
+export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, layerId: string) => {
   // Format duration as hours and minutes
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -141,7 +131,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     }
   };
   
-  // Create popup HTML content with enhanced information
+  // Create popup HTML content
   const createPopupContent = (segment: Segment): string => {
     const mode = segment.mode.charAt(0).toUpperCase() + segment.mode.slice(1);
     const distance = formatDistance(segment.distance);
@@ -149,7 +139,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     
     let html = `
       <div class="route-popup">
-        <div class="route-popup-header" style="background-color: ${modeColors[segment.mode as keyof typeof modeColors] || '#757575'}; color: white;">
+        <div class="route-popup-header">
           <div class="route-popup-title">${mode} Route</div>
         </div>
         <div class="route-popup-content">
@@ -166,8 +156,8 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
             </div>
     `;
     
-    // Add elevation gain if available and elevation is requested
-    if (showElevation && segment.elevationGain) {
+    // Add elevation gain if available
+    if (segment.elevationGain) {
       html += `
         <div class="route-popup-stat">
           <strong>Elevation Gain:</strong> ${segment.elevationGain}m
@@ -188,38 +178,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     if (segment.description) {
       html += `
         <div class="route-popup-description">
-          <strong>Notes:</strong> ${segment.description}
-        </div>
-      `;
-    }
-    
-    // Add steps/waypoints if available (for walking, hiking, etc.)
-    if (segment.steps && segment.steps.length > 0) {
-      html += `
-        <div class="route-popup-waypoints">
-          <strong>Waypoints:</strong>
-          <ul class="route-popup-waypoint-list">
-      `;
-      
-      // Add up to 3 steps to avoid overwhelming the popup
-      const stepsToShow = segment.steps.slice(0, 3);
-      stepsToShow.forEach(step => {
-        if (step.maneuver && step.maneuver.instruction) {
-          html += `
-            <li class="route-popup-waypoint-item">
-              ${step.maneuver.instruction} (${formatDistance(step.distance)})
-            </li>
-          `;
-        }
-      });
-      
-      // Add a "more" indicator if there are more steps
-      if (segment.steps.length > 3) {
-        html += `<li class="route-popup-waypoint-more">...and ${segment.steps.length - 3} more waypoints</li>`;
-      }
-      
-      html += `
-          </ul>
+          ${segment.description}
         </div>
       `;
     }
@@ -265,19 +224,20 @@ export const addPopupStyles = () => {
   styleElement.id = 'route-popup-styles';
   styleElement.innerHTML = `
     .route-popup {
-      font-family: 'Patano Sans', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       padding: 0;
       max-width: 280px;
     }
     
     .route-popup-header {
       padding: 10px;
-      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #e2e8f0;
     }
     
     .route-popup-title {
       font-weight: 600;
       font-size: 16px;
+      color: #1a202c;
     }
     
     .route-popup-content {
@@ -288,7 +248,6 @@ export const addPopupStyles = () => {
       margin-bottom: 10px;
       font-size: 14px;
       line-height: 1.5;
-      color: #333;
     }
     
     .route-popup-stats {
@@ -297,7 +256,6 @@ export const addPopupStyles = () => {
       gap: 8px;
       margin-bottom: 10px;
       font-size: 14px;
-      color: #333;
     }
     
     .route-popup-stat {
@@ -307,34 +265,10 @@ export const addPopupStyles = () => {
     .route-popup-description {
       font-size: 14px;
       line-height: 1.5;
-      color: #333;
+      color: #4a5568;
       border-top: 1px solid #e2e8f0;
       padding-top: 10px;
       margin-top: 5px;
-    }
-    
-    .route-popup-waypoints {
-      font-size: 14px;
-      line-height: 1.5;
-      color: #333;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
-      margin-top: 5px;
-    }
-    
-    .route-popup-waypoint-list {
-      margin: 5px 0 0 0;
-      padding-left: 15px;
-    }
-    
-    .route-popup-waypoint-item {
-      margin-bottom: 4px;
-    }
-    
-    .route-popup-waypoint-more {
-      font-style: italic;
-      color: #666;
-      margin-top: 4px;
     }
     
     .mapboxgl-popup-content {

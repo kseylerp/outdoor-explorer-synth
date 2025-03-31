@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +28,7 @@ const TripCard: React.FC<TripCardProps> = ({
   showRemoveButton = false,
   onRemove
 }) => {
+  const [routeType, setRouteType] = useState('all');
   const navigate = useNavigate();
   
   const handleSaveTrip = () => {
@@ -58,6 +59,7 @@ const TripCard: React.FC<TripCardProps> = ({
             center={trip.mapCenter}
             markers={trip.markers}
             journey={trip.journey}
+            routeType={routeType}
           />
           
           <TripCardInfo 

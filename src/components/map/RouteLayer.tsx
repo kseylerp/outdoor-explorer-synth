@@ -14,10 +14,9 @@ interface RouteLayerProps {
     totalDuration: number;
     bounds?: number[][];
   };
-  showElevation?: boolean;
 }
 
-const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey, showElevation = false }) => {
+const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
   const layerIdsRef = useRef<string[]>([]);
   const sourceIdsRef = useRef<string[]>([]);
 
@@ -32,13 +31,6 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey, showElevation = f
     // Add sources and layers for each segment
     journey.segments.forEach((segment, index) => {
       if (!segment.geometry || !segment.geometry.coordinates) {
-        console.warn('Segment missing geometry or coordinates:', segment);
-        return;
-      }
-
-      // Only add segments with valid coordinates
-      if (segment.geometry.coordinates.length < 2) {
-        console.warn('Segment has less than 2 coordinates:', segment);
         return;
       }
 
@@ -48,8 +40,8 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey, showElevation = f
         sourceIdsRef.current.push(sourceId);
         layerIdsRef.current.push(layerId);
         
-        // Add interactivity with elevation if requested
-        addSegmentInteractions(map, segment, layerId, showElevation);
+        // Add interactivity
+        addSegmentInteractions(map, segment, layerId);
       }
     });
 
@@ -86,7 +78,7 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey, showElevation = f
       layerIdsRef.current = [];
       sourceIdsRef.current = [];
     };
-  }, [map, journey, showElevation]);
+  }, [map, journey]);
 
   if (!map || !journey) return null;
 
