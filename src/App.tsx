@@ -1,53 +1,62 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Index from '@/pages/Index';
-import About from '@/pages/About';
-import Explore from '@/pages/Explore';
-import TripDetails from '@/pages/TripDetails';
-import SavedTrips from '@/pages/SavedTrips';
-import Maps from '@/pages/Maps';
-import NotFound from '@/pages/NotFound';
-import Destinations from '@/pages/Destinations';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import TripDetails from "./pages/TripDetails";
+import NotFound from "./pages/NotFound";
+import Explore from "./pages/Explore";
+import Destinations from "./pages/Destinations";
+import Maps from "./pages/Maps";
+import About from "./pages/About";
+import SavedTrips from "./pages/SavedTrips";
+import MainNav from "./components/MainNav";
+import TopNav from "./components/TopNav";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useIsMobile } from "./hooks/use-mobile";
 
-// Guide Portal Routes
-import GuideLayout from '@/layouts/GuideLayout';
-import GuideLogin from '@/pages/guide/Login';
-import GuideDashboard from '@/pages/guide/Dashboard';
-import GuideProfile from '@/pages/guide/Profile';
-import TripManagement from '@/pages/guide/TripManagement';
-import CreateTrip from '@/pages/guide/CreateTrip';
+const queryClient = new QueryClient();
 
-import '@/App.css';
-
-const App: React.FC = () => {
+const AppContent = () => {
+  const isMobile = useIsMobile();
+  
   return (
-    <Router>
-      <Routes>
-        {/* Main App Routes */}
-        <Route path="/" element={<Index />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/trip/:id" element={<TripDetails />} />
-        <Route path="/saved-trips" element={<SavedTrips />} />
-        <Route path="/maps" element={<Maps />} />
-        <Route path="/destinations" element={<Destinations />} />
-        
-        {/* Guide Portal Routes */}
-        <Route path="/guide/login" element={<GuideLogin />} />
-        <Route path="/guide" element={<GuideLayout />}>
-          <Route path="dashboard" element={<GuideDashboard />} />
-          <Route path="profile" element={<GuideProfile />} />
-          <Route path="trips" element={<TripManagement />} />
-          <Route path="create-trip" element={<CreateTrip />} />
-          {/* Additional guide routes will be added here */}
-        </Route>
-        
-        {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <div className="flex min-h-screen w-full">
+      {!isMobile && <MainNav />}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <TopNav />
+        <main className="flex-1 overflow-auto">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/trip/:id" element={<TripDetails />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/saved-trips" element={<SavedTrips />} />
+            <Route path="/destinations" element={<Destinations />} />
+            <Route path="/maps" element={<Maps />} />
+            <Route path="/about" element={<About />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
   );
 };
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <SidebarProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </SidebarProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
