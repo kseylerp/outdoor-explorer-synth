@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MarkerLayer from './MarkerLayer';
 import RouteLayer from './RouteLayer';
 import { Journey } from '@/types/trips';
 import { MapMarker } from './types';
+import { toast } from '@/hooks/use-toast';
 
 interface MapContentProps {
   map: mapboxgl.Map;
@@ -27,6 +28,19 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
     Array.isArray(journey.segments) && 
     journey.segments.length > 0;
     
+  // Check if there are sparse waypoints that could benefit from directions
+  useEffect(() => {
+    if (hasValidJourney) {
+      const hasSparsePath = journey.segments.some(segment => 
+        segment.geometry.coordinates.length < 3
+      );
+      
+      if (hasSparsePath) {
+        console.log("Detected sparse waypoints in journey - for more realistic routes, consider using Mapbox Directions API");
+      }
+    }
+  }, [journey, hasValidJourney]);
+  
   // Filter segments by route type if specified
   const filteredJourney = hasValidJourney && routeType !== 'all' 
     ? {
@@ -49,13 +63,26 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
       }
     : journey;
   
+  // Notify if filtered journey has no segments
+  useEffect(() => {
+    if (hasValidJourney && 
+        routeType !== 'all' && 
+        filteredJourney?.segments.length === 0) {
+      toast({
+        title: "No routes available",
+        description: `No ${routeType} routes found for this trip.`,
+        variant: "default"
+      });
+    }
+  }, [filteredJourney, hasValidJourney, routeType]);
+  
   return (
     <>
       {validMarkers.length > 0 && (
         <MarkerLayer map={map} markers={validMarkers} />
       )}
       
-      {hasValidJourney && (
+      {hasValidJourney && filteredJourney && filteredJourney.segments.length > 0 && (
         <RouteLayer map={map} journey={filteredJourney} />
       )}
     </>

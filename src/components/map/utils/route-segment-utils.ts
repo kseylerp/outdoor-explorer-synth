@@ -78,17 +78,44 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
       }
     });
     
-    // Add the route line layer
+    // Add the route line layer with enhanced styling
     const linePaint: mapboxgl.LinePaint = {
       'line-color': color,
       'line-width': lineStyle.width,
-      'line-opacity': 0.8
+      'line-opacity': 0.8,
+      'line-gradient': [
+        'interpolate',
+        ['linear'],
+        ['line-progress'],
+        0, color,
+        0.5, adjustColorBrightness(color, 20),
+        1, color
+      ]
     };
     
     // Add dash array if specified
     if (lineStyle.dashArray && lineStyle.dashArray.length > 0) {
       linePaint['line-dasharray'] = lineStyle.dashArray;
     }
+    
+    // Add a glow effect to make lines more visible
+    const glowLayerId = `${layerId}-glow`;
+    map.addLayer({
+      id: glowLayerId,
+      type: 'line',
+      source: sourceId,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+        visibility: 'visible'
+      },
+      paint: {
+        'line-color': adjustColorBrightness(color, 40),
+        'line-width': lineStyle.width + 4,
+        'line-opacity': 0.4,
+        'line-blur': 3
+      }
+    });
     
     // Add the line layer
     map.addLayer({
@@ -108,6 +135,22 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
     return {};
   }
 };
+
+// Helper function to adjust color brightness
+function adjustColorBrightness(hex: string, percent: number) {
+  // Parse hex color to RGB
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+
+  // Adjust brightness
+  r = Math.min(255, Math.max(0, r + percent));
+  g = Math.min(255, Math.max(0, g + percent));
+  b = Math.min(255, Math.max(0, b + percent));
+
+  // Convert back to hex
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
 
 export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, layerId: string) => {
   // Format duration as hours and minutes
@@ -193,13 +236,25 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     return html;
   };
   
-  // Add hover effect
+  // Add hover effect with enhanced visual feedback
   map.on('mouseenter', layerId, () => {
     map.getCanvas().style.cursor = 'pointer';
+    
+    // Highlight the route on hover
+    if (map.getLayer(layerId)) {
+      map.setPaintProperty(layerId, 'line-width', 
+        modeLineStyles[segment.mode as keyof typeof modeLineStyles]?.width * 1.5 || 6);
+    }
   });
   
   map.on('mouseleave', layerId, () => {
     map.getCanvas().style.cursor = '';
+    
+    // Reset route styling when mouse leaves
+    if (map.getLayer(layerId)) {
+      map.setPaintProperty(layerId, 'line-width', 
+        modeLineStyles[segment.mode as keyof typeof modeLineStyles]?.width || 4);
+    }
   });
   
   // Add click interaction to show popup with route details
@@ -209,7 +264,11 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     const coordinates = e.lngLat;
     const popupContent = createPopupContent(segment);
     
-    new mapboxgl.Popup()
+    new mapboxgl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '320px'
+    })
       .setLngLat(coordinates)
       .setHTML(popupContent)
       .addTo(map);
@@ -232,6 +291,7 @@ export const addPopupStyles = () => {
     .route-popup-header {
       padding: 10px;
       border-bottom: 1px solid #e2e8f0;
+      background-color: #f7fafc;
     }
     
     .route-popup-title {
