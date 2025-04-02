@@ -13,7 +13,7 @@ const claudeApiKey = Deno.env.get('my_api_key');
 console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
 
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
-const claudeModel = "claude-3-sonnet-20240229"; // Updated to Claude 3.7 Sonnet
+const claudeModel = "claude-3-5-haiku-20241022";
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -35,7 +35,7 @@ async function callClaudeApi(prompt: string) {
     
     const payload = {
       model: claudeModel,
-      max_tokens: 2000, // Limit token usage to 2000 as requested
+      max_tokens: 6000,
       temperature: 1,
       system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness",
       messages: [
