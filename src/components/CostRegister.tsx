@@ -28,15 +28,15 @@ const CostRegister: React.FC<CostRegisterProps> = ({
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p className="text-xs max-w-xs">
-                    Tracks the usage cost of AI recommendations with Claude 3.7 Sonnet.
-                    Rate: ${(tokenCostRate * 1000).toFixed(2)} per 1K tokens.
+                    Tracks the usage cost of AI recommendations with Claude 3 Haiku.
+                    Rate: ${(tokenCostRate * 1000).toFixed(5)} per 1K tokens.
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
           <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-            Claude 3.7 Sonnet
+            Claude 3 Haiku
           </span>
         </div>
       </CardHeader>
@@ -48,11 +48,11 @@ const CostRegister: React.FC<CostRegisterProps> = ({
           </div>
           <div className="bg-white p-2 rounded border border-gray-200">
             <p className="text-gray-500 text-xs">Token Rate</p>
-            <p className="font-medium">${(tokenCostRate * 1000).toFixed(2)}/1K</p>
+            <p className="font-medium">${(tokenCostRate * 1000).toFixed(5)}/1K</p>
           </div>
           <div className="bg-white p-2 rounded border border-gray-200">
             <p className="text-gray-500 text-xs">Total Cost</p>
-            <p className="font-medium">${totalCost.toFixed(4)}</p>
+            <p className="font-medium">${totalCost.toFixed(6)}</p>
           </div>
         </div>
       </CardContent>

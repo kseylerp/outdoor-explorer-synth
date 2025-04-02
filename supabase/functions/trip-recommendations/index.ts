@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -13,11 +12,11 @@ const claudeApiKey = Deno.env.get('my_api_key');
 console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
 
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
-const claudeModel = "claude-3-sonnet-20240229"; // Claude 3.7 Sonnet
+const claudeModel = "claude-3-haiku-20240307"; // Updated to a currently available Claude model
 
 // Token costs for cost tracking
-const CLAUDE_SONNET_INPUT_COST = 0.00000375; // $0.00375 per 1K input tokens
-const CLAUDE_SONNET_OUTPUT_COST = 0.00001125; // $0.01125 per 1K output tokens
+const CLAUDE_HAIKU_INPUT_COST = 0.00000125; // $0.00125 per 1K input tokens
+const CLAUDE_HAIKU_OUTPUT_COST = 0.00000375; // $0.00375 per 1K output tokens
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -498,16 +497,16 @@ async function callClaudeApi(prompt: string) {
     
     const totalTokens = promptTokens + completionTokens;
     const estimatedCost = 
-      (promptTokens * CLAUDE_SONNET_INPUT_COST / 1000) + 
-      (completionTokens * CLAUDE_SONNET_OUTPUT_COST / 1000);
+      (promptTokens * CLAUDE_HAIKU_INPUT_COST) + 
+      (completionTokens * CLAUDE_HAIKU_OUTPUT_COST);
     
     const costTracking = {
       promptTokens,
       completionTokens,
       totalTokens,
       estimatedCost,
-      inputCostPer1k: CLAUDE_SONNET_INPUT_COST * 1000,
-      outputCostPer1k: CLAUDE_SONNET_OUTPUT_COST * 1000
+      inputCostPer1k: CLAUDE_HAIKU_INPUT_COST * 1000,
+      outputCostPer1k: CLAUDE_HAIKU_OUTPUT_COST * 1000
     };
     
     if (data.content && data.content.length > 0) {
@@ -572,9 +571,9 @@ async function callClaudeApi(prompt: string) {
         promptTokens: estimatedTokens,
         completionTokens: 0,
         totalTokens: estimatedTokens,
-        estimatedCost: (estimatedTokens * CLAUDE_SONNET_INPUT_COST / 1000),
-        inputCostPer1k: CLAUDE_SONNET_INPUT_COST * 1000,
-        outputCostPer1k: CLAUDE_SONNET_OUTPUT_COST * 1000,
+        estimatedCost: (estimatedTokens * CLAUDE_HAIKU_INPUT_COST),
+        inputCostPer1k: CLAUDE_HAIKU_INPUT_COST * 1000,
+        outputCostPer1k: CLAUDE_HAIKU_OUTPUT_COST * 1000,
         error: true
       },
       error: error.message
@@ -898,8 +897,8 @@ serve(async (req) => {
           completionTokens: 0, 
           totalTokens: 0,
           estimatedCost: 0,
-          inputCostPer1k: CLAUDE_SONNET_INPUT_COST * 1000,
-          outputCostPer1k: CLAUDE_SONNET_OUTPUT_COST * 1000,
+          inputCostPer1k: CLAUDE_HAIKU_INPUT_COST * 1000,
+          outputCostPer1k: CLAUDE_HAIKU_OUTPUT_COST * 1000,
           error: true
         }
       }),
