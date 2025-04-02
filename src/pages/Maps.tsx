@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Trip } from '@/types/trips';
 import { toast } from '@/hooks/use-toast';
