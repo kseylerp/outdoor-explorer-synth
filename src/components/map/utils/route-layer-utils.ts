@@ -22,6 +22,20 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
     // Create unique IDs for this segment
     const sourceId = `route-source-${index}`;
     const layerId = `route-layer-${index}`;
+    const glowLayerId = `${layerId}-glow`;
+    
+    // Check if these layers already exist and remove them first
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
+    
+    if (map.getLayer(glowLayerId)) {
+      map.removeLayer(glowLayerId);
+    }
+    
+    if (map.getSource(sourceId)) {
+      map.removeSource(sourceId);
+    }
     
     // Add the route line source
     map.addSource(sourceId, {
@@ -45,28 +59,7 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
       }
     });
     
-    // Add the route line layer with enhanced styling
-    const linePaint: mapboxgl.LinePaint = {
-      'line-color': color,
-      'line-width': lineStyle.width,
-      'line-opacity': 0.8,
-      'line-gradient': [
-        'interpolate',
-        ['linear'],
-        ['line-progress'],
-        0, color,
-        0.5, adjustColorBrightness(color, 20),
-        1, color
-      ]
-    };
-    
-    // Add dash array if specified
-    if (lineStyle.dashArray && lineStyle.dashArray.length > 0) {
-      linePaint['line-dasharray'] = lineStyle.dashArray;
-    }
-    
     // Add a glow effect to make lines more visible
-    const glowLayerId = `${layerId}-glow`;
     map.addLayer({
       id: glowLayerId,
       type: 'line',
@@ -83,6 +76,18 @@ export const addRouteSegment = (map: mapboxgl.Map, segment: Segment, index: numb
         'line-blur': 3
       }
     });
+    
+    // Add the route line layer with enhanced styling
+    const linePaint: mapboxgl.LinePaint = {
+      'line-color': color,
+      'line-width': lineStyle.width,
+      'line-opacity': 0.8
+    };
+    
+    // Add dash array if specified
+    if (lineStyle.dashArray && lineStyle.dashArray.length > 0) {
+      linePaint['line-dasharray'] = lineStyle.dashArray;
+    }
     
     // Add the line layer
     map.addLayer({

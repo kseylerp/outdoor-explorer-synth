@@ -19,6 +19,7 @@ interface RouteLayerProps {
 const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
   const layerIdsRef = useRef<string[]>([]);
   const sourceIdsRef = useRef<string[]>([]);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
     if (!map || !journey || !journey.segments || journey.segments.length === 0) {
@@ -27,6 +28,10 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
 
     // Add popup styles
     addPopupStyles();
+    
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
 
     // Add waypoint markers for better visibility of route points
     const addWaypointMarkers = (segment: Segment, index: number) => {
@@ -54,9 +59,11 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
           "></div>
         `;
         
-        new mapboxgl.Marker(startMarkerEl)
+        const marker = new mapboxgl.Marker(startMarkerEl)
           .setLngLat(startPoint as [number, number])
           .addTo(map);
+          
+        markersRef.current.push(marker);
       }
       
       // Add end marker
@@ -74,10 +81,40 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
         "></div>
       `;
       
-      new mapboxgl.Marker(endMarkerEl)
+      const marker = new mapboxgl.Marker(endMarkerEl)
         .setLngLat(endPoint as [number, number])
         .addTo(map);
+        
+      markersRef.current.push(marker);
     };
+
+    // First clean up any existing layers and sources to prevent conflicts
+    try {
+      if (map && map.getStyle()) {
+        // Remove layers first
+        layerIdsRef.current.forEach(id => {
+          if (map.getLayer(id)) {
+            map.removeLayer(id);
+          }
+          if (map.getLayer(`${id}-glow`)) {
+            map.removeLayer(`${id}-glow`);
+          }
+        });
+        
+        // Then remove sources
+        sourceIdsRef.current.forEach(id => {
+          if (map.getSource(id)) {
+            map.removeSource(id);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error cleaning up map layers/sources:', error);
+    }
+    
+    // Reset refs
+    layerIdsRef.current = [];
+    sourceIdsRef.current = [];
 
     // Add sources and layers for each segment
     journey.segments.forEach((segment, index) => {
@@ -110,10 +147,8 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
       if (!map || !map.getStyle()) return;
       
       // Remove waypoint markers
-      const markers = document.querySelectorAll('.waypoint-marker');
-      markers.forEach(marker => {
-        marker.remove();
-      });
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
       
       // Remove layers and sources in a safe way
       try {
@@ -123,6 +158,9 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
           layerIdsRef.current.forEach(id => {
             if (map.getLayer(id)) {
               map.removeLayer(id);
+            }
+            if (map.getLayer(`${id}-glow`)) {
+              map.removeLayer(`${id}-glow`);
             }
           });
           

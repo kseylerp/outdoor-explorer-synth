@@ -1,11 +1,12 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MarkerLayer from './MarkerLayer';
 import RouteLayer from './RouteLayer';
-import { Journey } from '@/types/trips';
+import { Journey, Segment } from '@/types/trips';
 import { MapMarker } from './types';
 import { toast } from '@/hooks/use-toast';
+import { getDirections } from '@/services/mapboxService';
 
 interface MapContentProps {
   map: mapboxgl.Map;
@@ -15,6 +16,8 @@ interface MapContentProps {
 }
 
 const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, routeType = 'all' }) => {
+  const [processedJourney, setProcessedJourney] = useState<Journey | undefined>(journey);
+  
   // Validate markers are properly formed before rendering
   const validMarkers = Array.isArray(markers) ? markers.filter(marker => 
     marker && marker.coordinates && 
@@ -22,16 +25,90 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Check if journey exists and has minimal required properties
-  const hasValidJourney = journey && 
-    journey.segments && 
-    Array.isArray(journey.segments) && 
-    journey.segments.length > 0;
+  // Process routes with real Mapbox directions when journey exists
+  useEffect(() => {
+    if (!journey || !journey.segments || journey.segments.length === 0) {
+      setProcessedJourney(undefined);
+      return;
+    }
     
-  // Check if there are sparse waypoints that could benefit from directions
+    // Helper function to process a segment with real directions API
+    const processSegment = async (segment: Segment): Promise<Segment> => {
+      try {
+        // Skip if already has detailed coordinates (more than 5 points)
+        if (segment.geometry?.coordinates?.length > 5) {
+          return segment;
+        }
+        
+        // Get first and last point from segment
+        const coords = segment.geometry?.coordinates;
+        if (!coords || coords.length < 2) {
+          return segment;
+        }
+        
+        const origin = coords[0];
+        const destination = coords[coords.length - 1];
+        const mode = segment.mode || 'driving';
+        
+        // Use the directionsAPI to get a realistic route
+        const directions = await getDirections(
+          origin as [number, number], 
+          destination as [number, number], 
+          mode as any
+        );
+        
+        if (directions?.routes?.[0]?.geometry?.coordinates) {
+          return {
+            ...segment,
+            geometry: {
+              ...segment.geometry,
+              coordinates: directions.routes[0].geometry.coordinates
+            },
+            // Update distance and duration if available
+            distance: directions.routes[0].distance || segment.distance,
+            duration: directions.routes[0].duration || segment.duration
+          };
+        }
+        
+        return segment;
+      } catch (error) {
+        console.error('Error processing segment:', error);
+        return segment;
+      }
+    };
+    
+    // Process all segments
+    const processJourney = async () => {
+      try {
+        // Process each segment in parallel
+        const processedSegments = await Promise.all(
+          journey.segments.map(processSegment)
+        );
+        
+        // Update journey with processed segments
+        setProcessedJourney({
+          ...journey,
+          segments: processedSegments
+        });
+      } catch (error) {
+        console.error('Error processing journey:', error);
+        setProcessedJourney(journey);
+      }
+    };
+    
+    processJourney();
+  }, [journey]);
+  
+  // Check if journey exists and has minimal required properties
+  const hasValidJourney = processedJourney && 
+    processedJourney.segments && 
+    Array.isArray(processedJourney.segments) && 
+    processedJourney.segments.length > 0;
+    
+  // Warn about sparse waypoints that could benefit from directions
   useEffect(() => {
     if (hasValidJourney) {
-      const hasSparsePath = journey.segments.some(segment => 
+      const hasSparsePath = processedJourney.segments.some(segment => 
         segment.geometry.coordinates.length < 3
       );
       
@@ -39,13 +116,13 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
         console.log("Detected sparse waypoints in journey - for more realistic routes, consider using Mapbox Directions API");
       }
     }
-  }, [journey, hasValidJourney]);
+  }, [processedJourney, hasValidJourney]);
   
   // Filter segments by route type if specified
   const filteredJourney = hasValidJourney && routeType !== 'all' 
     ? {
-        ...journey,
-        segments: journey.segments.filter(segment => {
+        ...processedJourney,
+        segments: processedJourney.segments.filter(segment => {
           // Map the route type to segment mode
           switch(routeType) {
             case 'walk':
@@ -61,7 +138,7 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
           }
         })
       }
-    : journey;
+    : processedJourney;
   
   // Notify if filtered journey has no segments
   useEffect(() => {
