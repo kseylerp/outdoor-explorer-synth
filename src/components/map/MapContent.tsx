@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MarkerLayer from './MarkerLayer';
-import { RouteLayer } from './route';
+import { RouteLayer } from './route'; // Use named import with curly braces
 import { Journey, Segment } from '@/types/trips';
 import { MapMarker } from './types';
 import { toast } from '@/hooks/use-toast';
