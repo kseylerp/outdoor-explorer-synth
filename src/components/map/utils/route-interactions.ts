@@ -39,8 +39,7 @@ export const addSegmentInteractions = (map: mapboxgl.Map, segment: Segment, laye
     new mapboxgl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
-      className: 'route-segment-popup' // Use our custom styling
+      maxWidth: '320px'
     })
       .setLngLat(coordinates)
       .setHTML(popupContent)

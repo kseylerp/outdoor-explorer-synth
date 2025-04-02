@@ -7,19 +7,17 @@ interface TripSelectorProps {
   savedTrips: Trip[];
   selectedTripId: string;
   setSelectedTripId: (id: string) => void;
-  isLoading?: boolean; // Add optional isLoading prop
 }
 
 const TripSelector: React.FC<TripSelectorProps> = ({ 
   savedTrips, 
   selectedTripId, 
-  setSelectedTripId,
-  isLoading = false
+  setSelectedTripId 
 }) => {
   return (
     <div>
       <label className="block text-sm font-medium mb-2">Select Adventure</label>
-      <Select value={selectedTripId} onValueChange={setSelectedTripId} disabled={isLoading}>
+      <Select value={selectedTripId} onValueChange={setSelectedTripId}>
         <SelectTrigger>
           <SelectValue placeholder="Choose a saved trip" />
         </SelectTrigger>
@@ -31,9 +29,6 @@ const TripSelector: React.FC<TripSelectorProps> = ({
           ))}
         </SelectContent>
       </Select>
-      {isLoading && (
-        <p className="text-xs text-muted-foreground mt-1">Loading trip details...</p>
-      )}
     </div>
   );
 };
