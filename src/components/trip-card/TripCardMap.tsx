@@ -23,6 +23,7 @@ const TripCardMap: React.FC<TripCardMapProps> = ({ center, markers, journey }) =
         markers={markers}
         journey={journey}
         interactive={true}
+        routeType="all"
       />
     </div>
   );

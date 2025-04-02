@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Info } from 'lucide-react';
+import { MapPin, Clock, Info, Calendar, DollarSign, Flag } from 'lucide-react';
 import MapDisplay from './MapDisplay';
 import { Activity, ItineraryDay, Trip } from '@/types/trips';
 
@@ -13,6 +13,7 @@ interface TripDetailsProps {
 
 const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [routeType, setRouteType] = useState('all');
   
   // Format price as a string with dollar sign
   const formatPrice = (price: number): string => {
@@ -49,8 +50,12 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           </div>
           
           <div className="mb-6">
-            <h4 className="text-md font-semibold">Price Estimate</h4>
-            <p className="text-sm">{formatPrice(trip.priceEstimate)}</p>
+            <h4 className="text-md font-semibold flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-purple-600" />
+              Price Estimate
+            </h4>
+            <p className="text-xl font-semibold mt-1">{formatPrice(trip.priceEstimate)}</p>
+            <p className="text-sm text-gray-500">Estimated total per person</p>
           </div>
           
           {trip.suggestedGuides && trip.suggestedGuides.length > 0 && (
@@ -75,6 +80,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
               markers={trip.markers}
               journey={trip.journey}
               interactive={true}
+              routeType={routeType}
             />
           </div>
           <p className="text-xs text-gray-500 mt-2 text-center">Click on the map to enable interaction. Click routes or markers for detailed information.</p>
@@ -121,22 +127,63 @@ interface DayDetailsProps {
 const DayDetails: React.FC<DayDetailsProps> = ({ day }) => {
   return (
     <div>
-      <h4 className="text-xl font-semibold mb-2 text-purple-800">{day.title || `Day ${day.day}`}</h4>
-      <p className="mb-6 text-gray-600">{day.description || 'No description available'}</p>
-      
-      {day.activities && day.activities.length > 0 ? (
-        <div className="space-y-4">
-          {day.activities.map((activity, idx) => (
-            <ActivityCard 
-              key={idx} 
-              activity={activity} 
-              isLast={idx === day.activities.length - 1} 
-            />
-          ))}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-purple-800">
+          <Calendar className="h-5 w-5" />
         </div>
-      ) : (
-        <p className="text-gray-500 text-center p-4">No activities available for this day.</p>
-      )}
+        <div>
+          <h4 className="text-xl font-semibold mb-1 text-purple-800">{day.title || `Day ${day.day}`}</h4>
+          <Badge variant="outline" className="bg-purple-50 text-purple-700">
+            <Clock className="h-3 w-3 mr-1" /> Full day
+          </Badge>
+        </div>
+      </div>
+      
+      <div className="mt-4 pl-[52px]">
+        <div className="mb-6">
+          <h5 className="text-sm font-medium text-gray-500">Notes</h5>
+          <p className="text-gray-700">{day.description || 'No description available'}</p>
+        </div>
+        
+        <h4 className="text-lg font-medium mb-4">Activities</h4>
+        
+        {day.activities && day.activities.length > 0 ? (
+          <div className="space-y-4">
+            {day.activities.map((activity, idx) => (
+              <ActivityCard 
+                key={idx} 
+                activity={activity} 
+                isLast={idx === day.activities.length - 1} 
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center p-4">No activities available for this day.</p>
+        )}
+        
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Flag className="h-4 w-4 text-purple-600" />
+            <h3 className="text-lg font-medium">Adventure Level</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="bg-purple-600 h-full w-1/3 rounded-full"></div>
+            </div>
+            <span className="text-sm text-gray-600">Light</span>
+          </div>
+          <p className="text-sm text-gray-500">Activity intensity level</p>
+        </div>
+        
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-purple-600" />
+            <h3 className="text-lg font-medium">Price Information</h3>
+          </div>
+          <p className="text-xl font-semibold">$2500 - $3500</p>
+          <p className="text-sm text-gray-500">Estimated total per person</p>
+        </div>
+      </div>
     </div>
   );
 };

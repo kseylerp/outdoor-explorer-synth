@@ -45,7 +45,7 @@ export const useMapInitialization = ({
     try {
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v11', // Use outdoors style for better trail visibility
+        style: 'mapbox://styles/mapbox/outdoors-v12', // Updated to outdoors-v12
         center: [center.lng, center.lat],
         zoom: 9,
         interactive: mapInteractive

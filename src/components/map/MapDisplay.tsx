@@ -13,10 +13,10 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   markers = [],
   center = { lng: -122.4194, lat: 37.7749 }, // Default to San Francisco
   interactive = false,
+  routeType = 'all',
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [routeType, setRouteType] = useState('all');
   
   const {
     map,
