@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -136,7 +135,7 @@ const Explore: React.FC = () => {
         
         <Card>
           <CardContent className="pt-6">
-            <PromptInput onSubmit={handlePromptSubmit} loading={loading} />
+            <PromptInput onSubmit={handlePromptSubmit} isProcessing={loading} />
           </CardContent>
         </Card>
       </div>
