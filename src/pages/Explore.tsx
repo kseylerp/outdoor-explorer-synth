@@ -23,11 +23,11 @@ const Explore: React.FC = () => {
     try {
       const response = await generateTrips(prompt);
       
-      // Check if we received valid trip data
-      if (response && response.trip && Array.isArray(response.trip)) {
-        setTrips(response.trip);
+      // Update: directly use the response which should be Trip[]
+      if (response && Array.isArray(response)) {
+        setTrips(response);
         
-        if (response.trip.length === 0) {
+        if (response.length === 0) {
           setError("No trips found for your request. Try a different prompt.");
         }
       } else {
@@ -56,7 +56,10 @@ const Explore: React.FC = () => {
       <h1 className="text-3xl font-bold text-center mb-6 text-purple-800">Explore Adventures</h1>
       
       <div className="mb-8">
-        <PromptInput onSubmit={handlePromptSubmit} />
+        <PromptInput 
+          onSubmit={handlePromptSubmit} 
+          isProcessing={loading} 
+        />
       </div>
       
       {loading && (
@@ -77,14 +80,7 @@ const Explore: React.FC = () => {
           <div className="space-y-8">
             {trips.map((trip, index) => (
               <div key={trip.id || index} className="relative">
-                {index === 0 && (
-                  <div className="absolute -top-4 -left-2 z-10">
-                    <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
-                      Option {index + 1}
-                    </span>
-                  </div>
-                )}
-                {index === 1 && (
+                {index < 2 && (
                   <div className="absolute -top-4 -left-2 z-10">
                     <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
                       Option {index + 1}
@@ -93,7 +89,7 @@ const Explore: React.FC = () => {
                 )}
                 <TripCard 
                   trip={trip} 
-                  onViewDetails={() => handleViewTrip(trip.id)}
+                  onExpand={() => handleViewTrip(trip.id)}
                 />
               </div>
             ))}
