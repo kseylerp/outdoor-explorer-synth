@@ -50,7 +50,7 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
       {/* Why We Chose This */}
       <div>
         <h4 className="text-[14px] font-bold text-purple-700">Why we chose this</h4>
-        <p className="text-sm text-gray-600 line-clamp-3">{whyWeChoseThis}</p>
+        <p className="text-sm text-gray-600">{whyWeChoseThis}</p>
       </div>
       
       {/* Suggested Guides */}

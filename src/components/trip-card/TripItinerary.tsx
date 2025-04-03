@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ItineraryDay } from '@/types/trips';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CalendarDays, Clock, MapPin, DollarSign, Flag } from 'lucide-react';
+import { CalendarDays, Clock, MapPin } from 'lucide-react';
 
 interface TripItineraryProps {
   itinerary: ItineraryDay[];
@@ -120,29 +120,6 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                       <p className="text-gray-500">No activities listed for this day</p>
                     </div>
                   )}
-                  
-                  <div className="mt-6 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Flag className="h-4 w-4 text-purple-600" />
-                      <h3 className="text-lg font-medium">Adventure Level</h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="bg-purple-600 h-full w-1/3 rounded-full"></div>
-                      </div>
-                      <span className="text-sm text-gray-600">Light</span>
-                    </div>
-                    <p className="text-sm text-gray-500">Activity intensity level</p>
-                  </div>
-                  
-                  <div className="mt-6 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-purple-600" />
-                      <h3 className="text-lg font-medium">Price Information</h3>
-                    </div>
-                    <p className="text-xl font-semibold">$2500 - $3500</p>
-                    <p className="text-sm text-gray-500">Estimated total per person</p>
-                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>

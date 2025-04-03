@@ -40,17 +40,17 @@ const MarkerLayer: React.FC<MarkerLayerProps> = ({ map, markers }) => {
         </div>
       `;
 
-      // Create more detailed popup
+      // Create more detailed popup with improved layout for better content fit
       const popup = new mapboxgl.Popup({ 
         offset: 25,
-        maxWidth: '300px',
+        maxWidth: '250px',
         className: 'custom-popup'
       }).setHTML(`
-        <div style="padding: 5px;">
-          <h3 style="font-weight: bold; margin-bottom: 5px; color: #574780;">${marker.name}</h3>
-          <p style="margin: 0; font-size: 14px;">${marker.description || ''}</p>
-          ${marker.elevation ? `<p style="margin-top: 5px; font-size: 12px; color: #666;">Elevation: ${marker.elevation} ft</p>` : ''}
-          ${marker.details ? `<p style="margin-top: 5px; font-size: 12px;">${marker.details}</p>` : ''}
+        <div style="padding: 8px;">
+          <h3 style="font-weight: bold; margin-bottom: 5px; color: #574780; font-size: 14px;">${marker.name}</h3>
+          ${marker.description ? `<p style="margin: 0; font-size: 12px; line-height: 1.3;">${marker.description}</p>` : ''}
+          ${marker.elevation ? `<p style="margin-top: 5px; font-size: 11px; color: #666;">Elevation: ${marker.elevation} ft</p>` : ''}
+          ${marker.details ? `<p style="margin-top: 5px; font-size: 11px; line-height: 1.3;">${marker.details}</p>` : ''}
         </div>
       `);
 
@@ -70,12 +70,18 @@ const MarkerLayer: React.FC<MarkerLayerProps> = ({ map, markers }) => {
         .mapboxgl-popup-content {
           border-radius: 8px;
           box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-          padding: 12px;
+          padding: 10px;
           border-left: 4px solid #9870FF;
+          max-width: 250px;
+          word-wrap: break-word;
+          font-size: 12px;
         }
         .mapboxgl-popup-close-button {
           font-size: 16px;
           color: #574780;
+        }
+        .mapboxgl-popup {
+          z-index: 10;
         }
       `;
       document.head.appendChild(style);
