@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
@@ -37,12 +37,6 @@ const TripCard: React.FC<TripCardProps> = ({
       navigate(`/trip/${trip.id}`);
     }
   };
-  
-  const handleShareTrip = () => {
-    // In a real app, this would open a sharing dialog
-    navigator.clipboard.writeText(`Check out this amazing trip: ${trip.title}`);
-    alert('Trip link copied to clipboard!');
-  };
 
   return (
     <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md">
@@ -71,9 +65,9 @@ const TripCard: React.FC<TripCardProps> = ({
         </div>
         
         <TripCardButtons 
+          tripId={trip.id}
           isSaved={isSaved}
           onSave={handleSaveTrip}
-          onShare={handleShareTrip}
           showRemoveButton={showRemoveButton}
           onRemove={onRemove}
         />

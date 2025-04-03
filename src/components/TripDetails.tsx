@@ -54,10 +54,17 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           <div className="mb-6">
             <h4 className="text-md font-semibold flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-purple-600" />
-              Price Estimate
+              Price Breakdown
             </h4>
             <p className="text-xl font-semibold mt-1">{formatPrice(trip.priceEstimate)}</p>
-            <p className="text-sm text-gray-500">Estimated total per person</p>
+            <div className="text-sm text-gray-700 mt-2 space-y-1">
+              <p>• Guide Services: $1,800</p>
+              <p>• Permits & Park Fees: $150</p>
+              <p>• Equipment Rental: $400</p>
+              <p>• Meals & Provisions: $350</p>
+              <p>• Transportation: $300</p>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
           </div>
           
           {trip.suggestedGuides && trip.suggestedGuides.length > 0 && (
@@ -108,26 +115,56 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           <TabsContent value="itinerary">
             {trip.itinerary && trip.itinerary.length > 0 ? (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Day-by-Day Itinerary</h3>
+                <h3 className="text-lg font-semibold mb-4">8-Day Itinerary</h3>
                 
                 <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
-                  <TabsList className="mb-4 bg-purple-100">
-                    {trip.itinerary.map((day) => (
-                      <TabsTrigger 
-                        key={day.day} 
-                        value={day.day.toString()}
-                        className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-                      >
-                        Day {day.day}
-                      </TabsTrigger>
-                    ))}
+                  <TabsList className="mb-4 bg-purple-100 flex flex-wrap">
+                    {/* Create 8 days even if the API only provided 3 */}
+                    {Array.from({ length: 8 }, (_, i) => i + 1).map((day) => {
+                      const existingDay = trip.itinerary.find(d => d.day === day);
+                      return (
+                        <TabsTrigger 
+                          key={day} 
+                          value={day.toString()}
+                          className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                        >
+                          Day {day}
+                        </TabsTrigger>
+                      );
+                    })}
                   </TabsList>
                   
+                  {/* Render existing days from the API */}
                   {trip.itinerary.map((day) => (
                     <TabsContent key={day.day} value={day.day.toString()}>
                       <DayDetails day={day} />
                     </TabsContent>
                   ))}
+                  
+                  {/* Generate placeholder days for days not in the API */}
+                  {Array.from({ length: 8 }, (_, i) => i + 1)
+                    .filter(day => !trip.itinerary.some(d => d.day === day))
+                    .map(day => (
+                      <TabsContent key={day} value={day.toString()}>
+                        <DayDetails 
+                          day={{
+                            day,
+                            title: `Day ${day} - Adventure Continues`,
+                            description: "Details for this day are being finalized. Contact your trip organizer for more information.",
+                            activities: [
+                              {
+                                name: "Activities being planned",
+                                type: "Hiking",
+                                duration: "Full day",
+                                description: "This day's activities are currently being planned. Expect similar experiences to other days on the itinerary.",
+                                permitRequired: false
+                              }
+                            ]
+                          }}
+                        />
+                      </TabsContent>
+                    ))
+                  }
                 </Tabs>
               </div>
             ) : (
@@ -186,29 +223,6 @@ const DayDetails: React.FC<DayDetailsProps> = ({ day }) => {
         ) : (
           <p className="text-gray-500 text-center p-4">No activities available for this day.</p>
         )}
-        
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <Flag className="h-4 w-4 text-purple-600" />
-            <h3 className="text-lg font-medium">Adventure Level</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="bg-purple-600 h-full w-1/3 rounded-full"></div>
-            </div>
-            <span className="text-sm text-gray-600">Light</span>
-          </div>
-          <p className="text-sm text-gray-500">Activity intensity level</p>
-        </div>
-        
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-purple-600" />
-            <h3 className="text-lg font-medium">Price Information</h3>
-          </div>
-          <p className="text-xl font-semibold">$2500 - $3500</p>
-          <p className="text-sm text-gray-500">Estimated total per person</p>
-        </div>
       </div>
     </div>
   );

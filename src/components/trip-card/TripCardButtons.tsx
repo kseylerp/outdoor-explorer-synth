@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Share2, UserPlus, Trash2 } from 'lucide-react';
+import { Bookmark, UserPlus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import InviteForm from '@/components/buddies/InviteForm';
 
@@ -9,7 +9,6 @@ interface TripCardButtonsProps {
   tripId: string;
   isSaved: boolean;
   onSave: () => void;
-  onShare: () => void;
   showRemoveButton: boolean;
   onRemove?: () => void;
 }
@@ -18,7 +17,6 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
   tripId,
   isSaved, 
   onSave, 
-  onShare,
   showRemoveButton,
   onRemove
 }) => {
@@ -26,7 +24,7 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
 
   return (
     <div className="flex gap-2">
-      {/* Invite Button - Always shown */}
+      {/* Invite Button - Always shown and now more prominent */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="default" className="bg-purple-600 hover:bg-purple-700 flex-1">
@@ -50,12 +48,6 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
           {isSaved ? 'Saved' : 'Save Trip'}
         </Button>
       )}
-
-      {/* Share Button */}
-      <Button onClick={onShare} variant="outline" className="flex-1">
-        <Share2 className="h-4 w-4 mr-2" />
-        Share
-      </Button>
 
       {/* Remove Button - Only shown in "remove" mode, with less prominence */}
       {showRemoveButton && (

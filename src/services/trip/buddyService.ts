@@ -51,7 +51,8 @@ export const addBuddy = async (tripId: string, buddy: BuddyInvite): Promise<Trip
         name: buddy.name,
         email: buddy.email || null,
         phone: buddy.phone || null,
-        notes: buddy.notes || null
+        notes: buddy.notes || null,
+        status: 'pending'
       })
       .select()
       .single();

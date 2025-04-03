@@ -14,7 +14,6 @@ interface BuddiesManagerProps {
 const BuddiesManager: React.FC<BuddiesManagerProps> = ({ tripId }) => {
   const [buddies, setBuddies] = useState<TripBuddy[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const loadBuddies = async () => {
@@ -29,7 +28,6 @@ const BuddiesManager: React.FC<BuddiesManagerProps> = ({ tripId }) => {
   }, [tripId]);
 
   const handleInviteSent = () => {
-    setShowInviteForm(false);
     loadBuddies();
     setInviteDialogOpen(false);
   };
