@@ -30,7 +30,12 @@ export const fetchTripBuddies = async (tripId: string): Promise<TripBuddy[]> => 
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    
+    // Cast the status to the expected union type
+    return (data || []).map(buddy => ({
+      ...buddy,
+      status: buddy.status as 'pending' | 'confirmed' | 'declined'
+    }));
   } catch (error) {
     console.error('Error fetching trip buddies:', error);
     toast({
@@ -65,7 +70,11 @@ export const addBuddy = async (tripId: string, buddy: BuddyInvite): Promise<Trip
       variant: 'default'
     });
     
-    return data;
+    // Cast the status to the expected union type
+    return {
+      ...data,
+      status: data.status as 'pending' | 'confirmed' | 'declined'
+    };
   } catch (error) {
     console.error('Error adding buddy:', error);
     toast({
