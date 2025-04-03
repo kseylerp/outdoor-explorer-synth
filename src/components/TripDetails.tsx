@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Info, Calendar, DollarSign, Flag, Users } from 'lucide-react';
+import { MapPin, Clock, Info, Calendar, DollarSign, Flag, Users, Gauge } from 'lucide-react';
 import MapDisplay from './MapDisplay';
 import { Activity, ItineraryDay, Trip } from '@/types/trips';
 import BuddiesManager from './buddies/BuddiesManager';
+import TripIntensityBar from './TripIntensityBar';
 
 interface TripDetailsProps {
   trip: Trip;
@@ -21,6 +22,19 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   const formatPrice = (price: number): string => {
     if (price <= 0) return 'Price not available';
     return `$${price.toLocaleString()}`;
+  };
+  
+  // Convert difficulty level to numeric intensity value (0-100)
+  const difficultyToIntensity = (difficulty: string): number => {
+    const difficultyMap: Record<string, number> = {
+      'Easy': 0,
+      'Moderate': 25,
+      'Challenging': 50,
+      'Intense': 75,
+      'Extreme': 100
+    };
+    
+    return difficultyMap[difficulty] ?? 50; // Default to middle if unknown
   };
   
   return (
@@ -39,6 +53,43 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
       </CardHeader>
       
       <CardContent>
+        {/* New price and intensity section above the map */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Price section */}
+          <Card className="border border-purple-100">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="h-5 w-5 text-purple-600" />
+                <h3 className="text-lg font-semibold">Price Breakdown</h3>
+              </div>
+              <p className="text-2xl font-semibold mb-2">{formatPrice(trip.priceEstimate)}</p>
+              <div className="text-sm text-gray-700 space-y-1">
+                <p>• Guide Services: $1,800</p>
+                <p>• Permits & Park Fees: $150</p>
+                <p>• Equipment Rental: $400</p>
+                <p>• Meals & Provisions: $350</p>
+                <p>• Transportation: $300</p>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
+            </CardContent>
+          </Card>
+          
+          {/* Intensity section */}
+          <Card className="border border-purple-100">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Gauge className="h-5 w-5 text-purple-600" />
+                <h3 className="text-lg font-semibold">Trip Intensity</h3>
+              </div>
+              <TripIntensityBar 
+                level={difficultyToIntensity(trip.difficultyLevel)} 
+                readOnly={true} 
+              />
+              <p className="text-sm text-gray-500 mt-2">Based on terrain, activities, and required fitness level</p>
+            </CardContent>
+          </Card>
+        </div>
+        
         <div className="prose max-w-none mb-6">
           <h3 className="text-lg font-semibold">About This Trip</h3>
           <p>{trip.description || 'No description available'}</p>
@@ -49,22 +100,6 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
               Why We Chose This
             </h4>
             <p className="text-sm">{trip.whyWeChoseThis || 'No information available'}</p>
-          </div>
-          
-          <div className="mb-6">
-            <h4 className="text-md font-semibold flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-purple-600" />
-              Price Breakdown
-            </h4>
-            <p className="text-xl font-semibold mt-1">{formatPrice(trip.priceEstimate)}</p>
-            <div className="text-sm text-gray-700 mt-2 space-y-1">
-              <p>• Guide Services: $1,800</p>
-              <p>• Permits & Park Fees: $150</p>
-              <p>• Equipment Rental: $400</p>
-              <p>• Meals & Provisions: $350</p>
-              <p>• Transportation: $300</p>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
           </div>
           
           {trip.suggestedGuides && trip.suggestedGuides.length > 0 && (

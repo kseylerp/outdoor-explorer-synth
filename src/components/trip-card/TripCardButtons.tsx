@@ -24,7 +24,7 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
 
   return (
     <div className="flex gap-2">
-      {/* Invite Button - Always shown and now more prominent */}
+      {/* Invite Button - Always shown and prominent */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="default" className="bg-purple-600 hover:bg-purple-700 flex-1">
@@ -49,7 +49,7 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
         </Button>
       )}
 
-      {/* Remove Button - Only shown in "remove" mode, with less prominence */}
+      {/* Remove Button - Only shown in "remove" mode */}
       {showRemoveButton && (
         <Button 
           onClick={onRemove} 
