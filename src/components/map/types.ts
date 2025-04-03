@@ -20,4 +20,5 @@ export interface MapDisplayProps {
   center?: Coordinates;
   interactive?: boolean;
   routeType?: string;
+  zoomLevel?: number;
 }
