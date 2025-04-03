@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Info, Calendar, DollarSign, Flag } from 'lucide-react';
+import { MapPin, Clock, Info, Calendar, DollarSign, Flag, Users } from 'lucide-react';
 import MapDisplay from './MapDisplay';
 import { Activity, ItineraryDay, Trip } from '@/types/trips';
+import BuddiesManager from './buddies/BuddiesManager';
 
 interface TripDetailsProps {
   trip: Trip;
@@ -14,6 +15,7 @@ interface TripDetailsProps {
 const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [routeType, setRouteType] = useState('all');
+  const [activeTab, setActiveTab] = useState<'itinerary' | 'buddies'>('itinerary');
   
   // Format price as a string with dollar sign
   const formatPrice = (price: number): string => {
@@ -86,35 +88,59 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           <p className="text-xs text-gray-500 mt-2 text-center">Click on the map to enable interaction. Click routes or markers for detailed information.</p>
         </div>
         
-        {trip.itinerary && trip.itinerary.length > 0 ? (
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Day-by-Day Itinerary</h3>
-            
-            <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
-              <TabsList className="mb-4 bg-purple-100">
-                {trip.itinerary.map((day) => (
-                  <TabsTrigger 
-                    key={day.day} 
-                    value={day.day.toString()}
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-                  >
-                    Day {day.day}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              
-              {trip.itinerary.map((day) => (
-                <TabsContent key={day.day} value={day.day.toString()}>
-                  <DayDetails day={day} />
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
-        ) : (
-          <div className="text-center p-4 border border-gray-200 rounded-md">
-            <p className="text-gray-500">No itinerary information available for this trip.</p>
-          </div>
-        )}
+        <Tabs defaultValue="itinerary" onValueChange={(value) => setActiveTab(value as 'itinerary' | 'buddies')}>
+          <TabsList className="mb-4 bg-purple-100">
+            <TabsTrigger 
+              value="itinerary"
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+            >
+              Itinerary
+            </TabsTrigger>
+            <TabsTrigger 
+              value="buddies"
+              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+            >
+              <Users className="h-4 w-4 mr-1" />
+              Trip Buddies
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="itinerary">
+            {trip.itinerary && trip.itinerary.length > 0 ? (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Day-by-Day Itinerary</h3>
+                
+                <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
+                  <TabsList className="mb-4 bg-purple-100">
+                    {trip.itinerary.map((day) => (
+                      <TabsTrigger 
+                        key={day.day} 
+                        value={day.day.toString()}
+                        className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                      >
+                        Day {day.day}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  
+                  {trip.itinerary.map((day) => (
+                    <TabsContent key={day.day} value={day.day.toString()}>
+                      <DayDetails day={day} />
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
+            ) : (
+              <div className="text-center p-4 border border-gray-200 rounded-md">
+                <p className="text-gray-500">No itinerary information available for this trip.</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="buddies">
+            <BuddiesManager tripId={trip.id} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

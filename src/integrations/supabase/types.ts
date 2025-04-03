@@ -188,6 +188,42 @@ export type Database = {
         }
         Relationships: []
       }
+      trip_buddies: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          status: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trip_preferences: {
         Row: {
           created_at: string
