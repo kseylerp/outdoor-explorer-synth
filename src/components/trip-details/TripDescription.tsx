@@ -7,13 +7,37 @@ interface TripDescriptionProps {
   description: string;
   whyWeChoseThis: string;
   suggestedGuides?: string[];
+  compact?: boolean;
 }
 
 const TripDescription: React.FC<TripDescriptionProps> = ({
   description,
   whyWeChoseThis,
-  suggestedGuides
+  suggestedGuides,
+  compact = false
 }) => {
+  if (compact) {
+    return (
+      <div>
+        <h4 className="text-[14px] font-bold text-purple-700">Why we chose this</h4>
+        <p className="text-sm text-gray-600 line-clamp-3">{whyWeChoseThis}</p>
+        
+        {suggestedGuides && suggestedGuides.length > 0 && (
+          <div className="mt-2">
+            <h4 className="text-[14px] font-bold text-purple-700">Suggested Guides</h4>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {suggestedGuides.map((guide, idx) => (
+                <span key={idx} className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
+                  {guide}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  
   return (
     <div className="prose max-w-none mb-6">
       <h3 className="text-lg font-semibold">About This Trip</h3>

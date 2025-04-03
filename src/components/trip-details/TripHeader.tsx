@@ -7,12 +7,13 @@ import { Trip } from '@/types/trips';
 
 interface TripHeaderProps {
   trip: Trip;
+  compact?: boolean;
 }
 
-const TripHeader: React.FC<TripHeaderProps> = ({ trip }) => {
+const TripHeader: React.FC<TripHeaderProps> = ({ trip, compact = false }) => {
   return (
     <CardHeader>
-      <CardTitle className="text-2xl font-bold">{trip.title}</CardTitle>
+      <CardTitle className={compact ? "text-xl font-bold" : "text-2xl font-bold"}>{trip.title}</CardTitle>
       <div className="flex flex-wrap gap-2 mt-2">
         <Badge variant="outline" className="flex gap-1 items-center text-sm">
           <MapPin className="h-3 w-3" /> {trip.location || 'Location not specified'}

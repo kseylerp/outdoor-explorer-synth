@@ -5,14 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users } from 'lucide-react';
 import { Trip } from '@/types/trips';
 import BuddiesManager from './buddies/BuddiesManager';
-
-// Import our new components
-import TripHeader from './trip-details/TripHeader';
-import PriceBreakdown from './trip-details/PriceBreakdown';
-import TripIntensityCard from './trip-details/TripIntensityCard';
-import TripDescription from './trip-details/TripDescription';
-import TripMapSection from './trip-details/TripMapSection';
+import TripBaseView from './trip-shared/TripBaseView';
 import ItineraryTab from './trip-details/ItineraryTab';
+import TripIntensityCard from './trip-details/TripIntensityCard';
 
 interface TripDetailsProps {
   trip: Trip;
@@ -23,22 +18,8 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   
   return (
     <Card className="w-full">
-      <TripHeader trip={trip} />
-      
-      <CardContent>
-        {/* Price and intensity section above the map */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <PriceBreakdown totalPrice={trip.priceEstimate} />
-          <TripIntensityCard difficultyLevel={trip.difficultyLevel} />
-        </div>
-        
-        <TripDescription 
-          description={trip.description}
-          whyWeChoseThis={trip.whyWeChoseThis}
-          suggestedGuides={trip.suggestedGuides}
-        />
-        
-        <TripMapSection trip={trip} />
+      <TripBaseView trip={trip} compact={false}>
+        <TripIntensityCard difficultyLevel={trip.difficultyLevel} />
         
         <Tabs defaultValue="itinerary" onValueChange={(value) => setActiveTab(value as 'itinerary' | 'buddies')}>
           <TabsList className="mb-4 bg-purple-100">
@@ -65,7 +46,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
             <BuddiesManager tripId={trip.id} />
           </TabsContent>
         </Tabs>
-      </CardContent>
+      </TripBaseView>
     </Card>
   );
 };

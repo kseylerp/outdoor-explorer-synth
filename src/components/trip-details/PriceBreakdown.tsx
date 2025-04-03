@@ -5,9 +5,10 @@ import { DollarSign } from 'lucide-react';
 
 interface PriceBreakdownProps {
   totalPrice: number;
+  compact?: boolean;
 }
 
-const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice }) => {
+const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = false }) => {
   // Format price as a string with dollar sign
   const formatPrice = (price: number): string => {
     if (price <= 0) return 'Price not available';
@@ -22,14 +23,22 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice }) => {
           <h3 className="text-lg font-semibold">Price Breakdown</h3>
         </div>
         <p className="text-2xl font-semibold mb-2">{formatPrice(totalPrice)}</p>
-        <div className="text-sm text-gray-700 space-y-1">
-          <p>• Guide Services: $1,800</p>
-          <p>• Permits & Park Fees: $150</p>
-          <p>• Equipment Rental: $400</p>
-          <p>• Meals & Provisions: $350</p>
-          <p>• Transportation: $300</p>
-        </div>
-        <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
+        
+        {!compact ? (
+          <div className="text-sm text-gray-700 space-y-1">
+            <p>• Guide Services: $1,800</p>
+            <p>• Permits & Park Fees: $150</p>
+            <p>• Equipment Rental: $400</p>
+            <p>• Meals & Provisions: $350</p>
+            <p>• Transportation: $300</p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">Estimated total per person</p>
+        )}
+        
+        {!compact && (
+          <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
+        )}
       </CardContent>
     </Card>
   );

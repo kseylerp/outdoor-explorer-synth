@@ -1,13 +1,11 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import { useNavigate } from 'react-router-dom';
-import TripCardHeader from './TripCardHeader';
-import TripCardMap from './TripCardMap';
-import TripCardInfo from './TripCardInfo';
 import TripCardButtons from './TripCardButtons';
 import TripItinerary from './TripItinerary';
+import TripBaseView from '../trip-shared/TripBaseView';
 
 interface TripCardProps {
   trip: Trip;
@@ -40,30 +38,7 @@ const TripCard: React.FC<TripCardProps> = ({
 
   return (
     <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <TripCardHeader title={trip.title} description={trip.description} />
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pb-2">
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <TripCardMap 
-            center={trip.mapCenter}
-            markers={trip.markers}
-            journey={trip.journey}
-          />
-          
-          <TripCardInfo 
-            whyWeChoseThis={trip.whyWeChoseThis}
-            duration={trip.duration}
-            priceEstimate={trip.priceEstimate}
-            location={trip.location}
-            difficultyLevel={trip.difficultyLevel}
-            suggestedGuides={trip.suggestedGuides}
-          />
-        </div>
-        
+      <TripBaseView trip={trip} compact={true}>
         <TripCardButtons 
           tripId={trip.id}
           isSaved={isSaved}
@@ -71,12 +46,12 @@ const TripCard: React.FC<TripCardProps> = ({
           showRemoveButton={showRemoveButton}
           onRemove={onRemove}
         />
-      </CardContent>
-      
-      {/* Display Itinerary directly in the card */}
-      {trip.itinerary && trip.itinerary.length > 0 && (
-        <TripItinerary itinerary={trip.itinerary} />
-      )}
+        
+        {/* Display Itinerary directly in the card */}
+        {trip.itinerary && trip.itinerary.length > 0 && (
+          <TripItinerary itinerary={trip.itinerary} />
+        )}
+      </TripBaseView>
     </Card>
   );
 };
