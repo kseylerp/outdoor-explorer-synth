@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
@@ -10,7 +9,6 @@ const MainNav: React.FC = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // Default to collapsed menu on mobile
   useEffect(() => {
     if (isMobile) {
       setExpanded(false);
@@ -28,7 +26,6 @@ const MainNav: React.FC = () => {
   return (
     <div className={`border-r border-gray-200 h-screen bg-sidebar transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
       <div className="h-full flex flex-col">
-        {/* Header with logo and toggle button */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           {expanded ? (
             <Link to="/" className="flex items-center">
@@ -45,7 +42,6 @@ const MainNav: React.FC = () => {
           </Button>
         </div>
         
-        {/* Main menu - hidden on mobile when collapsed */}
         <div className={`flex-1 overflow-y-auto py-4 ${isMobile && !expanded ? 'hidden' : ''}`}>
           <nav className="space-y-1 px-2">
             <MenuItem to="/" icon={<Compass size={20} />} label="Explore" active={isActive('/') || isActive('/explore')} expanded={expanded} onClick={() => {}} />
@@ -58,15 +54,23 @@ const MainNav: React.FC = () => {
             
             <MenuItem to="/guides" icon={<ShieldQuestion size={20} />} label="Guides" active={isActive('/guides')} expanded={expanded} onClick={() => {}} />
             
-            <MenuItem to="/guide-portal" icon={<ShieldQuestion size={20} />} label="Guide Portal" active={isActive('/guide-portal')} expanded={expanded} onClick={() => {}} />
-            
             <MenuItem to="/about" icon={<Info size={20} />} label="About" active={isActive('/about')} expanded={expanded} onClick={() => {}} />
             
             <MenuItem to="/settings" icon={<Settings size={20} />} label="Settings" active={isActive('/settings')} expanded={expanded} onClick={() => {}} />
+            
+            <div className="pt-4 mt-4 border-t border-gray-200">
+              <MenuItem 
+                to="/guide-portal" 
+                icon={<ShieldQuestion size={20} />} 
+                label="Guide Portal" 
+                active={isActive('/guide-portal')} 
+                expanded={expanded} 
+                onClick={() => {}} 
+              />
+            </div>
           </nav>
         </div>
         
-        {/* Mobile toggle button - only shown on mobile */}
         {!expanded && (
           <Button variant="ghost" size="sm" className="absolute bottom-4 left-0 right-0 mx-auto" onClick={toggle}>
             <PanelLeft size={20} className="transform rotate-180" />
