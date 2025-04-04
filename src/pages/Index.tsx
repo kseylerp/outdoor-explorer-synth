@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
@@ -8,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { generateTrips } from '@/services/trip/tripService';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
+import ModelSelector from '@/components/ModelSelector';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -16,9 +16,11 @@ const Index: React.FC = () => {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
+  const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
+    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'claude'
+  );
   const navigate = useNavigate();
 
-  // Load saved trip IDs from localStorage
   useEffect(() => {
     const savedTripsData = localStorage.getItem('savedTrips');
     if (savedTripsData) {
@@ -35,7 +37,7 @@ const Index: React.FC = () => {
     setIsProcessing(true);
     setErrorDetails(null);
     setThinking(undefined);
-    setTrips([]); // Clear any previous trips
+    setTrips([]);
 
     try {
       console.log('Submitting prompt to generate trips:', prompt);
@@ -47,10 +49,8 @@ const Index: React.FC = () => {
       
       console.log('Received trips data:', response.trips);
       
-      // Set the trips from the API response
       setTrips(response.trips);
       
-      // Set thinking data if available
       if (response.thinking && response.thinking.length > 0) {
         setThinking(response.thinking);
         setShowThinking(true);
@@ -63,15 +63,21 @@ const Index: React.FC = () => {
     } catch (error) {
       console.error('Error processing prompt:', error);
 
-      // Detailed error for debugging
-      if (error instanceof Error) {
-        setErrorDetails(error.message);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      
+      if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
+        setErrorDetails(
+          aiModel === 'gemini'
+            ? "The Gemini API key is not properly configured. Please try switching to Claude model in Settings or contact support."
+            : "The Claude API key is not properly configured. Please try switching to Gemini model in Settings or contact support."
+        );
       } else {
-        setErrorDetails('Unknown error occurred');
+        setErrorDetails(errorMessage);
       }
+      
       toast({
         title: "Error",
-        description: "Could not process your request. Please try again.",
+        description: "Could not process your request. Please try again or switch AI models in Settings.",
         variant: "destructive"
       });
     } finally {
@@ -84,7 +90,6 @@ const Index: React.FC = () => {
   };
 
   const handleSaveTrip = (trip: Trip) => {
-    // Get existing saved trips
     const savedTripsData = localStorage.getItem('savedTrips');
     let savedTrips: Trip[] = [];
     if (savedTripsData) {
@@ -95,9 +100,7 @@ const Index: React.FC = () => {
       }
     }
 
-    // Check if trip is already saved
     if (savedTripIds.includes(trip.id)) {
-      // Remove the trip if it's already saved
       const updatedTrips = savedTrips.filter(savedTrip => savedTrip.id !== trip.id);
       localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
       setSavedTripIds(savedTripIds.filter(id => id !== trip.id));
@@ -106,7 +109,6 @@ const Index: React.FC = () => {
         description: "The adventure has been removed from your saved trips."
       });
     } else {
-      // Add the trip if it's not saved
       const updatedTrips = [...savedTrips, trip];
       localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
       setSavedTripIds([...savedTripIds, trip.id]);
@@ -128,6 +130,13 @@ const Index: React.FC = () => {
           <span className="offbeat-gradient mx-"> offbeat</span> adventure
         </h1>
         <p className="font-patano text-lg font-medium">Powered by local guides: explore, plan, and experience better trips</p>
+      </div>
+      
+      <div className="flex justify-end mb-4">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-500">AI Model:</span>
+          <ModelSelector compact showLabels={false} onChange={(model) => setAiModel(model)} />
+        </div>
       </div>
       
       {thinking && thinking.length > 0 && (
@@ -167,9 +176,13 @@ const Index: React.FC = () => {
       )}
       
       {errorDetails && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
-          <p className="font-semibold">Error details (for debugging):</p>
-          <p className="font-mono text-xs mt-1">{errorDetails}</p>
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-800">
+          <p className="font-semibold mb-2">Error:</p>
+          <p>{errorDetails}</p>
+          <div className="mt-3 flex items-center space-x-2">
+            <span className="text-sm">Try switching models:</span>
+            <ModelSelector showLabels={true} onChange={(model) => setAiModel(model)} />
+          </div>
         </div>
       )}
       

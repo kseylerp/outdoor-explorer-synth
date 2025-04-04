@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PromptInput from '@/components/PromptInput';
@@ -23,7 +22,6 @@ const Explore: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Update model when localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
       const storedModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini';
@@ -45,11 +43,9 @@ const Explore: React.FC = () => {
     try {
       const response = await generateTrips(prompt);
       
-      // Handle trips and thinking data
       setTrips(response.trips);
       setThinking(response.thinking);
       
-      // Show thinking data if available
       if (response.thinking && response.thinking.length > 0) {
         setShowThinking(true);
       }
@@ -59,11 +55,22 @@ const Explore: React.FC = () => {
       }
     } catch (err) {
       console.error("Error generating trips:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate trip recommendations");
+      
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
+      
+      if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
+        setError(
+          aiModel === 'gemini'
+            ? "The Gemini API key is not properly configured. Please try switching to Claude model or contact support."
+            : "The Claude API key is not properly configured. Please try switching to Gemini model or contact support."
+        );
+      } else {
+        setError(errorMessage);
+      }
       
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : "Something went wrong",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -85,7 +92,7 @@ const Explore: React.FC = () => {
         <h1 className="text-3xl font-bold text-purple-800">Explore Adventures</h1>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">AI Model:</span>
-          <ModelSelector compact showLabels={false} />
+          <ModelSelector compact showLabels={false} onChange={(model) => setAiModel(model)} />
         </div>
       </div>
       
