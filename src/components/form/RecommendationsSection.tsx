@@ -1,7 +1,5 @@
 
 import React from "react";
-import { PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RecommendedCompany } from "./ActivityFormSchema";
 
@@ -20,15 +18,6 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-medium">Recommended Companies</h3>
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm"
-          onClick={addRecommendation}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Recommendation
-        </Button>
       </div>
       
       <div className="space-y-4">
@@ -55,6 +44,16 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({
             </div>
           </div>
         ))}
+        
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={addRecommendation}
+            className="text-sm text-blue-600 underline hover:text-blue-800"
+          >
+            Add More Companies
+          </button>
+        </div>
       </div>
     </div>
   );
