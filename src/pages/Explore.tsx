@@ -12,11 +12,13 @@ import ThinkingDisplay from '@/components/ThinkingDisplay';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
+import ApiConnectionError from '@/components/common/ApiConnectionError';
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
@@ -41,6 +43,7 @@ const Explore: React.FC = () => {
   const handlePromptSubmit = async (prompt: string) => {
     setLoading(true);
     setError(null);
+    setErrorDetails(null);
     setThinking(undefined);
     setTrips([]);
     
@@ -62,16 +65,18 @@ const Explore: React.FC = () => {
       console.error("Error generating trips:", err);
       
       const errorMessage = err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
       
-      if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
-        setError(`Could not connect to ${aiModel === 'claude' ? 'Claude' : 'Gemini'} AI service. Please try again later or switch to a different AI model in Settings.`);
-      } else {
-        setError(errorMessage);
+      // Capture detailed error information for debugging
+      if (errorMessage.includes("|")) {
+        const [mainError, details] = errorMessage.split("|", 2);
+        setError(mainError.trim());
+        setErrorDetails(details.trim());
       }
       
       toast({
         title: "Error",
-        description: errorMessage,
+        description: errorMessage.split("|")[0], // Only show main error in toast
         variant: "destructive",
       });
     } finally {
@@ -122,8 +127,9 @@ const Explore: React.FC = () => {
       )}
       
       {error && !loading && (
-        <ErrorDisplay 
-          errorMessage={error}
+        <ApiConnectionError 
+          customMessage={error}
+          errorDetails={errorDetails || undefined}
           onRetry={() => setError(null)}
         />
       )}

@@ -108,7 +108,9 @@ Format your response as valid JSON matching this exact schema:
       ]
     }
   ]
-}`
+}
+
+Your response MUST be a valid JSON object. Do not include any text outside of the JSON object. Do not format as a code block with backticks.`
             }
           ]
         }
@@ -153,9 +155,11 @@ Format your response as valid JSON matching this exact schema:
     ];
     
     let tripData = null;
+    let rawTextContent = '';
     
     if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
       const textContent = data.candidates[0].content.parts[0].text;
+      rawTextContent = textContent;
       
       if (textContent) {
         try {
@@ -167,7 +171,12 @@ Format your response as valid JSON matching this exact schema:
                             
           if (jsonMatch && jsonMatch[1]) {
             console.log("Found JSON code block in response");
-            tripData = JSON.parse(jsonMatch[1]);
+            try {
+              tripData = JSON.parse(jsonMatch[1]);
+            } catch (parseError) {
+              console.error("Error parsing JSON from code block:", parseError);
+              throw new Error(`JSON parse error in code block: ${parseError.message}`);
+            }
           } 
           // If no code blocks, try to extract JSON directly
           else if (textContent.includes('"trip":')) {
@@ -175,36 +184,81 @@ Format your response as valid JSON matching this exact schema:
             const jsonObjectMatch = textContent.match(/\{[\s\S]*"trip"[\s\S]*\}/);
             if (jsonObjectMatch) {
               console.log("Found JSON object in text");
-              tripData = JSON.parse(jsonObjectMatch[0]);
+              try {
+                tripData = JSON.parse(jsonObjectMatch[0]);
+              } catch (parseError) {
+                console.error("Error parsing JSON from matched object:", parseError);
+                throw new Error(`JSON parse error in matched object: ${parseError.message}`);
+              }
+            } else {
+              throw new Error("Could not locate a valid JSON object with 'trip' key");
             }
           }
           // Last resort - try parsing the entire text
           else {
             console.log("Attempting to parse entire response as JSON");
-            tripData = JSON.parse(textContent);
+            try {
+              tripData = JSON.parse(textContent);
+            } catch (parseError) {
+              console.error("Error parsing entire text as JSON:", parseError);
+              throw new Error(`Full text JSON parse error: ${parseError.message}`);
+            }
           }
           
-          // Verify our parsed data has the expected structure
-          if (!tripData || !tripData.trip || !Array.isArray(tripData.trip)) {
-            console.error("Parsed data doesn't have the expected structure");
-            throw new Error("Response does not contain valid trip data");
+          // Validate structure with specific errors for missing fields
+          if (!tripData) {
+            throw new Error("No valid JSON data could be extracted from response");
+          }
+          
+          if (!tripData.trip) {
+            throw new Error("Missing 'trip' property in parsed data");
+          }
+          
+          if (!Array.isArray(tripData.trip)) {
+            throw new Error("'trip' property is not an array");
+          }
+          
+          if (tripData.trip.length === 0) {
+            throw new Error("'trip' array is empty - no trips generated");
+          }
+          
+          // Validate required fields in each trip
+          for (let i = 0; i < tripData.trip.length; i++) {
+            const trip = tripData.trip[i];
+            const missingFields = [];
+            
+            if (!trip.id) missingFields.push("id");
+            if (!trip.title) missingFields.push("title");
+            if (!trip.description) missingFields.push("description");
+            if (!trip.whyWeChoseThis) missingFields.push("whyWeChoseThis");
+            if (!trip.difficultyLevel) missingFields.push("difficultyLevel");
+            if (trip.priceEstimate === undefined) missingFields.push("priceEstimate");
+            if (!trip.duration) missingFields.push("duration");
+            if (!trip.location) missingFields.push("location");
+            if (!trip.mapCenter) missingFields.push("mapCenter");
+            if (!trip.itinerary) missingFields.push("itinerary");
+            
+            if (missingFields.length > 0) {
+              throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
+            }
           }
           
           console.log("Successfully parsed trip data:", tripData.trip.length, "trips");
         } catch (error) {
-          console.error("Error parsing JSON from Gemini response:", error);
-          throw new Error("Could not extract valid JSON from Gemini response");
+          console.error("Error processing Gemini response:", error);
+          throw new Error(`${error.message} | Raw content: ${textContent.substring(0, 200)}...`);
         }
       } else {
         throw new Error("No text content in Gemini response");
       }
     } else {
-      throw new Error("Invalid response structure from Gemini API");
+      throw new Error("Invalid response structure from Gemini API - missing candidates or content parts");
     }
     
     return {
       thinking: thinkingSteps,
-      tripData: tripData
+      tripData: tripData,
+      rawResponse: rawTextContent.substring(0, 500) // Include first 500 chars of raw response for debugging
     };
   } catch (error) {
     console.error("Gemini API call failed:", error);
@@ -252,10 +306,13 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error processing request:", error);
     
+    // Return a structured error response with detailed information
     return new Response(
       JSON.stringify({ 
         error: "Failed to process request", 
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : String(error),
+        errorType: error.name || "UnknownError",
+        timestamp: new Date().toISOString()
       }),
       { 
         headers: { 

@@ -28,6 +28,12 @@ export const generateTrips = async (
       throw new Error("No data returned from the AI service");
     }
 
+    // If the response contains an error object, throw it
+    if (data.error) {
+      console.error(`Error in ${edgeFunction} response:`, data);
+      throw new Error(`AI Service Error: ${data.details || data.error}`);
+    }
+
     // Process thinking steps if available
     if (data.thinking && thinkingCallback) {
       thinkingCallback(data.thinking);
@@ -36,17 +42,48 @@ export const generateTrips = async (
     // The response structure should contain trips data from tripData
     const trips = data.tripData?.trip || [];
     
-    // Validate the structure of trips
-    if (!Array.isArray(trips) || trips.length === 0) {
-      console.error("Invalid or empty trips array returned:", trips);
-      throw new Error("Invalid trip data returned from the AI service");
+    // Check for raw response (debugging info)
+    if (data.rawResponse) {
+      console.info("Raw response excerpt:", data.rawResponse);
+    }
+    
+    // Validate the structure of trips with detailed error messages
+    if (!Array.isArray(trips)) {
+      console.error("Invalid trips data returned:", trips);
+      throw new Error("AI returned invalid trip data: trips is not an array");
+    }
+    
+    if (trips.length === 0) {
+      console.error("Empty trips array returned");
+      throw new Error("AI returned empty trip data: no trips were generated");
+    }
+    
+    // Verify all required trip fields exist
+    for (let i = 0; i < trips.length; i++) {
+      const trip = trips[i];
+      const missingFields = [];
+      
+      if (!trip.id) missingFields.push("id");
+      if (!trip.title) missingFields.push("title");
+      if (!trip.description) missingFields.push("description");
+      if (!trip.whyWeChoseThis) missingFields.push("whyWeChoseThis");
+      if (!trip.difficultyLevel) missingFields.push("difficultyLevel");
+      if (trip.priceEstimate === undefined) missingFields.push("priceEstimate");
+      if (!trip.duration) missingFields.push("duration");
+      if (!trip.location) missingFields.push("location");
+      if (!trip.mapCenter) missingFields.push("mapCenter");
+      if (!trip.itinerary) missingFields.push("itinerary");
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
+      }
     }
     
     console.info(`Successfully generated ${trips.length} trips`);
     return trips;
   } catch (error) {
     console.error("Error generating trips:", error);
-    throw new Error(`Edge Function Error: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`${error instanceof Error ? error.message : String(error)}`);
   }
 };
 

@@ -16,11 +16,13 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [thinking, setThinking] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const handleSubmitPrompt = async (inputPrompt: string) => {
     setPrompt(inputPrompt);
     setLoading(true);
     setError(null);
+    setErrorDetails(null);
     setThinking([]);
     setTrips([]);
 
@@ -32,7 +34,17 @@ const Index = () => {
       setTrips(result);
     } catch (err) {
       console.error('Error processing prompt:', err);
-      setError('Could not connect to AI service. Please try again later or contact support.');
+      
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
+      
+      // Split error message if it contains details
+      if (errorMessage.includes("|")) {
+        const [mainError, details] = errorMessage.split("|", 2);
+        setError(mainError.trim());
+        setErrorDetails(details.trim());
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -64,6 +76,7 @@ const Index = () => {
       {error && (
         <ApiConnectionError 
           customMessage={error}
+          errorDetails={errorDetails || undefined}
           onRetry={handleRetry}
         />
       )}
