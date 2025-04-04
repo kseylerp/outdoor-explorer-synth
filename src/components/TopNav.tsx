@@ -6,7 +6,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { PanelLeft } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
-const TopNav: React.FC = () => {
+interface TopNavProps {
+  hideModelSelector?: boolean;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ hideModelSelector }) => {
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const location = useLocation();
