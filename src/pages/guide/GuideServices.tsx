@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 interface Service {
   service_id: string;
@@ -24,7 +25,8 @@ const GuideServices = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Service, 'service_id' | 'guide_id'>>({
+  const [formData, setFormData] = useState<Omit<Service, 'service_id'>>({
+    guide_id: '', // This field is now included
     guide_name: '',
     services: '',
     location: '',
@@ -49,6 +51,11 @@ const GuideServices = () => {
       setServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load services. Please try again.',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
@@ -67,6 +74,12 @@ const GuideServices = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Generate a temporary guide_id if one isn't set
+      if (!formData.guide_id) {
+        // Using a UUID-like format for demo purposes
+        formData.guide_id = `guide_${Date.now()}`;
+      }
+      
       if (editingId) {
         const { error } = await supabase
           .from('guide_services')
@@ -79,6 +92,10 @@ const GuideServices = () => {
           service.service_id === editingId ? { ...service, ...formData } : service
         ));
         
+        toast({
+          title: 'Success',
+          description: 'Service updated successfully',
+        });
       } else {
         const { data, error } = await supabase
           .from('guide_services')
@@ -88,17 +105,28 @@ const GuideServices = () => {
         if (error) throw error;
         
         setServices([...services, ...(data as Service[])]);
+        
+        toast({
+          title: 'Success',
+          description: 'New service added successfully',
+        });
       }
       
       resetForm();
     } catch (error) {
       console.error('Error saving service:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save service. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
   const handleEdit = (service: Service) => {
     setEditingId(service.service_id);
     setFormData({
+      guide_id: service.guide_id,
       guide_name: service.guide_name,
       services: service.services,
       location: service.location,
@@ -119,14 +147,25 @@ const GuideServices = () => {
       if (error) throw error;
       
       setServices(services.filter(service => service.service_id !== id));
+      
+      toast({
+        title: 'Success',
+        description: 'Service deleted successfully',
+      });
     } catch (error) {
       console.error('Error deleting service:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete service. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
   const resetForm = () => {
     setEditingId(null);
     setFormData({
+      guide_id: '',
       guide_name: '',
       services: '',
       location: '',
