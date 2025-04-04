@@ -13,11 +13,20 @@ import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
-import GuidePortal from "./pages/GuidePortal";
+
+// Main app layout components
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "./hooks/use-mobile";
+
+// Guide Portal components
+import GuidePortalLayout from "./components/guide/GuidePortalLayout";
+import Services from "./pages/guide/Services";
+import GuideRecommendations from "./pages/guide/GuideRecommendations";
+import GuideContent from "./pages/guide/GuideContent";
+import GuideProfile from "./pages/guide/GuideProfile";
+import GuideAnalytics from "./pages/guide/GuideAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +40,7 @@ const AppContent = () => {
         <TopNav />
         <main className="flex-1 overflow-auto">
           <Routes>
+            {/* Main App Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
             <Route path="/explore" element={<Explore />} />
@@ -39,8 +49,18 @@ const AppContent = () => {
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/guide-portal" element={<GuidePortal />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            
+            {/* Guide Portal Routes - using the layout with auth protection */}
+            <Route path="/guide-portal" element={<GuidePortalLayout />}>
+              <Route index element={<GuideAnalytics />} />
+              <Route path="services" element={<Services />} />
+              <Route path="recommendations" element={<GuideRecommendations />} />
+              <Route path="content" element={<GuideContent />} />
+              <Route path="profile" element={<GuideProfile />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+            
+            {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

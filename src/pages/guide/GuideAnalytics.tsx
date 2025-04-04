@@ -1,124 +1,120 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Activity, 
+  Users, 
+  ThumbsUp, 
+  BookOpen,
+  Briefcase
+} from 'lucide-react';
 
-const mockData = {
-  recommendations: [
-    { month: 'Jan', count: 5 },
-    { month: 'Feb', count: 8 },
-    { month: 'Mar', count: 12 },
-    { month: 'Apr', count: 10 },
-    { month: 'May', count: 15 },
-    { month: 'Jun', count: 20 },
-  ],
-  profileViews: [
-    { month: 'Jan', count: 25 },
-    { month: 'Feb', count: 32 },
-    { month: 'Mar', count: 48 },
-    { month: 'Apr', count: 52 },
-    { month: 'May', count: 58 },
-    { month: 'Jun', count: 65 },
-  ],
-  contentEngagement: [
-    { month: 'Jan', count: 12 },
-    { month: 'Feb', count: 18 },
-    { month: 'Mar', count: 22 },
-    { month: 'Apr', count: 28 },
-    { month: 'May', count: 35 },
-    { month: 'Jun', count: 42 },
-  ]
-};
+const GuideAnalytics: React.FC = () => {
+  // This would typically be loaded from an API
+  const analyticsData = {
+    services: 5,
+    recommendations: 12,
+    contents: 8,
+    views: 243,
+    followers: 32
+  };
 
-const GuideAnalytics = () => {
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Guide Dashboard</h1>
+      
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Recommendations</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Services</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">70</div>
-            <p className="text-xs text-muted-foreground">+15% from last month</p>
+            <div className="text-2xl font-bold">{analyticsData.services}</div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recommendations</CardTitle>
+            <ThumbsUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">280</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">{analyticsData.recommendations}</div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Content Engagement</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Content Pieces</CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">157</div>
-            <p className="text-xs text-muted-foreground">+20% from last month</p>
+            <div className="text-2xl font-bold">{analyticsData.contents}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Followers</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analyticsData.followers}</div>
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Activity Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="weekly">
+            <TabsList>
+              <TabsTrigger value="daily">Daily</TabsTrigger>
+              <TabsTrigger value="weekly">Weekly</TabsTrigger>
+              <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            </TabsList>
+            <TabsContent value="daily" className="pt-4">
+              <div className="h-[200px] flex items-center justify-center border rounded-md">
+                <p className="text-muted-foreground">Daily analytics chart would appear here</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="weekly" className="pt-4">
+              <div className="h-[200px] flex items-center justify-center border rounded-md">
+                <p className="text-muted-foreground">Weekly analytics chart would appear here</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="monthly" className="pt-4">
+              <div className="h-[200px] flex items-center justify-center border rounded-md">
+                <p className="text-muted-foreground">Monthly analytics chart would appear here</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+      
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recommendations Over Time</CardTitle>
+            <CardTitle>Recent Services</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockData.recommendations}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#8b5cf6" />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="space-y-2">
+              <p className="text-muted-foreground">No recent services</p>
             </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle>Profile Views Over Time</CardTitle>
+            <CardTitle>Recent Recommendations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockData.profileViews}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Content Engagement Over Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockData.contentEngagement}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#10b981" />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="space-y-2">
+              <p className="text-muted-foreground">No recent recommendations</p>
             </div>
           </CardContent>
         </Card>
