@@ -23,8 +23,9 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
         compact={compact}
       />
       
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Map and description - now spans 8 columns on large screens */}
+        <div className="lg:col-span-8 space-y-6">
           {/* Map section */}
           <TripMapSection trip={trip} height={compact ? "200px" : "300px"} />
           
@@ -35,17 +36,10 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
             suggestedGuides={trip.suggestedGuides}
             compact={compact}
           />
-
-          {/* Render children (typically ItineraryTab component) */}
-          {children && (
-            <div className="mt-6">
-              {children}
-            </div>
-          )}
         </div>
         
-        {/* Price breakdown and additional info section */}
-        <div className="space-y-6">
+        {/* Price breakdown and additional info section - now spans 4 columns */}
+        <div className="lg:col-span-4 space-y-6">
           <PriceBreakdown 
             totalPrice={trip.priceEstimate} 
             compact={compact}
@@ -85,6 +79,13 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
             </div>
           )}
         </div>
+
+        {/* Children (typically the ItineraryTab component) below in full width */}
+        {children && (
+          <div className="lg:col-span-12 mt-6">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

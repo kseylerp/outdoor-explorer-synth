@@ -1,16 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import TripItinerary from './TripItinerary';
 import TripBaseView from '../trip-shared/TripBaseView';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import TripCardButtons from './TripCardButtons';
+import ItineraryExpander from './ItineraryExpander';
 
 interface TripCardProps {
   trip: Trip;
   expanded?: boolean;
-  onExpand?: () => void;
   isSaved?: boolean;
   onSave?: () => void;
   showRemoveButton?: boolean;
@@ -19,7 +18,7 @@ interface TripCardProps {
 
 const TripCard: React.FC<TripCardProps> = ({ 
   trip,
-  expanded = true, // Default to expanded
+  expanded = true,
   isSaved = false,
   onSave,
   showRemoveButton = false,
@@ -31,37 +30,36 @@ const TripCard: React.FC<TripCardProps> = ({
   console.log('TripCard rendering with trip:', trip);
   console.log('Trip itinerary:', trip.itinerary);
   
-  const toggleItinerary = () => {
-    setIsItineraryVisible(!isItineraryVisible);
-  };
-
+  // Get the maximum day number to ensure we show all days
+  const maxDays = trip.itinerary && trip.itinerary.length > 0 
+    ? Math.max(...trip.itinerary.map(day => day.day))
+    : 0;
+  
+  console.log('Maximum days in itinerary:', maxDays);
+  
   return (
     <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md">
       <TripBaseView trip={trip} compact={!isItineraryVisible}>
-        <div className="flex justify-center mt-4">
-          <Button
-            onClick={toggleItinerary}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            {isItineraryVisible ? (
-              <>
-                <ChevronUp className="h-4 w-4" />
-                Hide Itinerary
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-4 w-4" />
-                Show Itinerary
-              </>
-            )}
-          </Button>
-        </div>
-        
-        {/* Display Itinerary directly in the card */}
-        {isItineraryVisible && trip.itinerary && trip.itinerary.length > 0 && (
-          <TripItinerary itinerary={trip.itinerary} />
+        {/* Buttons for saving/removing trips */}
+        {(onSave || (showRemoveButton && onRemove)) && (
+          <TripCardButtons 
+            tripId={trip.id} 
+            isSaved={isSaved}
+            onSave={onSave}
+            showRemoveButton={showRemoveButton}
+            onRemove={onRemove}
+          />
         )}
+        
+        {/* Itinerary expander */}
+        <ItineraryExpander 
+          isExpanded={isItineraryVisible}
+          onToggle={() => setIsItineraryVisible(!isItineraryVisible)}
+        >
+          {trip.itinerary && trip.itinerary.length > 0 && (
+            <TripItinerary itinerary={trip.itinerary} />
+          )}
+        </ItineraryExpander>
       </TripBaseView>
     </Card>
   );
