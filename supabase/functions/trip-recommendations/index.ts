@@ -13,7 +13,7 @@ const claudeApiKey = Deno.env.get('my_api_key');
 console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
 
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
-const claudeModel = "claude-3-5-haiku-20241022";
+const claudeModel = "claude-3-7-sonnet-20250219";
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -37,7 +37,7 @@ async function callClaudeApi(prompt: string) {
       model: claudeModel,
       max_tokens: 6000,
       temperature: 1,
-      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness",
+      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness\n- Activities and Itineraries need to consider the time it will take to do that activity, time of day, if you need to camp, and how long to get back.",
       messages: [
         {
           role: "user",
@@ -211,8 +211,7 @@ async function callClaudeApi(prompt: string) {
                               "to",
                               "distance",
                               "duration",
-                              "geometry",
-                              "steps"
+                              "geometry"
                             ],
                             properties: {
                               mode: {
@@ -435,7 +434,11 @@ async function callClaudeApi(prompt: string) {
             ]
           }
         }
-      ]
+      ],
+      thinking: {
+        type: "enabled",
+        budget_tokens: 4800
+      }
     };
 
     const response = await fetch(claudeApiUrl, {
@@ -457,6 +460,17 @@ async function callClaudeApi(prompt: string) {
     const data = await response.json();
     console.log("Claude API response received");
     
+    // Handle both the thinking and tool use responses
+    const result = {
+      thinking: null,
+      tripData: null
+    };
+    
+    // Extract thinking if available
+    if (data.thinking && data.thinking.thinking) {
+      result.thinking = data.thinking.thinking;
+    }
+    
     if (data.content && data.content.length > 0) {
       // Look for tool use in the response
       const toolUse = data.content.find(item => 
@@ -466,7 +480,7 @@ async function callClaudeApi(prompt: string) {
       
       if (toolUse && toolUse.input) {
         // Parse and return the structured trip data
-        return toolUse.input;
+        result.tripData = toolUse.input;
       } else {
         // If no structured data, try to extract from text
         const textContent = data.content.find(item => item.type === 'text');
@@ -477,7 +491,7 @@ async function callClaudeApi(prompt: string) {
             const jsonMatch = textContent.text.match(/```json\s*([\s\S]*?)\s*```/);
             if (jsonMatch && jsonMatch[1]) {
               const extractedJson = JSON.parse(jsonMatch[1]);
-              return extractedJson;
+              result.tripData = extractedJson;
             }
             
             throw new Error("No JSON format found in text response");
@@ -489,7 +503,7 @@ async function callClaudeApi(prompt: string) {
       }
     }
     
-    throw new Error("No usable content in Claude API response");
+    return result;
   } catch (error) {
     console.error("Claude API call failed:", error);
     throw error;
@@ -520,12 +534,12 @@ serve(async (req) => {
     
     console.log("Processing prompt:", prompt);
     
-    // Call Claude API and get structured response
-    const tripData = await callClaudeApi(prompt);
+    // Call Claude API and get structured response with thinking
+    const result = await callClaudeApi(prompt);
     
-    // Return the structured response
+    // Return the structured response with thinking
     return new Response(
-      JSON.stringify(tripData),
+      JSON.stringify(result),
       { 
         headers: { 
           ...corsHeaders,
