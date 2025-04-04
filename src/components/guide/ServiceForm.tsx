@@ -24,7 +24,6 @@ interface ServiceFormProps {
   onSubmit: (formData: ServiceFormValues) => void;
   onCancel: () => void;
   isEditing?: boolean;
-  defaultValues?: Service;
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -54,9 +53,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 border p-6 rounded-lg">
-      <h3 className="text-xl font-medium mb-4">
-        {editingId ? 'Edit Service' : 'Add New Service'}
-      </h3>
+      <FormHeader isEditing={!!editingId || isEditing} />
       
       <ServiceFormFields 
         formData={formData}
@@ -71,5 +68,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     </form>
   );
 };
+
+// Extracted form header into its own component
+const FormHeader: React.FC<{ isEditing: boolean }> = ({ isEditing }) => (
+  <h3 className="text-xl font-medium mb-4">
+    {isEditing ? 'Edit Service' : 'Add New Service'}
+  </h3>
+);
 
 export default ServiceForm;
