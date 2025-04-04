@@ -11,6 +11,7 @@ interface JourneyBoundsProps {
 const JourneyBounds: React.FC<JourneyBoundsProps> = ({ map, journey }) => {
   useEffect(() => {
     try {
+      // If journey is undefined or doesn't have bounds, exit early
       if (!journey || !journey.bounds || !journey.bounds.length || !map) {
         return;
       }

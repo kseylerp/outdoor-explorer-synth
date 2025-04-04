@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
 
@@ -124,7 +123,6 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
     if (data) {
       // Add detailed logging to inspect the data structure
       console.log("Trip data from database:", data);
-      console.log("Trip whyWeChoseThis:", data.whyWeChoseThis);
       
       // Check if itinerary is an array and log its length
       const itineraryLength = Array.isArray(data.itinerary) ? data.itinerary.length : 'not an array';
@@ -137,9 +135,27 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
       if (expectedDays > 0) {
         console.log("Expected days from duration:", expectedDays);
       }
+
+      // Create a Trip object with default values for missing properties
+      const trip: Trip = {
+        id: data.trip_id,
+        title: data.title,
+        description: data.description || '',
+        whyWeChoseThis: data.whyWeChoseThis || 'Handpicked for a unique adventure experience', // Add default value
+        difficultyLevel: data.difficulty_level || '',
+        priceEstimate: data.price_estimate || 0,
+        duration: data.duration || '',
+        location: data.location || '',
+        mapCenter: data.map_center,
+        markers: data.markers,
+        journey: data.journey,
+        itinerary: data.itinerary || [],
+      };
+
+      return trip;
     }
 
-    return data ? data as unknown as Trip : null;
+    return null;
   } catch (error) {
     console.error("Error in fetchTripById:", error);
     throw new Error(`Error fetching trip: ${error instanceof Error ? error.message : String(error)}`);
