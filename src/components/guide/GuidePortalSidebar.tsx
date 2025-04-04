@@ -8,7 +8,8 @@ import {
   Briefcase, 
   Activity, 
   ThumbsUp,
-  LogOut
+  LogOut,
+  PlusCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,14 +44,19 @@ const GuidePortalSidebar: React.FC = () => {
       exact: true
     },
     {
+      to: "/guide-portal/activities",
+      icon: <Activity size={20} />,
+      label: "Activities"
+    },
+    {
+      to: "/guide-portal/add-activity",
+      icon: <PlusCircle size={20} />,
+      label: "Add Activity"
+    },
+    {
       to: "/guide-portal/services",
       icon: <Briefcase size={20} />,
       label: "Services"
-    },
-    {
-      to: "/guide-portal/recommendations",
-      icon: <ThumbsUp size={20} />,
-      label: "Recommendations"
     },
     {
       to: "/guide-portal/content",

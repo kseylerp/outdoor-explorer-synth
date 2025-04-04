@@ -27,6 +27,8 @@ import GuideRecommendations from "./pages/guide/GuideRecommendations";
 import GuideContent from "./pages/guide/GuideContent";
 import GuideProfile from "./pages/guide/GuideProfile";
 import GuideAnalytics from "./pages/guide/GuideAnalytics";
+import Activities from "./pages/guide/Activities";
+import AddActivity from "./pages/guide/AddActivity";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,9 @@ const AppContent = () => {
       {/* Guide Portal routes - completely separate experience */}
       <Route path="/guide-portal/*" element={<GuidePortalLayout />}>
         <Route index element={<GuideAnalytics />} />
+        <Route path="activities" element={<Activities />} />
+        <Route path="add-activity" element={<AddActivity />} />
+        <Route path="edit-activity/:id" element={<AddActivity />} />
         <Route path="services" element={<Services />} />
         <Route path="recommendations" element={<GuideRecommendations />} />
         <Route path="content" element={<GuideContent />} />

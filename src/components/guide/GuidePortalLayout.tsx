@@ -1,12 +1,26 @@
 
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import GuidePortalSidebar from './GuidePortalSidebar';
 import AuthGuard from './AuthGuard';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 
 const GuidePortalLayout: React.FC = () => {
+  const location = useLocation();
+  const path = location.pathname.split('/').filter(Boolean);
+  const currentSection = path.length > 1 ? path[1].charAt(0).toUpperCase() + path[1].slice(1) : 'Dashboard';
+  
+  // Determine the page title based on the current route
+  let pageTitle = 'Guide Portal';
+  if (currentSection === 'Add-activity') {
+    pageTitle = 'Add New Activity';
+  } else if (currentSection.startsWith('Edit-activity')) {
+    pageTitle = 'Edit Activity';
+  } else if (currentSection !== 'Dashboard') {
+    pageTitle = `${currentSection}`;
+  }
+
   return (
     <AuthGuard>
       <div className="flex h-screen w-full bg-background">
@@ -20,7 +34,13 @@ const GuidePortalLayout: React.FC = () => {
                   Back to Main App
                 </Link>
               </Button>
-              <h1 className="text-xl font-semibold text-primary">Guide Portal</h1>
+              <div className="flex items-center">
+                <Link to="/guide-portal" className="hover:text-primary">
+                  <Home className="h-4 w-4 mr-2 inline" />
+                </Link>
+                <span className="text-muted-foreground mx-2">/</span>
+                <h1 className="text-xl font-semibold text-primary">{pageTitle}</h1>
+              </div>
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6">
