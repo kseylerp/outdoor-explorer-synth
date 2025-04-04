@@ -1,6 +1,7 @@
 
 import { useServiceFormState } from './useServiceFormState';
 import { useServiceCrud } from './useServiceCrud';
+import { ServiceFormValues } from '@/components/guide/ServiceFormSchema';
 
 export const useServiceManager = () => {
   const {
@@ -20,9 +21,7 @@ export const useServiceManager = () => {
     deleteService
   } = useServiceCrud();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (formData: ServiceFormValues) => {
     if (editingId) {
       const success = await updateService(editingId, formData);
       if (success) resetForm();
