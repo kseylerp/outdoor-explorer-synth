@@ -45,6 +45,7 @@ const TripCard: React.FC<TripCardProps> = ({
           onSave={handleSaveTrip}
           showRemoveButton={showRemoveButton}
           onRemove={onRemove}
+          onExpand={onExpand}
         />
         
         {/* Display Itinerary directly in the card */}

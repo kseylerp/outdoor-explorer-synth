@@ -23,7 +23,7 @@ const Explore: React.FC = () => {
     try {
       const response = await generateTrips(prompt);
       
-      // Update: directly use the response which should be Trip[]
+      // Handle the response which should directly be an array of Trip objects
       if (response && Array.isArray(response)) {
         setTrips(response);
         
