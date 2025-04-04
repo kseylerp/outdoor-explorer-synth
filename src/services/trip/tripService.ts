@@ -7,23 +7,24 @@ export const generateTrips = async (
   thinkingCallback?: (steps: string[]) => void
 ): Promise<Trip[]> => {
   try {
-    console.info(`Using gemini model for trip recommendations`);
-    console.info(`Calling trip-recommendations edge function with prompt: ${prompt}`);
+    // Get the preferred AI model from localStorage, default to gemini
+    const preferredModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini' || 'gemini';
+    const edgeFunction = preferredModel === 'claude' ? 'claude-recommendations' : 'gemini-recommendations';
     
-    const { data, error } = await supabase.functions.invoke("trip-recommendations", {
-      body: {
-        prompt,
-        model: "gemini",
-      },
+    console.info(`Using ${preferredModel} model for trip recommendations`);
+    console.info(`Calling ${edgeFunction} edge function with prompt: ${prompt}`);
+    
+    const { data, error } = await supabase.functions.invoke(edgeFunction, {
+      body: { prompt },
     });
 
     if (error) {
-      console.error("Error calling trip-recommendations function:", error);
+      console.error(`Error calling ${edgeFunction} function:`, error);
       throw new Error(`Edge Function Error: ${error.message}`);
     }
 
     if (!data) {
-      console.error("No data returned from trip-recommendations function");
+      console.error(`No data returned from ${edgeFunction} function`);
       throw new Error("No data returned from the AI service");
     }
 
@@ -34,6 +35,14 @@ export const generateTrips = async (
 
     // The response structure should contain trips data from tripData
     const trips = data.tripData?.trip || [];
+    
+    // Validate the structure of trips
+    if (!Array.isArray(trips) || trips.length === 0) {
+      console.error("Invalid or empty trips array returned:", trips);
+      throw new Error("Invalid trip data returned from the AI service");
+    }
+    
+    console.info(`Successfully generated ${trips.length} trips`);
     return trips;
   } catch (error) {
     console.error("Error generating trips:", error);
@@ -41,7 +50,7 @@ export const generateTrips = async (
   }
 };
 
-// Adding the missing fetchTripById function that's imported in TripDetails.tsx
+// Fetch a trip by ID from the saved_trips table
 export const fetchTripById = async (id: string): Promise<Trip | null> => {
   try {
     const { data, error } = await supabase

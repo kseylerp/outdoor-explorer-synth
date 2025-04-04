@@ -6,9 +6,13 @@ enabled = true
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
 
-[functions.trip-recommendations]
+[functions.claude-recommendations]
 verify_jwt = false
-import_map = "functions/trip-recommendations/import_map.json"
+import_map = "functions/claude-recommendations/import_map.json"
+
+[functions.gemini-recommendations]
+verify_jwt = false
+import_map = "functions/gemini-recommendations/import_map.json"
 
 [functions.get-mapbox-token]
 verify_jwt = false

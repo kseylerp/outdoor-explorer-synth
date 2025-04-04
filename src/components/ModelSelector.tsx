@@ -15,9 +15,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   showLabels = true,
   onChange 
 }) => {
-  // Get preferred model from localStorage, default to 'claude'
+  // Get preferred model from localStorage, default to 'gemini'
   const [preferredModel, setPreferredModel] = useState<'claude' | 'gemini'>(
-    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'claude'
+    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'gemini'
   );
 
   // Update localStorage when preference changes
@@ -35,6 +35,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     if (onChange) {
       onChange(preferredModel);
     }
+    
+    // Trigger a storage event so other components can react to the change
+    window.dispatchEvent(new Event('storage'));
   }, [preferredModel, compact, onChange]);
 
   const toggleModel = () => {

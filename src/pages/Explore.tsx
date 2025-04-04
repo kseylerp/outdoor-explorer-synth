@@ -9,7 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
-import ModelSelector from '@/components/ModelSelector';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -18,11 +20,12 @@ const Explore: React.FC = () => {
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
-    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'claude'
+    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'gemini'
   );
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Listen for changes to the AI model preference
   useEffect(() => {
     const handleStorageChange = () => {
       const storedModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini';
@@ -61,7 +64,7 @@ const Explore: React.FC = () => {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       
       if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
-        setError("Could not connect to AI service. Please try again later or contact support.");
+        setError(`Could not connect to ${aiModel === 'claude' ? 'Claude' : 'Gemini'} AI service. Please try again later or switch to a different AI model in Settings.`);
       } else {
         setError(errorMessage);
       }
@@ -89,8 +92,15 @@ const Explore: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-purple-800">Explore Adventures</h1>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">AI Model:</span>
-          <ModelSelector compact showLabels={false} onChange={(model) => setAiModel(model)} />
+          <span className="text-sm text-gray-500 hidden md:inline">
+            AI Model: {aiModel === 'claude' ? 'Claude' : 'Gemini'}
+          </span>
+          <Button variant="outline" size="sm" asChild className="text-xs">
+            <Link to="/settings">
+              <Settings size={16} className="mr-1" />
+              AI Settings
+            </Link>
+          </Button>
         </div>
       </div>
       
