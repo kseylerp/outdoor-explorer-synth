@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/trip-card';
