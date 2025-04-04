@@ -15,10 +15,8 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
   return (
     <div className="p-6">
       <TripHeader 
-        title={trip.title}
-        description={trip.description}
-        location={trip.location}
-        duration={trip.duration}
+        trip={trip}
+        compact={compact}
       />
       
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
