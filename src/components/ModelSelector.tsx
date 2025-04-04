@@ -46,9 +46,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
       <div className="flex items-center space-x-2">
         <span className={`text-xs ${preferredModel === 'gemini' ? 'text-muted-foreground' : 'font-medium'}`}>C</span>
         <Switch 
-          size="sm"
           checked={preferredModel === 'gemini'} 
           onCheckedChange={toggleModel} 
+          className="scale-75"
         />
         <span className={`text-xs ${preferredModel === 'claude' ? 'text-muted-foreground' : 'font-medium'}`}>G</span>
       </div>
