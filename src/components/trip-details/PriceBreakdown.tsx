@@ -12,11 +12,12 @@ interface PriceBreakdownProps {
 const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = false, priceDetails }) => {
   // Format price as a string with dollar sign
   const formatPrice = (price?: number | string): string => {
-    if (price === undefined || price <= 0) return 'Price not available';
+    if (price === undefined) return 'Price not available';
     if (typeof price === 'string') {
       // If price is already formatted as a string, return it
       return price.startsWith('$') ? price : `$${price}`;
     }
+    if (price <= 0) return 'Price not available';
     return `$${price.toLocaleString()}`;
   };
 
