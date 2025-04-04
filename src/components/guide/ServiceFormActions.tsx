@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 interface ServiceFormActionsProps {
   isEditing: boolean;
   onCancel: () => void;
-  isSubmitting?: boolean;
+  isSubmitting: boolean;
 }
 
 const ServiceFormActions: React.FC<ServiceFormActionsProps> = ({
   isEditing,
   onCancel,
-  isSubmitting = false
+  isSubmitting
 }) => {
   return (
     <div className="flex justify-end gap-2">

@@ -2,18 +2,7 @@
 import { useServiceFormState } from './useServiceFormState';
 import { useServiceCrud } from './useServiceCrud';
 import { ServiceFormValues } from '@/components/guide/ServiceFormSchema';
-
-interface Service {
-  service_id: string;
-  guide_id: string;
-  guide_name: string;
-  services: string;
-  location: string;
-  years_of_experience: string;
-  bio: string;
-  languages: string[];
-  certifications?: string;
-}
+import { useState } from 'react';
 
 export const useServiceManager = () => {
   const {
@@ -33,25 +22,30 @@ export const useServiceManager = () => {
     deleteService
   } = useServiceCrud();
 
-  const handleSubmit = async (formData: ServiceFormValues) => {
-    // Convert ServiceFormValues to Omit<Service, "service_id">
-    const serviceData: Omit<Service, "service_id"> = {
-      guide_id: formData.guide_id || 'default-guide-id', // Provide default value for required field
-      guide_name: formData.guide_name || '',
-      services: formData.services || '',
-      location: formData.location || '',
-      years_of_experience: formData.years_of_experience || '',
-      bio: formData.bio || '',
-      languages: formData.languages || [],
-      certifications: formData.certifications
-    };
+  // Track submission status
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    if (editingId) {
-      const success = await updateService(editingId, serviceData);
+  const handleSubmit = async (formData: ServiceFormValues) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Convert ServiceFormValues to required format
+      const serviceData = prepareServiceDataForSubmission(formData);
+
+      // Determine if we're updating or creating
+      let success = false;
+      if (editingId) {
+        success = await updateService(editingId, serviceData);
+      } else {
+        success = await createService(serviceData);
+      }
+      
+      // Reset form if successful
       if (success) resetForm();
-    } else {
-      const success = await createService(serviceData);
-      if (success) resetForm();
+      
+      return success;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,15 +58,35 @@ export const useServiceManager = () => {
   };
 
   return {
+    // Service data
     services,
     loading,
+    isSubmitting,
+    
+    // Form state
     editingId,
     formData,
+    
+    // Form handlers
     handleInputChange,
     handleLanguagesChange,
     handleSubmit,
     handleEdit,
     handleDelete,
     resetForm
+  };
+};
+
+// Helper function to prepare service data for submission
+const prepareServiceDataForSubmission = (formData: ServiceFormValues) => {
+  return {
+    guide_id: formData.guide_id || 'default-guide-id', 
+    guide_name: formData.guide_name || '',
+    services: formData.services || '',
+    location: formData.location || '',
+    years_of_experience: formData.years_of_experience || '',
+    bio: formData.bio || '',
+    languages: formData.languages || [],
+    certifications: formData.certifications
   };
 };

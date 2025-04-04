@@ -24,6 +24,7 @@ interface ServiceFormProps {
   onSubmit: (formData: ServiceFormValues) => void;
   onCancel: () => void;
   isEditing?: boolean;
+  isSubmitting?: boolean;
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -33,7 +34,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   onLanguagesChange,
   onSubmit,
   onCancel,
-  isEditing = false
+  isEditing = false,
+  isSubmitting = false
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +66,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       <ServiceFormActions 
         isEditing={!!editingId || isEditing}
         onCancel={onCancel}
+        isSubmitting={isSubmitting}
       />
     </form>
   );
