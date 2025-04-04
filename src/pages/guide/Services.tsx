@@ -54,14 +54,21 @@ const Services: React.FC = () => {
 
   const handleAddService = async (formData: ServiceFormValues) => {
     try {
-      // Generate a temporary guide_id if one isn't set
-      if (!formData.guide_id) {
-        formData.guide_id = `guide_${Date.now()}`;
-      }
+      // Ensure all required fields are present with proper types
+      const serviceData = {
+        guide_id: formData.guide_id || `guide_${Date.now()}`,
+        guide_name: formData.guide_name,
+        services: formData.services,
+        location: formData.location,
+        years_of_experience: formData.years_of_experience,
+        bio: formData.bio,
+        languages: formData.languages,
+        certifications: formData.certifications
+      };
       
       const { data, error } = await supabase
         .from('guide_services')
-        .insert([formData])
+        .insert([serviceData])
         .select();
 
       if (error) throw error;
@@ -88,15 +95,27 @@ const Services: React.FC = () => {
     if (!editingService) return;
     
     try {
+      // Ensure all required fields are present with proper types
+      const serviceData = {
+        guide_id: formData.guide_id || editingService.guide_id,
+        guide_name: formData.guide_name,
+        services: formData.services,
+        location: formData.location,
+        years_of_experience: formData.years_of_experience,
+        bio: formData.bio,
+        languages: formData.languages,
+        certifications: formData.certifications
+      };
+      
       const { error } = await supabase
         .from('guide_services')
-        .update(formData)
+        .update(serviceData)
         .eq('service_id', editingService.service_id);
 
       if (error) throw error;
       
       setServices(services.map(service => 
-        service.service_id === editingService.service_id ? { ...service, ...formData } : service
+        service.service_id === editingService.service_id ? { ...service, ...serviceData } : service
       ));
       
       toast({
