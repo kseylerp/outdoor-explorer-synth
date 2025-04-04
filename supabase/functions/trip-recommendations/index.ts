@@ -8,12 +8,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Get the API key from environment variables
-const claudeApiKey = Deno.env.get('my_api_key');
-console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
+// Get the API keys from environment variables
+const claudeApiKey = Deno.env.get('ANTHROPIC_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
+// API URLs
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
 const claudeModel = "claude-3-7-sonnet-20250219";
+const geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -29,8 +31,8 @@ async function callClaudeApi(prompt: string) {
     console.log("Calling Claude API with prompt:", prompt);
     
     if (!claudeApiKey) {
-      console.error("API key is not set in environment variables");
-      throw new Error("API key is not set in environment variables");
+      console.error("Claude API key is not set in environment variables");
+      throw new Error("Claude API key is not set in environment variables");
     }
     
     const payload = {
@@ -510,6 +512,180 @@ async function callClaudeApi(prompt: string) {
   }
 }
 
+// Helper for Gemini API requests
+async function callGeminiApi(prompt: string) {
+  try {
+    console.log("Calling Gemini API with prompt:", prompt);
+    
+    if (!geminiApiKey) {
+      console.error("Gemini API key is not set in environment variables");
+      throw new Error("Gemini API key is not set in environment variables");
+    }
+    
+    const payload = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations.
+
+Analyze this user request and create detailed trip plans: "${prompt}"
+
+Prioritize:
+- Off-the-beaten-path locations and local operators
+- Shoulder-season times to avoid crowds
+- Realistic congestion expectations
+- Appropriate preparation guidance
+- Realistic timing for activities and travel between locations
+
+Format your response as valid JSON matching this exact schema:
+{
+  "trip": [
+    {
+      "id": "unique-id-string",
+      "title": "Trip Title",
+      "description": "Brief trip description",
+      "whyWeChoseThis": "Explanation of why this adventure matches the request",
+      "difficultyLevel": "Easy|Moderate|Challenging|Difficult|Expert",
+      "priceEstimate": 1234,
+      "duration": "X days",
+      "location": "Trip destination",
+      "suggestedGuides": ["Guide 1", "Guide 2"],
+      "mapCenter": {"lng": 0.0, "lat": 0.0},
+      "markers": [
+        {
+          "name": "Point of interest",
+          "coordinates": {"lng": 0.0, "lat": 0.0},
+          "description": "Description of location",
+          "elevation": "Optional elevation info",
+          "details": "Additional details"
+        }
+      ],
+      "journey": {
+        "segments": [
+          {
+            "mode": "walking|driving|cycling|transit",
+            "from": "Starting point",
+            "to": "Ending point",
+            "distance": 0,
+            "duration": 0,
+            "geometry": {
+              "coordinates": [[0.0, 0.0], [0.0, 0.0]]
+            },
+            "elevationGain": 0,
+            "terrain": "trail|paved|rocky|mixed",
+            "description": "Segment description"
+          }
+        ],
+        "totalDistance": 0,
+        "totalDuration": 0,
+        "bounds": [[0.0, 0.0], [0.0, 0.0]]
+      },
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Day title",
+          "description": "Overview of day's activities",
+          "activities": [
+            {
+              "name": "Activity name",
+              "type": "Hiking|Sightseeing|Dining|Accommodation|Transportation",
+              "duration": "Duration in human-readable format",
+              "description": "Activity description",
+              "permitRequired": true/false,
+              "permitDetails": "Details about permits if required",
+              "outfitters": ["Recommended outfitter 1", "Outfitter 2"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Include exactly 2 trip options, each with complete details for all fields.`
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 1.0,
+        maxOutputTokens: 8192,
+        topP: 0.8,
+        topK: 40
+      }
+    };
+
+    // Construct the URL with API key
+    const urlWithKey = `${geminiApiUrl}?key=${geminiApiKey}`;
+    
+    const response = await fetch(urlWithKey, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Gemini API response error:", errorData);
+      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log("Gemini API response received");
+    
+    // Define steps in the thinking process for Gemini (since it doesn't have built-in thinking like Claude)
+    const thinkingSteps = [
+      "Analyzing user prompt to identify key requirements: destination, activities, duration, and preferences",
+      "Researching suitable off-the-beaten-path destinations that match the requirements",
+      "Evaluating potential destinations for shoulder season timing and lower congestion",
+      "Planning practical itineraries that consider realistic travel times between activities",
+      "Identifying appropriate local guides and outfitters for the recommended activities",
+      "Mapping key points of interest and creating journey segments with accurate coordinates",
+      "Estimating costs for lodging, activities, transportation, and meals to provide a realistic budget",
+      "Assessing difficulty levels based on terrain, elevation gain, and required skills",
+      "Creating detailed day-by-day itineraries with appropriate pacing and rest time"
+    ];
+    
+    // Parse the JSON from the text response
+    let tripData = null;
+    
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
+      const textContent = data.candidates[0].content.parts[0].text;
+      
+      if (textContent) {
+        // Try to extract JSON from the response
+        try {
+          // Look for JSON pattern
+          const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/) || 
+                          textContent.match(/\{[\s\S]*"trip"[\s\S]*\}/);
+                          
+          if (jsonMatch) {
+            const jsonText = jsonMatch[0].startsWith('{') ? jsonMatch[0] : jsonMatch[1];
+            tripData = JSON.parse(jsonText);
+          } else {
+            // Try parsing the entire text as JSON
+            tripData = JSON.parse(textContent);
+          }
+        } catch (error) {
+          console.error("Error parsing JSON from Gemini response:", error);
+          throw new Error("Could not extract valid JSON from Gemini response");
+        }
+      }
+    }
+    
+    return {
+      thinking: thinkingSteps,
+      tripData: tripData
+    };
+  } catch (error) {
+    console.error("Gemini API call failed:", error);
+    throw error;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight request
   const corsResponse = handleCors(req);
@@ -517,7 +693,7 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { prompt } = await req.json();
+    const { prompt, model = 'claude' } = await req.json();
     
     if (!prompt) {
       return new Response(
@@ -532,10 +708,16 @@ serve(async (req) => {
       );
     }
     
-    console.log("Processing prompt:", prompt);
+    console.log(`Processing prompt with ${model} model:`, prompt);
     
-    // Call Claude API and get structured response with thinking
-    const result = await callClaudeApi(prompt);
+    // Call the appropriate AI API based on the selected model
+    let result;
+    if (model === 'gemini') {
+      result = await callGeminiApi(prompt);
+    } else {
+      // Default to Claude
+      result = await callClaudeApi(prompt);
+    }
     
     // Return the structured response with thinking
     return new Response(

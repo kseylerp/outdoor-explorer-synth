@@ -43,22 +43,26 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
   }
 };
 
-// Interface for the Claude API response
-interface ClaudeResponse {
+// Interface for the AI model response
+interface AIResponse {
   thinking?: string[] | null;
   tripData?: {
     trip: Trip[];
   } | null;
 }
 
-// Function to fetch recommendations from the Claude API with caching
+// Function to fetch recommendations from the selected AI model with caching
 export const generateTrips = async (prompt: string): Promise<{trips: Trip[], thinking?: string[]}> => {
   try {
+    // Get the user's preferred AI model from localStorage (default to 'claude')
+    const preferredModel = localStorage.getItem('preferredAiModel') || 'claude';
+    console.log(`Using ${preferredModel} model for trip recommendations`);
+    
     console.log("Calling trip-recommendations edge function with prompt:", prompt);
     
     // Call the Supabase Edge Function
     const { data, error } = await supabase.functions.invoke('trip-recommendations', {
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, model: preferredModel })
     });
     
     if (error) {
@@ -77,14 +81,14 @@ export const generateTrips = async (prompt: string): Promise<{trips: Trip[], thi
       throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
-    const claudeResponse = data as ClaudeResponse;
+    const aiResponse = data as AIResponse;
     let validatedTrips: Trip[] = [];
-    let thinking = claudeResponse.thinking;
+    let thinking = aiResponse.thinking;
     
     // Handle trip data from the response
-    if (claudeResponse.tripData && claudeResponse.tripData.trip) {
+    if (aiResponse.tripData && aiResponse.tripData.trip) {
       console.log('Received trip data, validating trips');
-      validatedTrips = claudeResponse.tripData.trip.map((trip: any) => validateAndTransformTrip(trip));
+      validatedTrips = aiResponse.tripData.trip.map((trip: any) => validateAndTransformTrip(trip));
     } else if (Array.isArray(data)) {
       console.log('Received trip data as array, validating trips');
       validatedTrips = data.map((trip: any) => validateAndTransformTrip(trip));

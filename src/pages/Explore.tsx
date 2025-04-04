@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
+import ModelSelector from '@/components/ModelSelector';
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -16,8 +17,24 @@ const Explore: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
+  const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
+    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'claude'
+  );
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Update model when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini';
+      if (storedModel && storedModel !== aiModel) {
+        setAiModel(storedModel);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [aiModel]);
 
   const handlePromptSubmit = async (prompt: string) => {
     setLoading(true);
@@ -64,7 +81,13 @@ const Explore: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl pb-32">
-      <h1 className="text-3xl font-bold text-center mb-6 text-purple-800">Explore Adventures</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-purple-800">Explore Adventures</h1>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-500">AI Model:</span>
+          <ModelSelector compact showLabels={false} />
+        </div>
+      </div>
       
       {thinking && thinking.length > 0 && (
         <div className="mb-4">
@@ -80,7 +103,7 @@ const Explore: React.FC = () => {
       <ThinkingDisplay thinkingSteps={thinking} isVisible={showThinking} />
       
       {loading && (
-        <LoadingSpinner message="Generating adventure recommendations..." />
+        <LoadingSpinner message={`Generating adventure recommendations with ${aiModel === 'claude' ? 'Claude' : 'Gemini'}...`} />
       )}
       
       {error && !loading && (
