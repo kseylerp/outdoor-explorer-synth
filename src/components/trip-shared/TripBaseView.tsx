@@ -4,6 +4,7 @@ import { Trip } from '@/types/trips';
 import TripMapSection from '../trip-details/TripMapSection';
 import PriceBreakdown from '../trip-details/PriceBreakdown';
 import TripHeader from '../trip-details/TripHeader';
+import TripDescription from '../trip-details/TripDescription';
 
 interface TripBaseViewProps {
   trip: Trip;
@@ -12,6 +13,9 @@ interface TripBaseViewProps {
 }
 
 const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, children }) => {
+  // Add console logging to debug the trip data
+  console.log('TripBaseView - trip data:', trip);
+  
   return (
     <div className="p-6">
       <TripHeader 
@@ -24,23 +28,23 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
           {/* Map section */}
           <TripMapSection trip={trip} height={compact ? "200px" : "300px"} />
           
-          {/* Why we chose this - Display full text */}
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-            <h3 className="text-lg font-semibold text-purple-900 mb-2">
-              Why We Chose This
-            </h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{trip.whyWeChoseThis}</p>
-          </div>
+          {/* Trip description with "Why We Chose This" */}
+          <TripDescription 
+            description={trip.description}
+            whyWeChoseThis={trip.whyWeChoseThis}
+            suggestedGuides={trip.suggestedGuides}
+            compact={compact}
+          />
 
           {/* Render children (typically ItineraryTab component) */}
-          {!compact && children && (
+          {children && (
             <div className="mt-6">
               {children}
             </div>
           )}
         </div>
         
-        {/* Price breakdown */}
+        {/* Price breakdown and additional info section */}
         <div className="space-y-6">
           <PriceBreakdown 
             totalPrice={trip.priceEstimate} 

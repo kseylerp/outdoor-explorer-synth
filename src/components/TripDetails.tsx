@@ -16,36 +16,43 @@ interface TripDetailsProps {
 const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
   const [activeTab, setActiveTab] = useState<'itinerary' | 'buddies'>('itinerary');
   
+  // Add console log to check the trip data structure
+  console.log('Trip details:', trip);
+  console.log('Trip itinerary:', trip.itinerary);
+  console.log('Trip journey:', trip.journey);
+  
   return (
     <Card className="w-full">
-      <TripBaseView trip={trip} compact={false}>
-        <TripIntensityCard difficultyLevel={trip.difficultyLevel} />
-        
-        <Tabs defaultValue="itinerary" onValueChange={(value) => setActiveTab(value as 'itinerary' | 'buddies')}>
-          <TabsList className="mb-4 bg-purple-100">
-            <TabsTrigger 
-              value="itinerary"
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-            >
-              Itinerary
-            </TabsTrigger>
-            <TabsTrigger 
-              value="buddies"
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-            >
-              <Users className="h-4 w-4 mr-1" />
-              Trip Buddies
-            </TabsTrigger>
-          </TabsList>
+      <TripBaseView trip={trip}>
+        <div className="space-y-6">
+          <TripIntensityCard difficultyLevel={trip.difficultyLevel} />
           
-          <TabsContent value="itinerary">
-            <ItineraryTab itinerary={trip.itinerary} journey={trip.journey} />
-          </TabsContent>
-          
-          <TabsContent value="buddies">
-            <BuddiesManager tripId={trip.id} />
-          </TabsContent>
-        </Tabs>
+          <Tabs defaultValue="itinerary" onValueChange={(value) => setActiveTab(value as 'itinerary' | 'buddies')}>
+            <TabsList className="mb-4 bg-purple-100">
+              <TabsTrigger 
+                value="itinerary"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                Itinerary
+              </TabsTrigger>
+              <TabsTrigger 
+                value="buddies"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Users className="h-4 w-4 mr-1" />
+                Trip Buddies
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="itinerary">
+              <ItineraryTab itinerary={trip.itinerary} journey={trip.journey} />
+            </TabsContent>
+            
+            <TabsContent value="buddies">
+              <BuddiesManager tripId={trip.id} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </TripBaseView>
     </Card>
   );

@@ -83,7 +83,7 @@ export const generateTrips = async (
       const expectedDays = durationMatch ? parseInt(durationMatch[1]) : 0;
       
       // Check if all days are present in the itinerary
-      if (expectedDays > 0 && trip.itinerary.length < expectedDays) {
+      if (expectedDays > 0 && Array.isArray(trip.itinerary) && trip.itinerary.length < expectedDays) {
         console.warn(
           `Trip "${trip.title}" duration is ${trip.duration} but only has ${trip.itinerary.length} days in the itinerary. ` +
           `This may indicate truncated output from the AI model.`
@@ -122,11 +122,13 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
     }
 
     if (data) {
-      // Add logging to see what itinerary data we're getting
-      console.log("Trip itinerary days:", data.itinerary ? 
-        Array.isArray(data.itinerary) ? data.itinerary.length : 'Not an array' 
-        : 0);
-      console.log("Trip duration:", data.duration);
+      // Add detailed logging to inspect the data structure
+      console.log("Trip data from database:", data);
+      console.log("Trip whyWeChoseThis:", data.whyWeChoseThis);
+      
+      // Check if itinerary is an array and log its length
+      const itineraryLength = Array.isArray(data.itinerary) ? data.itinerary.length : 'not an array';
+      console.log("Trip itinerary type:", typeof data.itinerary, "length:", itineraryLength);
       
       // Extract duration days from string
       const durationMatch = data.duration?.match(/(\d+)\s*days?/i);

@@ -23,6 +23,10 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
   const [selectedCampground, setSelectedCampground] = useState<Campground | null>(null);
   const { toast } = useToast();
 
+  // Add console logs to debug the data
+  console.log('ItineraryTab - itinerary:', itinerary);
+  console.log('ItineraryTab - journey:', journey);
+
   const handleCampgroundSelected = (campground: Campground) => {
     setSelectedCampground(campground);
   };
@@ -132,10 +136,11 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
             <div className="mb-6 p-4 bg-slate-50 rounded-lg">
               <h4 className="text-md font-medium mb-3">Find Campgrounds Near Your Trip</h4>
               <CampgroundSearch 
-                location={itinerary[0] ? { 
-                  lat: 37.7749, // Default to SF - would come from trip data
-                  lng: -122.4194 
-                } : undefined}
+                location={journey?.segments[0]?.geometry?.coordinates[0] ? 
+                  { 
+                    lat: journey.segments[0].geometry.coordinates[0][1], 
+                    lng: journey.segments[0].geometry.coordinates[0][0] 
+                  } : undefined}
                 onCampgroundSelected={handleCampgroundSelected}
               />
             </div>
