@@ -30,7 +30,8 @@ import GuideAnalytics from "./pages/guide/GuideAnalytics";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+// Main App Layout wrapper
+const MainAppLayout = () => {
   const isMobile = useIsMobile();
   
   return (
@@ -40,7 +41,6 @@ const AppContent = () => {
         <TopNav />
         <main className="flex-1 overflow-auto">
           <Routes>
-            {/* Main App Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
             <Route path="/explore" element={<Explore />} />
@@ -49,23 +49,30 @@ const AppContent = () => {
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
-            
-            {/* Guide Portal Routes - using the layout with auth protection */}
-            <Route path="/guide-portal" element={<GuidePortalLayout />}>
-              <Route index element={<GuideAnalytics />} />
-              <Route path="services" element={<Services />} />
-              <Route path="recommendations" element={<GuideRecommendations />} />
-              <Route path="content" element={<GuideContent />} />
-              <Route path="profile" element={<GuideProfile />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-            
-            {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>
     </div>
+  );
+};
+
+const AppContent = () => {
+  return (
+    <Routes>
+      {/* Main application routes */}
+      <Route path="/*" element={<MainAppLayout />} />
+      
+      {/* Guide Portal routes - completely separate experience */}
+      <Route path="/guide-portal/*" element={<GuidePortalLayout />}>
+        <Route index element={<GuideAnalytics />} />
+        <Route path="services" element={<Services />} />
+        <Route path="recommendations" element={<GuideRecommendations />} />
+        <Route path="content" element={<GuideContent />} />
+        <Route path="profile" element={<GuideProfile />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
   );
 };
 

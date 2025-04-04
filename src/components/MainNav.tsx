@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
@@ -22,6 +23,13 @@ const MainNav: React.FC = () => {
   const toggle = () => {
     setExpanded(!expanded);
   };
+
+  // Check if we're on a guide portal route to conditionally render main nav
+  const isGuidePortalRoute = location.pathname.startsWith('/guide-portal');
+  
+  if (isGuidePortalRoute) {
+    return null; // Don't show main nav on guide portal routes
+  }
 
   return (
     <div className={`border-r border-gray-200 h-screen bg-sidebar transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
