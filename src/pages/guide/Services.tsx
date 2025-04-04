@@ -57,13 +57,13 @@ const Services: React.FC = () => {
       // Ensure all required fields are present with proper types
       const serviceData = {
         guide_id: formData.guide_id || `guide_${Date.now()}`,
-        guide_name: formData.guide_name,
-        services: formData.services,
-        location: formData.location,
-        years_of_experience: formData.years_of_experience,
-        bio: formData.bio,
-        languages: formData.languages,
-        certifications: formData.certifications
+        guide_name: formData.guide_name || '',
+        services: formData.services || '',
+        location: formData.location || '',
+        years_of_experience: formData.years_of_experience || '',
+        bio: formData.bio || '',
+        languages: formData.languages || [],
+        certifications: formData.certifications || ''
       };
       
       const { data, error } = await supabase
@@ -98,13 +98,13 @@ const Services: React.FC = () => {
       // Ensure all required fields are present with proper types
       const serviceData = {
         guide_id: formData.guide_id || editingService.guide_id,
-        guide_name: formData.guide_name,
-        services: formData.services,
-        location: formData.location,
-        years_of_experience: formData.years_of_experience,
-        bio: formData.bio,
-        languages: formData.languages,
-        certifications: formData.certifications
+        guide_name: formData.guide_name || '',
+        services: formData.services || '',
+        location: formData.location || '',
+        years_of_experience: formData.years_of_experience || '',
+        bio: formData.bio || '',
+        languages: formData.languages || [],
+        certifications: formData.certifications || ''
       };
       
       const { error } = await supabase

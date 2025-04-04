@@ -1,9 +1,7 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import React from 'react';
+import ServiceFormFields from './ServiceFormFields';
+import ServiceFormActions from './ServiceFormActions';
 
 interface Service {
   service_id: string;
@@ -40,95 +38,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         {editingId ? 'Edit Service' : 'Add New Service'}
       </h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="guide_name">Guide Name</Label>
-          <Input
-            id="guide_name"
-            name="guide_name"
-            value={formData.guide_name}
-            onChange={onInputChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={onInputChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="services">Services Offered</Label>
-          <Input
-            id="services"
-            name="services"
-            value={formData.services}
-            onChange={onInputChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="years_of_experience">Years of Experience</Label>
-          <Input
-            id="years_of_experience"
-            name="years_of_experience"
-            value={formData.years_of_experience}
-            onChange={onInputChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="languages">Languages (comma separated)</Label>
-          <Input
-            id="languages"
-            name="languages"
-            value={formData.languages.join(', ')}
-            onChange={onLanguagesChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="certifications">Certifications</Label>
-          <Input
-            id="certifications"
-            name="certifications"
-            value={formData.certifications}
-            onChange={onInputChange}
-          />
-        </div>
-      </div>
+      <ServiceFormFields 
+        formData={formData}
+        onInputChange={onInputChange}
+        onLanguagesChange={onLanguagesChange}
+      />
       
-      <div>
-        <Label htmlFor="bio">Bio</Label>
-        <Textarea
-          id="bio"
-          name="bio"
-          value={formData.bio}
-          onChange={onInputChange}
-          required
-          className="h-32"
-        />
-      </div>
-      
-      <div className="flex justify-end gap-2">
-        {editingId && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
-        <Button type="submit">
-          {editingId ? 'Update Service' : 'Add Service'}
-        </Button>
-      </div>
+      <ServiceFormActions 
+        isEditing={!!editingId}
+        onCancel={onCancel}
+      />
     </form>
   );
 };

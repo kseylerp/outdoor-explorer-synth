@@ -9,7 +9,7 @@ export const serviceFormSchema = z.object({
   price: z.string().min(1, "Price is required"),
   duration: z.string().min(1, "Duration is required"),
   images: z.array(z.instanceof(File)).optional(),
-  // Add guide profile fields that will come from the profile but are needed when saving to database
+  // Guide profile fields
   guide_name: z.string().optional(),
   services: z.string().optional(),
   location: z.string().optional(),
