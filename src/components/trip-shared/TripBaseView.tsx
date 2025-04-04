@@ -3,7 +3,7 @@ import React from 'react';
 import { Trip } from '@/types/trips';
 import TripMapSection from '../trip-details/TripMapSection';
 import PriceBreakdown from '../trip-details/PriceBreakdown';
-import TripHeader from './TripHeader';
+import TripHeader from '../trip-details/TripHeader';
 
 interface TripBaseViewProps {
   trip: Trip;

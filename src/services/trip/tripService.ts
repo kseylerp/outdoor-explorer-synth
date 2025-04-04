@@ -123,7 +123,9 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
 
     if (data) {
       // Add logging to see what itinerary data we're getting
-      console.log("Trip itinerary days:", data.itinerary?.length || 0);
+      console.log("Trip itinerary days:", data.itinerary ? 
+        Array.isArray(data.itinerary) ? data.itinerary.length : 'Not an array' 
+        : 0);
       console.log("Trip duration:", data.duration);
       
       // Extract duration days from string
