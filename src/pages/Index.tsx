@@ -36,6 +36,9 @@ const Index = () => {
       console.info(`Received ${result.length} trips from API`);
       if (result.length > 0) {
         console.info('First trip details:', result[0]);
+        if (result[0].itinerary) {
+          console.log('First trip itinerary:', result[0].itinerary);
+        }
       }
       
       setTrips(result);

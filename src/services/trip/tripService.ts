@@ -126,9 +126,17 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
       // Add detailed logging to inspect the data structure
       console.log("Trip data from database:", data);
       
-      // Check if itinerary is an array and log its length
-      const itineraryLength = Array.isArray(data.itinerary) ? data.itinerary.length : 'not an array';
-      console.log("Trip itinerary type:", typeof data.itinerary, "length:", itineraryLength);
+      // Log details about the itinerary data specifically
+      console.log("Itinerary data type:", typeof data.itinerary);
+      if (typeof data.itinerary === 'string') {
+        console.log("Itinerary appears to be a string, will try to parse it");
+      } else if (Array.isArray(data.itinerary)) {
+        console.log("Itinerary is already an array with", data.itinerary.length, "items");
+      } else if (data.itinerary === null) {
+        console.log("Itinerary is null");
+      } else {
+        console.log("Itinerary is an object:", data.itinerary);
+      }
       
       // Extract duration days from string
       const durationMatch = data.duration?.match(/(\d+)\s*days?/i);
@@ -138,6 +146,14 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
         console.log("Expected days from duration:", expectedDays);
       }
 
+      // Convert journey data for inspection
+      const journey = jsonToJourney(data.journey);
+      console.log("Converted journey:", journey);
+      
+      // Convert itinerary data for inspection
+      const itinerary = jsonToItinerary(data.itinerary);
+      console.log("Converted itinerary:", itinerary);
+      
       // Create a Trip object with proper type conversions
       const trip: Trip = {
         id: data.trip_id,

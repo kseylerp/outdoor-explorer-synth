@@ -1,3 +1,4 @@
+
 export interface Coordinates {
   lng: number;
   lat: number;
@@ -31,7 +32,7 @@ export interface Journey {
   segments: Segment[];
   totalDistance: number;
   totalDuration: number;
-  bounds?: number[][];
+  bounds: number[][]; // Note: This is not optional in the interface
 }
 
 export interface Activity {

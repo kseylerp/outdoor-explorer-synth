@@ -27,12 +27,24 @@ const TripCard: React.FC<TripCardProps> = ({
   onRemove
 }) => {
   const navigate = useNavigate();
+  const [isItineraryVisible, setIsItineraryVisible] = useState(expanded);
+  
+  // Add console.log to debug trip data
+  console.log('TripCard rendering with trip:', trip);
+  console.log('Trip itinerary:', trip.itinerary);
   
   const handleSaveTrip = () => {
     if (onSave) {
       onSave();
     } else {
       navigate(`/trip/${trip.id}`);
+    }
+  };
+  
+  const toggleItinerary = () => {
+    setIsItineraryVisible(!isItineraryVisible);
+    if (onExpand) {
+      onExpand();
     }
   };
 
@@ -45,11 +57,12 @@ const TripCard: React.FC<TripCardProps> = ({
           onSave={handleSaveTrip}
           showRemoveButton={showRemoveButton}
           onRemove={onRemove}
-          onExpand={onExpand}
+          onExpand={toggleItinerary}
+          isExpanded={isItineraryVisible}
         />
         
         {/* Display Itinerary directly in the card */}
-        {trip.itinerary && trip.itinerary.length > 0 && (
+        {isItineraryVisible && trip.itinerary && trip.itinerary.length > 0 && (
           <TripItinerary itinerary={trip.itinerary} />
         )}
       </TripBaseView>
