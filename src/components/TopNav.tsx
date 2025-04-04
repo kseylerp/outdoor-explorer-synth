@@ -5,8 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PanelLeft } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+import ModelSelector from './ModelSelector';
 
-const TopNav: React.FC = () => {
+interface TopNavProps {
+  hideModelSelector?: boolean;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ hideModelSelector = false }) => {
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const location = useLocation();
@@ -40,6 +45,7 @@ const TopNav: React.FC = () => {
       )}
       
       <div className="flex gap-4 ml-auto">
+        {!hideModelSelector && <ModelSelector compact />}
         <Button variant="outline" asChild className="font-patano">
           <Link to="/login">Log In</Link>
         </Button>
