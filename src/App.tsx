@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
+import CampgroundBooking from "./pages/CampgroundBooking";
 
 // Main app layout components
 import MainNav from "./components/MainNav";
@@ -51,6 +51,7 @@ const MainAppLayout = () => {
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/campground/:id" element={<CampgroundBooking />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
