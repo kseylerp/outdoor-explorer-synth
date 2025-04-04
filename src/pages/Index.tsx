@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/trip-card';
@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { generateTrips } from '@/services/trip/tripService';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
-import ModelSelector from '@/components/ModelSelector';
 
 const Index: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -16,7 +15,7 @@ const Index: React.FC = () => {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
+  const [aiModel] = useState<'claude' | 'gemini'>(
     () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'claude'
   );
   const navigate = useNavigate();
@@ -66,18 +65,14 @@ const Index: React.FC = () => {
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       
       if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
-        setErrorDetails(
-          aiModel === 'gemini'
-            ? "The Gemini API key is not properly configured. Please try switching to Claude model in Settings or contact support."
-            : "The Claude API key is not properly configured. Please try switching to Gemini model in Settings or contact support."
-        );
+        setErrorDetails("Could not connect to AI service. Please try again later or contact support.");
       } else {
         setErrorDetails(errorMessage);
       }
       
       toast({
         title: "Error",
-        description: "Could not process your request. Please try again or switch AI models in Settings.",
+        description: "Could not process your request. Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -132,13 +127,6 @@ const Index: React.FC = () => {
         <p className="font-patano text-lg font-medium">Powered by local guides: explore, plan, and experience better trips</p>
       </div>
       
-      <div className="flex justify-end mb-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">AI Model:</span>
-          <ModelSelector compact showLabels={false} onChange={(model) => setAiModel(model)} />
-        </div>
-      </div>
-      
       {thinking && thinking.length > 0 && (
         <div className="mb-4">
           <button 
@@ -179,10 +167,6 @@ const Index: React.FC = () => {
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-800">
           <p className="font-semibold mb-2">Error:</p>
           <p>{errorDetails}</p>
-          <div className="mt-3 flex items-center space-x-2">
-            <span className="text-sm">Try switching models:</span>
-            <ModelSelector showLabels={true} onChange={(model) => setAiModel(model)} />
-          </div>
         </div>
       )}
       

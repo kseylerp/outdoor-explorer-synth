@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -9,7 +10,7 @@ const corsHeaders = {
 
 // Get the API keys from environment variables
 const claudeApiKey = Deno.env.get('ANTHROPIC_API_KEY');
-const geminiApiKey = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('YUGEN_TO_GEMINI_API_KEY');
+const geminiApiKey = Deno.env.get('YUGEN_TO_GEMINI_API_KEY');
 
 // API URLs
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";

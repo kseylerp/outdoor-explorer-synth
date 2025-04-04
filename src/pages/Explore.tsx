@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PromptInput from '@/components/PromptInput';
@@ -59,11 +60,7 @@ const Explore: React.FC = () => {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       
       if (errorMessage.includes("API key is not set") || errorMessage.includes("Edge Function Error")) {
-        setError(
-          aiModel === 'gemini'
-            ? "The Gemini API key is not properly configured. Please try switching to Claude model or contact support."
-            : "The Claude API key is not properly configured. Please try switching to Gemini model or contact support."
-        );
+        setError("Could not connect to AI service. Please try again later or contact support.");
       } else {
         setError(errorMessage);
       }
