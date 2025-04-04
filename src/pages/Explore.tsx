@@ -42,16 +42,17 @@ const Explore: React.FC = () => {
     setTrips([]);
     
     try {
-      const response = await generateTrips(prompt);
+      const result = await generateTrips(prompt, (thinkingSteps) => {
+        setThinking(thinkingSteps);
+      });
       
-      setTrips(response.trips);
-      setThinking(response.thinking);
+      setTrips(result);
       
-      if (response.thinking && response.thinking.length > 0) {
+      if (thinking && thinking.length > 0) {
         setShowThinking(true);
       }
       
-      if (response.trips.length === 0) {
+      if (result.length === 0) {
         setError("No trips found for your request. Try a different prompt.");
       }
     } catch (err) {

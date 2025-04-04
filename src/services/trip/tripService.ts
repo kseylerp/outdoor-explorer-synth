@@ -1,4 +1,5 @@
-import { supabase } from "@/supabase";
+
+import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
 
 export const generateTrips = async (
@@ -36,5 +37,26 @@ export const generateTrips = async (
   } catch (error) {
     console.error("Error generating trips:", error);
     throw new Error(`Edge Function Error: ${error instanceof Error ? error.message : String(error)}`);
+  }
+};
+
+// Adding the missing fetchTripById function that's imported in TripDetails.tsx
+export const fetchTripById = async (id: string): Promise<Trip | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('saved_trips')
+      .select('*')
+      .eq('trip_id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching trip by ID:", error);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    return data ? data as unknown as Trip : null;
+  } catch (error) {
+    console.error("Error in fetchTripById:", error);
+    throw new Error(`Error fetching trip: ${error instanceof Error ? error.message : String(error)}`);
   }
 };

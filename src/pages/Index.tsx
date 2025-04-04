@@ -57,7 +57,7 @@ const Index = () => {
 
       <Card className="mb-8">
         <CardContent className="pt-6">
-          <PromptInput onSubmit={handleSubmitPrompt} />
+          <PromptInput onSubmit={handleSubmitPrompt} isProcessing={loading} />
         </CardContent>
       </Card>
 
@@ -71,7 +71,7 @@ const Index = () => {
       {loading && (
         <div className="mb-8">
           <LoadingSpinner />
-          {thinking.length > 0 && <ThinkingDisplay steps={thinking} />}
+          {thinking.length > 0 && <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />}
         </div>
       )}
 
