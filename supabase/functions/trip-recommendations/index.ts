@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -15,7 +14,7 @@ const geminiApiKey = Deno.env.get('YUGEN_TO_GEMINI_API_KEY');
 // API URLs
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
 const claudeModel = "claude-3-7-sonnet-20250219";
-const geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const geminiApiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -603,9 +602,7 @@ Format your response as valid JSON matching this exact schema:
       ]
     }
   ]
-}
-
-Include exactly 2 trip options, each with complete details for all fields.`
+}`
             }
           ]
         }
@@ -618,7 +615,6 @@ Include exactly 2 trip options, each with complete details for all fields.`
       }
     };
 
-    // Construct the URL with API key
     const urlWithKey = `${geminiApiUrl}?key=${geminiApiKey}`;
     
     const response = await fetch(urlWithKey, {
@@ -638,7 +634,6 @@ Include exactly 2 trip options, each with complete details for all fields.`
     const data = await response.json();
     console.log("Gemini API response received");
     
-    // Define steps in the thinking process for Gemini (since it doesn't have built-in thinking like Claude)
     const thinkingSteps = [
       "Analyzing user prompt to identify key requirements: destination, activities, duration, and preferences",
       "Researching suitable off-the-beaten-path destinations that match the requirements",
@@ -651,16 +646,13 @@ Include exactly 2 trip options, each with complete details for all fields.`
       "Creating detailed day-by-day itineraries with appropriate pacing and rest time"
     ];
     
-    // Parse the JSON from the text response
     let tripData = null;
     
     if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
       const textContent = data.candidates[0].content.parts[0].text;
       
       if (textContent) {
-        // Try to extract JSON from the response
         try {
-          // Look for JSON pattern
           const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/) || 
                           textContent.match(/\{[\s\S]*"trip"[\s\S]*\}/);
                           
@@ -668,7 +660,6 @@ Include exactly 2 trip options, each with complete details for all fields.`
             const jsonText = jsonMatch[0].startsWith('{') ? jsonMatch[0] : jsonMatch[1];
             tripData = JSON.parse(jsonText);
           } else {
-            // Try parsing the entire text as JSON
             tripData = JSON.parse(textContent);
           }
         } catch (error) {
