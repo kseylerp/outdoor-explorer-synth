@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
@@ -8,43 +8,26 @@ import { Trip } from '@/types/trips';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
-import ThinkingVisualization from '@/components/ThinkingVisualization';
-
-interface ThinkingStep {
-  text: string;
-  timestamp: string;
-}
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const promptInputRef = useRef<HTMLDivElement>(null);
-
-  // Scroll to prompt input when trips are loaded
-  useEffect(() => {
-    if (trips.length > 0 && promptInputRef.current) {
-      promptInputRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [trips]);
 
   const handlePromptSubmit = async (prompt: string) => {
     setLoading(true);
     setError(null);
-    setThinkingSteps([]);
     
     try {
       const response = await generateTrips(prompt);
       
-      // Set trips and thinking steps
-      if (response && response.trips && Array.isArray(response.trips)) {
-        setTrips(response.trips);
-        setThinkingSteps(response.thinking || []);
+      // Update: directly use the response which should be Trip[]
+      if (response && Array.isArray(response)) {
+        setTrips(response);
         
-        if (response.trips.length === 0) {
+        if (response.length === 0) {
           setError("No trips found for your request. Try a different prompt.");
         }
       } else {
@@ -64,77 +47,22 @@ const Explore: React.FC = () => {
     }
   };
 
-  const handleModifyTrips = async (prompt: string) => {
-    if (!trips.length) {
-      // If no existing trips, just generate new ones
-      handlePromptSubmit(prompt);
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    setThinkingSteps([]);
-    
-    try {
-      // Pass existing trips for context
-      const response = await generateTrips(prompt, trips);
-      
-      // Set trips and thinking steps
-      if (response && response.trips && Array.isArray(response.trips)) {
-        setTrips(response.trips);
-        setThinkingSteps(response.thinking || []);
-        
-        if (response.trips.length === 0) {
-          setError("No trips found for your request. Try a different prompt.");
-        }
-      } else {
-        throw new Error("Invalid response format from the API");
-      }
-    } catch (err) {
-      console.error("Error modifying trips:", err);
-      setError(err instanceof Error ? err.message : "Failed to modify trip recommendations");
-      
-      toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Something went wrong",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleViewTrip = (tripId: string) => {
     navigate(`/trip/${tripId}`);
   };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Show header only when not loading or if there are no existing trips */}
-      {(!loading || trips.length === 0) && (
-        <h1 className="text-3xl font-bold text-center mb-6 text-purple-800">Explore Adventures</h1>
-      )}
+      <h1 className="text-3xl font-bold text-center mb-6 text-purple-800">Explore Adventures</h1>
       
-      {/* Show prompt input at the top only when starting fresh */}
-      {trips.length === 0 && (
-        <div className="mb-8">
-          <PromptInput 
-            onSubmit={handlePromptSubmit} 
-            isProcessing={loading} 
-          />
-        </div>
-      )}
-      
-      {/* Show thinking visualization when loading */}
-      {loading && (
-        <ThinkingVisualization 
-          thinkingSteps={thinkingSteps} 
-          isVisible={loading} 
+      <div className="mb-8">
+        <PromptInput 
+          onSubmit={handlePromptSubmit} 
+          isProcessing={loading} 
         />
-      )}
+      </div>
       
-      {/* Show regular loading spinner as fallback */}
-      {loading && thinkingSteps.length === 0 && (
+      {loading && (
         <LoadingSpinner message="Generating adventure recommendations..." />
       )}
       
@@ -176,20 +104,6 @@ const Explore: React.FC = () => {
             Enter a prompt above to generate personalized adventure recommendations.
             Try something like "4-day hiking trip in Grand Canyon" or "Weekend kayaking adventure in Seattle".
           </p>
-        </div>
-      )}
-      
-      {/* Persistent prompt input at the bottom */}
-      {trips.length > 0 && (
-        <div 
-          ref={promptInputRef}
-          className="sticky bottom-4 bg-white rounded-lg shadow-lg p-4 mt-8 border border-gray-200 z-10"
-        >
-          <PromptInput 
-            onSubmit={handleModifyTrips}
-            isProcessing={loading}
-            placeholder="Modify these trips or generate new ones..."
-          />
         </div>
       )}
     </div>
