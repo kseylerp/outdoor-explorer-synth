@@ -5,6 +5,7 @@ import TripHeader from '@/components/trip-details/TripHeader';
 import PriceBreakdown from '@/components/trip-details/PriceBreakdown';
 import TripDescription from '@/components/trip-details/TripDescription';
 import TripMapSection from '@/components/trip-details/TripMapSection';
+import TripRawData from '@/components/trip-details/TripRawData';
 
 export interface TripBaseProps {
   trip: Trip;
@@ -19,6 +20,19 @@ const TripBaseView: React.FC<TripBaseProps> = ({
   compact = false,
   children 
 }) => {
+  // Extract price details for breakdown if available
+  const extractPriceDetails = () => {
+    // If there are additional price fields in the trip object, collect them
+    const priceDetails: Record<string, number | string> = {};
+    
+    // Look for known price-related fields (this is just an example, adjust based on actual data)
+    if (trip.priceBreakdown) {
+      return trip.priceBreakdown;
+    }
+    
+    return priceDetails;
+  };
+
   return (
     <div className="w-full">
       {/* Header is shared between both views */}
@@ -28,6 +42,9 @@ const TripBaseView: React.FC<TripBaseProps> = ({
       />
       
       <div className="p-6">
+        {/* Display raw data at the top on non-compact views */}
+        {!compact && <TripRawData trip={trip} />}
+        
         {/* Map and Basic Info Section */}
         <div className={`grid grid-cols-1 ${compact ? 'md:grid-cols-2' : ''} gap-6 mb-6`}>
           {compact ? (
@@ -38,7 +55,11 @@ const TripBaseView: React.FC<TripBaseProps> = ({
               
               <div className="flex flex-col gap-4">
                 <div className="flex-1">
-                  <PriceBreakdown totalPrice={trip.priceEstimate} compact={compact} />
+                  <PriceBreakdown 
+                    totalPrice={trip.priceEstimate} 
+                    compact={compact}
+                    priceDetails={extractPriceDetails()}
+                  />
                 </div>
                 <TripDescription 
                   description={trip.description}
@@ -52,7 +73,10 @@ const TripBaseView: React.FC<TripBaseProps> = ({
             <>
               {/* Full layout for detailed view */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <PriceBreakdown totalPrice={trip.priceEstimate} />
+                <PriceBreakdown 
+                  totalPrice={trip.priceEstimate}
+                  priceDetails={extractPriceDetails()}
+                />
                 <div className="flex items-center justify-center">
                   {/* Additional info panel for detailed view */}
                   <div className="bg-purple-50 p-6 rounded-lg border border-purple-100 w-full">
@@ -76,6 +100,9 @@ const TripBaseView: React.FC<TripBaseProps> = ({
             </>
           )}
         </div>
+        
+        {/* Add raw data in compact view after main info */}
+        {compact && <TripRawData trip={trip} />}
         
         {/* Render any additional content passed as children */}
         {children}

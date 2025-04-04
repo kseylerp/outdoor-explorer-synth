@@ -20,23 +20,11 @@ function handleCors(req: Request) {
   return null;
 }
 
-async function callGeminiApi(prompt: string) {
-  try {
-    console.log("Calling Gemini API with prompt:", prompt);
-    
-    if (!geminiApiKey) {
-      console.error("Gemini API key is not set in environment variables");
-      throw new Error("Gemini API key is not set in environment variables");
-    }
-    
-    const payload = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations.
+// Create the prompt for Gemini API
+function createGeminiPrompt(userPrompt: string) {
+  return `You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations.
 
-Analyze this user request and create detailed trip plans: "${prompt}"
+Analyze this user request and create detailed trip plans: "${userPrompt}"
 
 Prioritize:
 - Off-the-beaten-path locations and local operators
@@ -110,19 +98,54 @@ Format your response as valid JSON matching this exact schema:
   ]
 }
 
-Your response MUST be a valid JSON object. Do not include any text outside of the JSON object. Do not format as a code block with backticks.`
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 1.0,
-        maxOutputTokens: 8192,
-        topP: 0.8,
-        topK: 40
-      }
-    };
+Your response MUST be a valid JSON object. Do not include any text outside of the JSON object. Do not format as a code block with backticks.`;
+}
 
+// Get example thinking steps for UI display
+function getThinkingSteps() {
+  return [
+    "Analyzing user prompt to identify key requirements: destination, activities, duration, and preferences",
+    "Researching suitable off-the-beaten-path destinations that match the requirements",
+    "Evaluating potential destinations for shoulder season timing and lower congestion",
+    "Planning practical itineraries that consider realistic travel times between activities",
+    "Identifying appropriate local guides and outfitters for the recommended activities",
+    "Mapping key points of interest and creating journey segments with accurate coordinates",
+    "Estimating costs for lodging, activities, transportation, and meals to provide a realistic budget",
+    "Assessing difficulty levels based on terrain, elevation gain, and required skills",
+    "Creating detailed day-by-day itineraries with appropriate pacing and rest time"
+  ];
+}
+
+// Create the request payload for Gemini API
+function createGeminiRequestPayload(userPrompt: string) {
+  return {
+    contents: [
+      {
+        parts: [
+          { text: createGeminiPrompt(userPrompt) }
+        ]
+      }
+    ],
+    generationConfig: {
+      temperature: 1.0,
+      maxOutputTokens: 8192,
+      topP: 0.8,
+      topK: 40
+    }
+  };
+}
+
+// Call the Gemini API with the given prompt
+async function callGeminiApi(prompt: string) {
+  try {
+    console.log("Calling Gemini API with prompt:", prompt);
+    
+    if (!geminiApiKey) {
+      console.error("Gemini API key is not set in environment variables");
+      throw new Error("Gemini API key is not set in environment variables");
+    }
+    
+    const payload = createGeminiRequestPayload(prompt);
     const urlWithKey = `${geminiApiUrl}?key=${geminiApiKey}`;
     
     const response = await fetch(urlWithKey, {
@@ -142,130 +165,139 @@ Your response MUST be a valid JSON object. Do not include any text outside of th
     const data = await response.json();
     console.log("Gemini API response received");
     
-    const thinkingSteps = [
-      "Analyzing user prompt to identify key requirements: destination, activities, duration, and preferences",
-      "Researching suitable off-the-beaten-path destinations that match the requirements",
-      "Evaluating potential destinations for shoulder season timing and lower congestion",
-      "Planning practical itineraries that consider realistic travel times between activities",
-      "Identifying appropriate local guides and outfitters for the recommended activities",
-      "Mapping key points of interest and creating journey segments with accurate coordinates",
-      "Estimating costs for lodging, activities, transportation, and meals to provide a realistic budget",
-      "Assessing difficulty levels based on terrain, elevation gain, and required skills",
-      "Creating detailed day-by-day itineraries with appropriate pacing and rest time"
-    ];
-    
-    let tripData = null;
-    let rawTextContent = '';
-    
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
-      const textContent = data.candidates[0].content.parts[0].text;
-      rawTextContent = textContent;
-      
-      if (textContent) {
-        try {
-          console.log("Attempting to parse Gemini response JSON");
-          
-          // First try to extract JSON from code blocks
-          const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/) || 
-                            textContent.match(/```\s*([\s\S]*?)\s*```/);
-                            
-          if (jsonMatch && jsonMatch[1]) {
-            console.log("Found JSON code block in response");
-            try {
-              tripData = JSON.parse(jsonMatch[1]);
-            } catch (parseError) {
-              console.error("Error parsing JSON from code block:", parseError);
-              throw new Error(`JSON parse error in code block: ${parseError.message}`);
-            }
-          } 
-          // If no code blocks, try to extract JSON directly
-          else if (textContent.includes('"trip":')) {
-            console.log("Trying to find JSON object in plain text");
-            const jsonObjectMatch = textContent.match(/\{[\s\S]*"trip"[\s\S]*\}/);
-            if (jsonObjectMatch) {
-              console.log("Found JSON object in text");
-              try {
-                tripData = JSON.parse(jsonObjectMatch[0]);
-              } catch (parseError) {
-                console.error("Error parsing JSON from matched object:", parseError);
-                throw new Error(`JSON parse error in matched object: ${parseError.message}`);
-              }
-            } else {
-              throw new Error("Could not locate a valid JSON object with 'trip' key");
-            }
-          }
-          // Last resort - try parsing the entire text
-          else {
-            console.log("Attempting to parse entire response as JSON");
-            try {
-              tripData = JSON.parse(textContent);
-            } catch (parseError) {
-              console.error("Error parsing entire text as JSON:", parseError);
-              throw new Error(`Full text JSON parse error: ${parseError.message}`);
-            }
-          }
-          
-          // Validate structure with specific errors for missing fields
-          if (!tripData) {
-            throw new Error("No valid JSON data could be extracted from response");
-          }
-          
-          if (!tripData.trip) {
-            throw new Error("Missing 'trip' property in parsed data");
-          }
-          
-          if (!Array.isArray(tripData.trip)) {
-            throw new Error("'trip' property is not an array");
-          }
-          
-          if (tripData.trip.length === 0) {
-            throw new Error("'trip' array is empty - no trips generated");
-          }
-          
-          // Validate required fields in each trip
-          for (let i = 0; i < tripData.trip.length; i++) {
-            const trip = tripData.trip[i];
-            const missingFields = [];
-            
-            if (!trip.id) missingFields.push("id");
-            if (!trip.title) missingFields.push("title");
-            if (!trip.description) missingFields.push("description");
-            if (!trip.whyWeChoseThis) missingFields.push("whyWeChoseThis");
-            if (!trip.difficultyLevel) missingFields.push("difficultyLevel");
-            if (trip.priceEstimate === undefined) missingFields.push("priceEstimate");
-            if (!trip.duration) missingFields.push("duration");
-            if (!trip.location) missingFields.push("location");
-            if (!trip.mapCenter) missingFields.push("mapCenter");
-            if (!trip.itinerary) missingFields.push("itinerary");
-            
-            if (missingFields.length > 0) {
-              throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
-            }
-          }
-          
-          console.log("Successfully parsed trip data:", tripData.trip.length, "trips");
-        } catch (error) {
-          console.error("Error processing Gemini response:", error);
-          throw new Error(`${error.message} | Raw content: ${textContent.substring(0, 200)}...`);
-        }
-      } else {
-        throw new Error("No text content in Gemini response");
-      }
-    } else {
-      throw new Error("Invalid response structure from Gemini API - missing candidates or content parts");
-    }
-    
-    return {
-      thinking: thinkingSteps,
-      tripData: tripData,
-      rawResponse: rawTextContent.substring(0, 500) // Include first 500 chars of raw response for debugging
-    };
+    const thinkingSteps = getThinkingSteps();
+    return parseGeminiResponse(data, thinkingSteps);
   } catch (error) {
     console.error("Gemini API call failed:", error);
     throw error;
   }
 }
 
+// Extract JSON from various formats in the Gemini response
+function extractJsonFromText(textContent: string) {
+  try {
+    console.log("Attempting to parse Gemini response JSON");
+    
+    // First try to extract JSON from code blocks
+    const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/) || 
+                      textContent.match(/```\s*([\s\S]*?)\s*```/);
+                      
+    if (jsonMatch && jsonMatch[1]) {
+      console.log("Found JSON code block in response");
+      try {
+        return JSON.parse(jsonMatch[1]);
+      } catch (parseError) {
+        console.error("Error parsing JSON from code block:", parseError);
+        throw new Error(`JSON parse error in code block: ${parseError.message}`);
+      }
+    } 
+    // If no code blocks, try to extract JSON directly
+    else if (textContent.includes('"trip":')) {
+      console.log("Trying to find JSON object in plain text");
+      const jsonObjectMatch = textContent.match(/\{[\s\S]*"trip"[\s\S]*\}/);
+      if (jsonObjectMatch) {
+        console.log("Found JSON object in text");
+        try {
+          return JSON.parse(jsonObjectMatch[0]);
+        } catch (parseError) {
+          console.error("Error parsing JSON from matched object:", parseError);
+          throw new Error(`JSON parse error in matched object: ${parseError.message}`);
+        }
+      } else {
+        throw new Error("Could not locate a valid JSON object with 'trip' key");
+      }
+    }
+    // Last resort - try parsing the entire text
+    else {
+      console.log("Attempting to parse entire response as JSON");
+      try {
+        return JSON.parse(textContent);
+      } catch (parseError) {
+        console.error("Error parsing entire text as JSON:", parseError);
+        throw new Error(`Full text JSON parse error: ${parseError.message}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error extracting JSON from text:", error);
+    throw error;
+  }
+}
+
+// Validate the trip data structure
+function validateTripData(tripData: any) {
+  if (!tripData) {
+    throw new Error("No valid JSON data could be extracted from response");
+  }
+  
+  if (!tripData.trip) {
+    throw new Error("Missing 'trip' property in parsed data");
+  }
+  
+  if (!Array.isArray(tripData.trip)) {
+    throw new Error("'trip' property is not an array");
+  }
+  
+  if (tripData.trip.length === 0) {
+    throw new Error("'trip' array is empty - no trips generated");
+  }
+  
+  // Validate required fields in each trip
+  for (let i = 0; i < tripData.trip.length; i++) {
+    const trip = tripData.trip[i];
+    const missingFields = [];
+    
+    if (!trip.id) missingFields.push("id");
+    if (!trip.title) missingFields.push("title");
+    if (!trip.description) missingFields.push("description");
+    if (!trip.whyWeChoseThis) missingFields.push("whyWeChoseThis");
+    if (!trip.difficultyLevel) missingFields.push("difficultyLevel");
+    if (trip.priceEstimate === undefined) missingFields.push("priceEstimate");
+    if (!trip.duration) missingFields.push("duration");
+    if (!trip.location) missingFields.push("location");
+    if (!trip.mapCenter) missingFields.push("mapCenter");
+    if (!trip.itinerary) missingFields.push("itinerary");
+    
+    if (missingFields.length > 0) {
+      throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
+    }
+  }
+  
+  console.log("Successfully parsed trip data:", tripData.trip.length, "trips");
+  return tripData;
+}
+
+// Parse the Gemini API response and extract trip data
+function parseGeminiResponse(data: any, thinkingSteps: string[]) {
+  let tripData = null;
+  let rawTextContent = '';
+  
+  if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
+    const textContent = data.candidates[0].content.parts[0].text;
+    rawTextContent = textContent;
+    
+    if (textContent) {
+      try {
+        tripData = extractJsonFromText(textContent);
+        tripData = validateTripData(tripData);
+      } catch (error) {
+        console.error("Error processing Gemini response:", error);
+        throw new Error(`${error.message} | Raw content: ${textContent.substring(0, 200)}...`);
+      }
+    } else {
+      throw new Error("No text content in Gemini response");
+    }
+  } else {
+    throw new Error("Invalid response structure from Gemini API - missing candidates or content parts");
+  }
+  
+  return {
+    thinking: thinkingSteps,
+    tripData: tripData,
+    rawResponse: rawTextContent.substring(0, 500) // Include first 500 chars of raw response for debugging
+  };
+}
+
+// Main handler function for Edge Function requests
 serve(async (req) => {
   // Handle CORS preflight request
   const corsResponse = handleCors(req);

@@ -36,12 +36,17 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
     });
   };
 
+  // Determine the number of days to display based on actual itinerary data
+  const maxDays = itinerary && itinerary.length > 0 
+    ? Math.max(...itinerary.map(day => day.day))
+    : 8; // Default to 8 days if no itinerary
+
   return (
     <div>
       {itinerary && itinerary.length > 0 ? (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">8-Day Itinerary</h3>
+            <h3 className="text-lg font-semibold">{maxDays}-Day Itinerary</h3>
             <Button 
               variant="outline" 
               size="sm"
@@ -78,8 +83,8 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
           
           <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
             <TabsList className="mb-4 bg-purple-100 flex flex-wrap">
-              {/* Create 8 days even if the API only provided fewer */}
-              {Array.from({ length: 8 }, (_, i) => i + 1).map((day) => (
+              {/* Create tabs based on actual days in the itinerary */}
+              {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
                 <TabsTrigger 
                   key={day} 
                   value={day.toString()}
@@ -98,7 +103,7 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
             ))}
             
             {/* Generate placeholder days for days not in the API */}
-            {Array.from({ length: 8 }, (_, i) => i + 1)
+            {Array.from({ length: maxDays }, (_, i) => i + 1)
               .filter(day => !itinerary.some(d => d.day === day))
               .map(day => (
                 <TabsContent key={day} value={day.toString()}>

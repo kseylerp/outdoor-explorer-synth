@@ -31,6 +31,11 @@ const Index = () => {
       const result = await generateTrips(inputPrompt, (thinkingSteps) => {
         setThinking(thinkingSteps);
       });
+      
+      // Log entire trip data to help debug
+      console.info(`Received ${result.length} trips from API`);
+      console.info('First trip details:', result[0]);
+      
       setTrips(result);
     } catch (err) {
       console.error('Error processing prompt:', err);
@@ -91,7 +96,16 @@ const Index = () => {
       {trips.length > 0 && (
         <div className="space-y-8">
           {trips.map((trip, index) => (
-            <TripCard key={index} trip={trip} />
+            <div key={trip.id || `trip-${index}`} className="relative">
+              {trips.length > 1 && (
+                <div className="absolute -top-4 -left-2 z-10">
+                  <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
+                    Option {index + 1}
+                  </span>
+                </div>
+              )}
+              <TripCard key={index} trip={trip} />
+            </div>
           ))}
         </div>
       )}
