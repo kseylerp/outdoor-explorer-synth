@@ -8,16 +8,9 @@ interface AuthGuardProps {
   children: ReactNode;
 }
 
-// This is a placeholder function - in a real app, you'd check this against your backend
-const hasGuidePermission = async (userId: string): Promise<boolean> => {
-  try {
-    // This would be replaced with a real check against your permissions system
-    // For demo purposes, it returns true for authenticated users
-    return !!userId;
-  } catch (error) {
-    console.error('Error checking guide permission:', error);
-    return false;
-  }
+// Placeholder function that always returns true for now
+const hasGuidePermission = async (): Promise<boolean> => {
+  return true;
 };
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
@@ -41,15 +34,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         return;
       }
       
-      const permitted = await hasGuidePermission(session.user.id);
-      
-      if (!permitted) {
-        toast({
-          title: "Access denied",
-          description: "You don't have permission to access the Guide Portal.",
-          variant: "destructive"
-        });
-      }
+      const permitted = await hasGuidePermission();
       
       setHasPermission(permitted);
       setLoading(false);
@@ -66,10 +51,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  if (!hasPermission) {
-    return <Navigate to="/" state={{ from: location }} replace />;
-  }
-
+  // For now, always allow access
   return <>{children}</>;
 };
 
