@@ -1,111 +1,88 @@
 
 import React from 'react';
 import { Trip } from '@/types/trips';
-import TripHeader from '@/components/trip-details/TripHeader';
-import PriceBreakdown from '@/components/trip-details/PriceBreakdown';
-import TripDescription from '@/components/trip-details/TripDescription';
-import TripMapSection from '@/components/trip-details/TripMapSection';
-import TripRawData from '@/components/trip-details/TripRawData';
+import TripMapSection from '../trip-details/TripMapSection';
+import PriceBreakdown from '../trip-details/PriceBreakdown';
+import TripHeader from './TripHeader';
 
-export interface TripBaseProps {
+interface TripBaseViewProps {
   trip: Trip;
-  mapHeight?: string;
   compact?: boolean;
   children?: React.ReactNode;
 }
 
-const TripBaseView: React.FC<TripBaseProps> = ({ 
-  trip, 
-  mapHeight = '200px',
-  compact = false,
-  children 
-}) => {
-  // Extract price details for breakdown if available
-  const extractPriceDetails = () => {
-    // If there are additional price fields in the trip object, collect them
-    const priceDetails: Record<string, number | string> = {};
-    
-    // Look for known price-related fields (this is just an example, adjust based on actual data)
-    if (trip.priceBreakdown) {
-      return trip.priceBreakdown;
-    }
-    
-    return priceDetails;
-  };
-
+const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, children }) => {
   return (
-    <div className="w-full">
-      {/* Header is shared between both views */}
+    <div className="p-6">
       <TripHeader 
-        trip={trip} 
-        compact={compact}
+        title={trip.title}
+        description={trip.description}
+        location={trip.location}
+        duration={trip.duration}
       />
       
-      <div className="p-6">
-        {/* Display raw data at the top on non-compact views */}
-        {!compact && <TripRawData trip={trip} />}
-        
-        {/* Map and Basic Info Section */}
-        <div className={`grid grid-cols-1 ${compact ? 'md:grid-cols-2' : ''} gap-6 mb-6`}>
-          {compact ? (
-            <>
-              <div style={{ height: mapHeight }}>
-                <TripMapSection trip={trip} height={mapHeight} />
-              </div>
-              
-              <div className="flex flex-col gap-4">
-                <div className="flex-1">
-                  <PriceBreakdown 
-                    totalPrice={trip.priceEstimate} 
-                    compact={compact}
-                    priceDetails={extractPriceDetails()}
-                  />
-                </div>
-                <TripDescription 
-                  description={trip.description}
-                  whyWeChoseThis={trip.whyWeChoseThis}
-                  suggestedGuides={trip.suggestedGuides}
-                  compact={compact}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Full layout for detailed view */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <PriceBreakdown 
-                  totalPrice={trip.priceEstimate}
-                  priceDetails={extractPriceDetails()}
-                />
-                <div className="flex items-center justify-center">
-                  {/* Additional info panel for detailed view */}
-                  <div className="bg-purple-50 p-6 rounded-lg border border-purple-100 w-full">
-                    <h3 className="text-lg font-semibold text-purple-800 mb-2">Trip Summary</h3>
-                    <div className="space-y-2">
-                      <p><span className="font-medium">Location:</span> {trip.location}</p>
-                      <p><span className="font-medium">Duration:</span> {trip.duration}</p>
-                      <p><span className="font-medium">Difficulty:</span> {trip.difficultyLevel}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <TripDescription 
-                description={trip.description}
-                whyWeChoseThis={trip.whyWeChoseThis}
-                suggestedGuides={trip.suggestedGuides}
-              />
-              
-              <TripMapSection trip={trip} height="300px" />
-            </>
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Map section */}
+          <TripMapSection trip={trip} height={compact ? "200px" : "300px"} />
+          
+          {/* Why we chose this - Display full text */}
+          <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+            <h3 className="text-lg font-semibold text-purple-900 mb-2">
+              Why We Chose This
+            </h3>
+            <p className="text-gray-700 whitespace-pre-wrap">{trip.whyWeChoseThis}</p>
+          </div>
+
+          {/* Render children (typically ItineraryTab component) */}
+          {!compact && children && (
+            <div className="mt-6">
+              {children}
+            </div>
           )}
         </div>
         
-        {/* Add raw data in compact view after main info */}
-        {compact && <TripRawData trip={trip} />}
-        
-        {/* Render any additional content passed as children */}
-        {children}
+        {/* Price breakdown */}
+        <div className="space-y-6">
+          <PriceBreakdown 
+            totalPrice={trip.priceEstimate} 
+            compact={compact}
+            priceDetails={trip.priceBreakdown}
+          />
+          
+          {/* Additional information that might be useful */}
+          {trip.bestTimeToVisit && (
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+              <h3 className="text-md font-semibold text-blue-900 mb-1">
+                Best Time to Visit
+              </h3>
+              <p className="text-gray-700">{trip.bestTimeToVisit}</p>
+            </div>
+          )}
+          
+          {trip.permits && trip.permits.required && (
+            <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+              <h3 className="text-md font-semibold text-amber-900 mb-1">
+                Permits
+              </h3>
+              <p className="text-gray-700">{trip.permits.details}</p>
+            </div>
+          )}
+          
+          {/* Equipment recommendations if available */}
+          {trip.equipmentRecommendations && trip.equipmentRecommendations.length > 0 && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="text-md font-semibold mb-2">
+                Equipment Recommendations
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                {trip.equipmentRecommendations.map((item, index) => (
+                  <li key={index} className="text-sm text-gray-700">{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

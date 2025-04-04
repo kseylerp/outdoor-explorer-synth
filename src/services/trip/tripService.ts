@@ -77,6 +77,26 @@ export const generateTrips = async (
       if (missingFields.length > 0) {
         throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
       }
+      
+      // Process duration string to get number of days
+      const durationMatch = trip.duration.match(/(\d+)\s*days?/i);
+      const expectedDays = durationMatch ? parseInt(durationMatch[1]) : 0;
+      
+      // Check if all days are present in the itinerary
+      if (expectedDays > 0 && trip.itinerary.length < expectedDays) {
+        console.warn(
+          `Trip "${trip.title}" duration is ${trip.duration} but only has ${trip.itinerary.length} days in the itinerary. ` +
+          `This may indicate truncated output from the AI model.`
+        );
+        
+        // Ensure day numbers are consecutive
+        const existingDays = new Set(trip.itinerary.map(d => d.day));
+        for (let day = 1; day <= expectedDays; day++) {
+          if (!existingDays.has(day)) {
+            console.warn(`Day ${day} is missing from the itinerary.`);
+          }
+        }
+      }
     }
     
     console.info(`Successfully generated ${trips.length} trips`);
@@ -99,6 +119,20 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
     if (error) {
       console.error("Error fetching trip by ID:", error);
       throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (data) {
+      // Add logging to see what itinerary data we're getting
+      console.log("Trip itinerary days:", data.itinerary?.length || 0);
+      console.log("Trip duration:", data.duration);
+      
+      // Extract duration days from string
+      const durationMatch = data.duration?.match(/(\d+)\s*days?/i);
+      const expectedDays = durationMatch ? parseInt(durationMatch[1]) : 0;
+      
+      if (expectedDays > 0) {
+        console.log("Expected days from duration:", expectedDays);
+      }
     }
 
     return data ? data as unknown as Trip : null;

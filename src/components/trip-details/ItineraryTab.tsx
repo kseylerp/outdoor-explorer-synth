@@ -1,22 +1,25 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ItineraryDay } from '@/types/trips';
+import { ItineraryDay, Journey } from '@/types/trips';
 import DayDetails from './DayDetails';
 import { Button } from '@/components/ui/button';
-import { Tent } from 'lucide-react';
+import { Map, Tent } from 'lucide-react';
 import CampgroundSearch from '../campground/CampgroundSearch';
 import CampgroundDetails from '../campground/CampgroundDetails';
 import { Campground } from '@/services/campground/campgroundService';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ItineraryTabProps {
   itinerary: ItineraryDay[];
+  journey?: Journey;
 }
 
-const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
+const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [showCampgrounds, setShowCampgrounds] = useState(false);
+  const [showJourneyInfo, setShowJourneyInfo] = useState(false);
   const [selectedCampground, setSelectedCampground] = useState<Campground | null>(null);
   const { toast } = useToast();
 
@@ -36,10 +39,30 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
     });
   };
 
-  // Determine the number of days to display based on actual itinerary data
+  const formatDistance = (meters: number) => {
+    if (meters < 1000) {
+      return `${meters.toFixed(0)} meters`;
+    }
+    return `${(meters / 1000).toFixed(1)} km`;
+  };
+
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours === 0) {
+      return `${minutes} min`;
+    } else if (minutes === 0) {
+      return `${hours} hr`;
+    }
+    return `${hours} hr ${minutes} min`;
+  };
+
+  // Create a full set of days based on the trip duration
+  // The assumption is that the day property in itinerary items reflects the actual day number
   const maxDays = itinerary && itinerary.length > 0 
     ? Math.max(...itinerary.map(day => day.day))
-    : 8; // Default to 8 days if no itinerary
+    : 1;
 
   return (
     <div>
@@ -47,16 +70,63 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">{maxDays}-Day Itinerary</h3>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={() => setShowCampgrounds(!showCampgrounds)}
-            >
-              <Tent className="h-4 w-4" />
-              {showCampgrounds ? "Hide Campgrounds" : "Find Campgrounds"}
-            </Button>
+            <div className="flex gap-2">
+              {journey && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => setShowJourneyInfo(!showJourneyInfo)}
+                >
+                  <Map className="h-4 w-4" />
+                  {showJourneyInfo ? "Hide Journey Info" : "Show Journey Info"}
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={() => setShowCampgrounds(!showCampgrounds)}
+              >
+                <Tent className="h-4 w-4" />
+                {showCampgrounds ? "Hide Campgrounds" : "Find Campgrounds"}
+              </Button>
+            </div>
           </div>
+          
+          {journey && showJourneyInfo && (
+            <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <h4 className="text-md font-medium mb-3">Journey Overview</h4>
+              <div className="space-y-3">
+                <p><span className="font-medium">Total Distance:</span> {formatDistance(journey.totalDistance)}</p>
+                <p><span className="font-medium">Total Duration:</span> {formatDuration(journey.totalDuration)}</p>
+                {journey.segments.length > 0 && (
+                  <div>
+                    <h5 className="font-medium mt-3 mb-2">Segments:</h5>
+                    <div className="space-y-2">
+                      {journey.segments.map((segment, idx) => (
+                        <div key={idx} className="bg-white p-3 rounded border border-slate-100">
+                          <p className="font-medium text-purple-700">{segment.from} → {segment.to}</p>
+                          <p className="text-sm">
+                            <span className="capitalize">{segment.mode}</span> • {formatDistance(segment.distance)} • {formatDuration(segment.duration)}
+                          </p>
+                          {segment.elevationGain && (
+                            <p className="text-sm">Elevation Gain: {segment.elevationGain}m</p>
+                          )}
+                          {segment.terrain && (
+                            <p className="text-sm">Terrain: {segment.terrain}</p>
+                          )}
+                          {segment.description && (
+                            <p className="text-sm mt-1 text-gray-600">{segment.description}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           {showCampgrounds && !selectedCampground && (
             <div className="mb-6 p-4 bg-slate-50 rounded-lg">
@@ -80,10 +150,19 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
               />
             </div>
           )}
+
+          {itinerary.length < maxDays && (
+            <Alert variant="default" className="mb-4 bg-amber-50 border-amber-200 text-amber-800">
+              <AlertDescription>
+                This trip is {maxDays} days long, but only {itinerary.length} days have detailed itineraries. 
+                The remaining days show placeholder information.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <Tabs defaultValue={selectedDay.toString()} onValueChange={(val) => setSelectedDay(parseInt(val))}>
             <TabsList className="mb-4 bg-purple-100 flex flex-wrap">
-              {/* Create tabs based on actual days in the itinerary */}
+              {/* Create tabs based on maxDays */}
               {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
                 <TabsTrigger 
                   key={day} 

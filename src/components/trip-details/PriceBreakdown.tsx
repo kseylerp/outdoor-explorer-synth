@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PriceBreakdownProps {
   totalPrice?: number;
@@ -47,7 +48,21 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
         <div className="flex items-center gap-2 mb-3">
           <DollarSign className="h-5 w-5 text-purple-600" />
           <h3 className="text-lg font-semibold">Price Breakdown</h3>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="ml-1">
+                  <Info className="h-4 w-4 text-gray-400" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">Estimated total price per person. Actual costs may vary based on group size, season, and specific trip customizations.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
+        
         <p className="text-2xl font-semibold mb-2">{formatPrice(totalPrice)}</p>
         
         {!compact ? (

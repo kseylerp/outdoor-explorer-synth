@@ -48,6 +48,14 @@ export interface Activity {
   equipmentNeeded?: string[];
   weather?: string;
   difficulty?: string;
+  distance?: number | string;
+  elevation?: number | string;
+  routeType?: 'out-and-back' | 'loop' | 'one-way' | 'multi-day' | string;
+  waypoints?: {
+    name: string;
+    coordinates: Coordinates;
+    description?: string;
+  }[];
 }
 
 export interface ItineraryDay {

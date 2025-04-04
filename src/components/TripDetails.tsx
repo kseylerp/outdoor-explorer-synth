@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users } from 'lucide-react';
 import { Trip } from '@/types/trips';
@@ -39,7 +39,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
           </TabsList>
           
           <TabsContent value="itinerary">
-            <ItineraryTab itinerary={trip.itinerary} />
+            <ItineraryTab itinerary={trip.itinerary} journey={trip.journey} />
           </TabsContent>
           
           <TabsContent value="buddies">
