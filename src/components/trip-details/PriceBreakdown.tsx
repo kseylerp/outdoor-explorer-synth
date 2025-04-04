@@ -4,14 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DollarSign } from 'lucide-react';
 
 interface PriceBreakdownProps {
-  totalPrice: number;
+  totalPrice?: number;
   compact?: boolean;
 }
 
 const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = false }) => {
   // Format price as a string with dollar sign
-  const formatPrice = (price: number): string => {
-    if (price <= 0) return 'Price not available';
+  const formatPrice = (price?: number): string => {
+    if (price === undefined || price <= 0) return 'Price not available';
     return `$${price.toLocaleString()}`;
   };
 
