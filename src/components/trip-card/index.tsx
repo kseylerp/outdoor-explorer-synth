@@ -14,6 +14,7 @@ interface TripCardProps {
   onSave?: () => void;
   showRemoveButton?: boolean;
   onRemove?: () => void;
+  onExpand?: () => void; // Added the onExpand prop
 }
 
 const TripCard: React.FC<TripCardProps> = ({ 
@@ -22,7 +23,8 @@ const TripCard: React.FC<TripCardProps> = ({
   isSaved = false,
   onSave,
   showRemoveButton = false,
-  onRemove
+  onRemove,
+  onExpand
 }) => {
   const [isItineraryVisible, setIsItineraryVisible] = useState(expanded);
   
@@ -38,7 +40,12 @@ const TripCard: React.FC<TripCardProps> = ({
   console.log('Maximum days in itinerary:', maxDays);
   
   return (
-    <Card className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md">
+    <Card 
+      className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md"
+      onClick={() => {
+        if (onExpand) onExpand();
+      }}
+    >
       <TripBaseView trip={trip} compact={!isItineraryVisible}>
         {/* Buttons for saving/removing trips */}
         {(onSave || (showRemoveButton && onRemove)) && (
