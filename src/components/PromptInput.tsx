@@ -8,9 +8,14 @@ import { toast } from '@/hooks/use-toast';
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
   isProcessing: boolean;
+  placeholder?: string;
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => {
+const PromptInput: React.FC<PromptInputProps> = ({ 
+  onSubmit, 
+  isProcessing,
+  placeholder = "I would like to do a weekend trip hiking Yosemite on trails with fewer people."
+}) => {
   const [prompt, setPrompt] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
@@ -133,7 +138,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
       <div className="relative">
         <Textarea
           ref={textareaRef}
-          placeholder="I would like to do a weekend trip hiking Yosemite on trails with fewer people."
+          placeholder={placeholder}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}

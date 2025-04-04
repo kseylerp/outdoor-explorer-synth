@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -13,7 +12,7 @@ const claudeApiKey = Deno.env.get('my_api_key');
 console.log("API key present:", !!claudeApiKey); // Log if API key exists without exposing the actual key
 
 const claudeApiUrl = "https://api.anthropic.com/v1/messages";
-const claudeModel = "claude-3-5-haiku-20241022";
+const claudeModel = "claude-3-7-sonnet-20250219";
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -24,31 +23,50 @@ function handleCors(req: Request) {
 }
 
 // Helper for Claude API requests
-async function callClaudeApi(prompt: string) {
+async function callClaudeApi(prompt: string, existingTrips?: any) {
   try {
     console.log("Calling Claude API with prompt:", prompt);
+    console.log("Existing trips provided:", !!existingTrips);
     
     if (!claudeApiKey) {
       console.error("API key is not set in environment variables");
       throw new Error("API key is not set in environment variables");
     }
     
+    // Prepare user messages
+    const userMessages = [];
+    
+    // Add the main prompt message
+    userMessages.push({
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: prompt
+        }
+      ]
+    });
+    
+    // If modifying existing trips, add context about previous trips
+    if (existingTrips) {
+      // Add a system message explaining the modification
+      userMessages.push({
+        role: "assistant", 
+        content: [
+          {
+            type: "text",
+            text: "I've created these trips based on your initial request. I'll now modify them according to your additional requirements."
+          }
+        ]
+      });
+    }
+    
     const payload = {
       model: claudeModel,
       max_tokens: 6000,
       temperature: 1,
-      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: prompt
-            }
-          ]
-        }
-      ],
+      system: "You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.\n\nAnalyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.\n\n- Prioritize off-the-beaten-path locations and local operators\n- Consider shoulder-season times\n- Consider congestion\n- Consider preparedness\n- Activities and Itineraries need to consider the time it will take to do that activity, time of day, if you need to camp, and how long to get back.",
+      messages: userMessages,
       tools: [
         {
           type: "custom",
@@ -435,7 +453,11 @@ async function callClaudeApi(prompt: string) {
             ]
           }
         }
-      ]
+      ],
+      thinking: {
+        type: "enabled",
+        budget_tokens: 4800
+      }
     };
 
     const response = await fetch(claudeApiUrl, {
@@ -457,6 +479,15 @@ async function callClaudeApi(prompt: string) {
     const data = await response.json();
     console.log("Claude API response received");
     
+    // Log thinking steps if available
+    if (data.thinking && data.thinking.thinking_steps) {
+      console.log("Thinking steps provided:", data.thinking.thinking_steps.length);
+      // Log a sample of the first thinking step (to keep logs manageable)
+      if (data.thinking.thinking_steps.length > 0) {
+        console.log("First thinking step:", data.thinking.thinking_steps[0].text.slice(0, 150) + "...");
+      }
+    }
+    
     if (data.content && data.content.length > 0) {
       // Look for tool use in the response
       const toolUse = data.content.find(item => 
@@ -465,8 +496,11 @@ async function callClaudeApi(prompt: string) {
       );
       
       if (toolUse && toolUse.input) {
-        // Parse and return the structured trip data
-        return toolUse.input;
+        // Parse and return the structured trip data along with thinking steps
+        return {
+          tripData: toolUse.input,
+          thinking: data.thinking?.thinking_steps || []
+        };
       } else {
         // If no structured data, try to extract from text
         const textContent = data.content.find(item => item.type === 'text');
@@ -477,7 +511,10 @@ async function callClaudeApi(prompt: string) {
             const jsonMatch = textContent.text.match(/```json\s*([\s\S]*?)\s*```/);
             if (jsonMatch && jsonMatch[1]) {
               const extractedJson = JSON.parse(jsonMatch[1]);
-              return extractedJson;
+              return {
+                tripData: extractedJson,
+                thinking: data.thinking?.thinking_steps || []
+              };
             }
             
             throw new Error("No JSON format found in text response");
@@ -503,7 +540,7 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { prompt } = await req.json();
+    const { prompt, existingTrips } = await req.json();
     
     if (!prompt) {
       return new Response(
@@ -521,11 +558,11 @@ serve(async (req) => {
     console.log("Processing prompt:", prompt);
     
     // Call Claude API and get structured response
-    const tripData = await callClaudeApi(prompt);
+    const response = await callClaudeApi(prompt, existingTrips);
     
-    // Return the structured response
+    // Return the structured response with thinking steps
     return new Response(
-      JSON.stringify(tripData),
+      JSON.stringify(response),
       { 
         headers: { 
           ...corsHeaders,
