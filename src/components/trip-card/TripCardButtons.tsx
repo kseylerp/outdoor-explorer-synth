@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BookmarkPlus, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { BookmarkPlus, Trash2 } from 'lucide-react';
 
 interface TripCardButtonsProps {
   tripId: string;
@@ -10,8 +9,6 @@ interface TripCardButtonsProps {
   onSave?: () => void;
   showRemoveButton?: boolean;
   onRemove?: () => void;
-  onExpand?: () => void;
-  isExpanded?: boolean;
 }
 
 const TripCardButtons: React.FC<TripCardButtonsProps> = ({
@@ -19,39 +16,19 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
   isSaved = false,
   onSave,
   showRemoveButton = false,
-  onRemove,
-  onExpand,
-  isExpanded = false
+  onRemove
 }) => {
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
       <div className="flex gap-2">
-        <Button
-          onClick={onSave}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <BookmarkPlus className="h-4 w-4" />
-          {isSaved ? 'Saved' : 'Save Trip'}
-        </Button>
-        
-        {onExpand && (
+        {onSave && (
           <Button
-            onClick={onExpand}
+            onClick={onSave}
             variant="outline"
             className="flex items-center gap-2"
           >
-            {isExpanded ? (
-              <>
-                <ChevronUp className="h-4 w-4" />
-                Hide Details
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-4 w-4" />
-                Show Details
-              </>
-            )}
+            <BookmarkPlus className="h-4 w-4" />
+            {isSaved ? 'Saved' : 'Save Trip'}
           </Button>
         )}
       </div>
@@ -66,10 +43,6 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
             <Trash2 className="h-4 w-4" />
           </Button>
         )}
-        
-        <Button asChild>
-          <Link to={`/trip/${tripId}`}>View Trip</Link>
-        </Button>
       </div>
     </div>
   );

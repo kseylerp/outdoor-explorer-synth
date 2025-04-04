@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -9,6 +8,7 @@ import ThinkingDisplay from '@/components/ThinkingDisplay';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { generateTrips } from '@/services/trip/tripService';
 import { Trip } from '@/types/trips';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [prompt, setPrompt] = useState('');
@@ -66,6 +66,39 @@ const Index = () => {
     }
   };
 
+  const handleSaveTrip = (trip: Trip) => {
+    try {
+      // Get existing saved trips or initialize empty array
+      const savedTripsJson = localStorage.getItem('savedTrips') || '[]';
+      const savedTrips = JSON.parse(savedTripsJson);
+      
+      // Check if already saved
+      if (savedTrips.some((saved: Trip) => saved.id === trip.id)) {
+        toast({
+          title: "Already saved",
+          description: "This trip is already in your saved collection",
+        });
+        return;
+      }
+      
+      // Add to saved trips
+      savedTrips.push(trip);
+      localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+      
+      toast({
+        title: "Trip saved!",
+        description: "This adventure has been added to your saved trips",
+      });
+    } catch (error) {
+      console.error('Error saving trip:', error);
+      toast({
+        title: "Error saving trip",
+        description: "Could not save this adventure. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       <div className="mb-8 text-center">
@@ -109,7 +142,11 @@ const Index = () => {
                   </span>
                 </div>
               )}
-              <TripCard key={index} trip={trip} />
+              <TripCard 
+                key={index} 
+                trip={trip}
+                onSave={() => handleSaveTrip(trip)}
+              />
             </div>
           ))}
         </div>

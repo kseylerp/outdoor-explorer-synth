@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ItineraryDay } from '@/types/trips';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CalendarDays, Clock, MapPin } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Coffee, Utensils, Home } from 'lucide-react';
 
 interface TripItineraryProps {
   itinerary: ItineraryDay[];
@@ -12,6 +12,12 @@ interface TripItineraryProps {
 const TripItinerary: React.FC<TripItineraryProps> = ({
   itinerary
 }) => {
+  // Expanded state for each day
+  const [expandedDays, setExpandedDays] = useState<{ [key: number]: boolean }>(
+    // Default to first day expanded
+    { 1: true }
+  );
+
   if (!itinerary || itinerary.length === 0) {
     return (
       <div className="px-6 py-4 bg-purple-50 border-t border-purple-100">
@@ -23,7 +29,8 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
   return (
     <div className="w-full bg-gray-50 border-t border-gray-200">
       <div className="px-6 py-4">
-        <Accordion type="multiple" className="space-y-6">
+        <h3 className="text-xl font-bold mb-4 text-purple-800">Complete Itinerary</h3>
+        <Accordion type="multiple" className="space-y-6" defaultValue={["day-1"]}>
           {itinerary.map((day, idx) => (
             <AccordionItem 
               key={idx} 
@@ -59,9 +66,54 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                     </div>
                   </div>
                   
+                  {/* Meals Section */}
+                  {day.meals && (Object.keys(day.meals).length > 0) && (
+                    <div className="mb-6 bg-amber-50 p-4 rounded-lg border border-amber-100">
+                      <h5 className="text-md font-medium mb-2 text-amber-800">Meals</h5>
+                      <div className="space-y-2">
+                        {day.meals.breakfast && (
+                          <div className="flex items-center gap-2">
+                            <Coffee className="h-4 w-4 text-amber-700" />
+                            <p className="text-sm">
+                              <span className="font-medium">Breakfast:</span> {day.meals.breakfast}
+                            </p>
+                          </div>
+                        )}
+                        {day.meals.lunch && (
+                          <div className="flex items-center gap-2">
+                            <Utensils className="h-4 w-4 text-amber-700" />
+                            <p className="text-sm">
+                              <span className="font-medium">Lunch:</span> {day.meals.lunch}
+                            </p>
+                          </div>
+                        )}
+                        {day.meals.dinner && (
+                          <div className="flex items-center gap-2">
+                            <Utensils className="h-4 w-4 text-amber-700" />
+                            <p className="text-sm">
+                              <span className="font-medium">Dinner:</span> {day.meals.dinner}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Accommodations Section */}
+                  {day.accommodations && (
+                    <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Home className="h-4 w-4 text-blue-700" />
+                        <h5 className="text-md font-medium text-blue-800">Accommodations</h5>
+                      </div>
+                      <p className="text-sm text-gray-700">{day.accommodations}</p>
+                    </div>
+                  )}
+                  
+                  <h4 className="text-lg font-medium mb-4">Activities</h4>
+                  
                   {day.activities && day.activities.length > 0 ? (
-                    <div className="space-y-5 mt-6">
-                      <h3 className="font-medium text-lg text-gray-900">Activities</h3>
+                    <div className="space-y-4">
                       {day.activities.map((activity, actIdx) => (
                         <div 
                           key={actIdx} 
@@ -97,6 +149,13 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                                 Permit Required
                               </Badge>
                             )}
+
+                            {activity.location && (
+                              <Badge variant="outline" className="flex items-center gap-1 bg-blue-50 text-blue-800">
+                                <MapPin className="h-3 w-3" />
+                                {activity.location}
+                              </Badge>
+                            )}
                           </div>
                           
                           {activity.permitDetails && (
@@ -110,6 +169,20 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                             <div className="mt-3 text-sm">
                               <span className="font-medium">Suggested Outfitters: </span>
                               <span className="text-gray-600">{activity.outfitters.join(', ')}</span>
+                            </div>
+                          )}
+
+                          {activity.equipmentNeeded && activity.equipmentNeeded.length > 0 && (
+                            <div className="mt-3 text-sm">
+                              <span className="font-medium">Equipment Needed: </span>
+                              <span className="text-gray-600">{activity.equipmentNeeded.join(', ')}</span>
+                            </div>
+                          )}
+
+                          {activity.difficulty && (
+                            <div className="mt-3 text-sm">
+                              <span className="font-medium">Difficulty: </span>
+                              <span className="text-gray-600">{activity.difficulty}</span>
                             </div>
                           )}
                         </div>
