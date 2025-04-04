@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
+import { jsonToCoordinates, jsonToMarkers, jsonToJourney, jsonToItinerary } from "./tripMappers";
 
 export const generateTrips = async (
   prompt: string,
@@ -136,20 +138,20 @@ export const fetchTripById = async (id: string): Promise<Trip | null> => {
         console.log("Expected days from duration:", expectedDays);
       }
 
-      // Create a Trip object with default values for missing properties
+      // Create a Trip object with proper type conversions
       const trip: Trip = {
         id: data.trip_id,
         title: data.title,
         description: data.description || '',
-        whyWeChoseThis: data.whyWeChoseThis || 'Handpicked for a unique adventure experience', // Add default value
+        whyWeChoseThis: 'Handpicked for a unique adventure experience', // Default value since it's not in the database
         difficultyLevel: data.difficulty_level || '',
         priceEstimate: data.price_estimate || 0,
         duration: data.duration || '',
         location: data.location || '',
-        mapCenter: data.map_center,
-        markers: data.markers,
-        journey: data.journey,
-        itinerary: data.itinerary || [],
+        mapCenter: jsonToCoordinates(data.map_center),
+        markers: jsonToMarkers(data.markers),
+        journey: jsonToJourney(data.journey),
+        itinerary: jsonToItinerary(data.itinerary),
       };
 
       return trip;

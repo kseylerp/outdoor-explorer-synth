@@ -34,7 +34,9 @@ const Index = () => {
       
       // Log entire trip data to help debug
       console.info(`Received ${result.length} trips from API`);
-      console.info('First trip details:', result[0]);
+      if (result.length > 0) {
+        console.info('First trip details:', result[0]);
+      }
       
       setTrips(result);
     } catch (err) {

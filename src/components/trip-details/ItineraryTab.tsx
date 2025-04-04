@@ -4,12 +4,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ItineraryDay, Journey } from '@/types/trips';
 import DayDetails from './DayDetails';
 import { Button } from '@/components/ui/button';
-import { Map, Tent } from 'lucide-react';
+import { Map, Tent, FileText } from 'lucide-react';
 import CampgroundSearch from '../campground/CampgroundSearch';
 import CampgroundDetails from '../campground/CampgroundDetails';
 import { Campground } from '@/services/campground/campgroundService';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ItineraryTabProps {
   itinerary: ItineraryDay[];
@@ -21,6 +22,7 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
   const [showCampgrounds, setShowCampgrounds] = useState(false);
   const [showJourneyInfo, setShowJourneyInfo] = useState(false);
   const [selectedCampground, setSelectedCampground] = useState<Campground | null>(null);
+  const [notes, setNotes] = useState<string>('');
   const { toast } = useToast();
 
   // Add console logs to debug the data
@@ -41,6 +43,10 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
       title: "Booking initiated",
       description: `You're booking ${campground.name}. This feature is coming soon!`,
     });
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
   };
 
   const formatDistance = (meters: number) => {
@@ -210,6 +216,23 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
                 </TabsContent>
               ))}
           </Tabs>
+          
+          {/* Notes Section */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <FileText className="h-5 w-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-purple-800">Trip Notes</h3>
+            </div>
+            <Textarea
+              placeholder="Add your personal notes about this trip here..."
+              className="min-h-[120px]"
+              value={notes}
+              onChange={handleNotesChange}
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              These notes are saved locally and will help you remember important details about your trip planning.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="text-center p-4 border border-gray-200 rounded-md">

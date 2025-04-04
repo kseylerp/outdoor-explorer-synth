@@ -43,28 +43,36 @@ export const jsonToJourney = (json: Json | null): Journey | undefined => {
     return undefined;
   }
   
-  return {
-    segments: journeyData.segments.map((segment: any) => ({
-      mode: segment.mode || '',
-      from: segment.from || '',
-      to: segment.to || '',
-      distance: segment.distance || 0,
-      duration: segment.duration || 0,
-      geometry: {
-        coordinates: segment.geometry?.coordinates || [[0, 0], [0, 0]]
+  // Convert journey segments with proper typing
+  const segments: Segment[] = journeyData.segments.map((segment: any) => ({
+    mode: segment.mode || '',
+    from: segment.from || '',
+    to: segment.to || '',
+    distance: segment.distance || 0,
+    duration: segment.duration || 0,
+    geometry: {
+      coordinates: Array.isArray(segment.geometry?.coordinates) ? 
+        segment.geometry.coordinates : []
+    },
+    steps: Array.isArray(segment.steps) ? segment.steps.map((step: any) => ({
+      maneuver: {
+        instruction: step.maneuver?.instruction || '',
+        location: Array.isArray(step.maneuver?.location) ? 
+          step.maneuver.location : [0, 0]
       },
-      steps: Array.isArray(segment.steps) ? segment.steps.map((step: any) => ({
-        maneuver: {
-          instruction: step.maneuver?.instruction || '',
-          location: step.maneuver?.location || [0, 0]
-        },
-        distance: step.distance || 0,
-        duration: step.duration || 0
-      })) : []
-    })),
+      distance: step.distance || 0,
+      duration: step.duration || 0
+    })) : [],
+    elevationGain: segment.elevationGain,
+    terrain: segment.terrain,
+    description: segment.description
+  }));
+
+  return {
+    segments,
     totalDistance: journeyData.totalDistance || 0,
     totalDuration: journeyData.totalDuration || 0,
-    bounds: journeyData.bounds || [[0, 0], [0, 0]]
+    bounds: journeyData.bounds
   };
 };
 
@@ -83,7 +91,20 @@ export const jsonToItinerary = (json: Json | null): ItineraryDay[] => {
       description: activity.description || '',
       permitRequired: Boolean(activity.permitRequired),
       permitDetails: activity.permitDetails,
-      outfitters: Array.isArray(activity.outfitters) ? activity.outfitters : []
-    })) : []
+      outfitters: Array.isArray(activity.outfitters) ? activity.outfitters : [],
+      location: activity.location,
+      price: activity.price,
+      equipmentNeeded: Array.isArray(activity.equipmentNeeded) ? activity.equipmentNeeded : [],
+      weather: activity.weather,
+      difficulty: activity.difficulty,
+      distance: activity.distance,
+      elevation: activity.elevation,
+      routeType: activity.routeType,
+      waypoints: Array.isArray(activity.waypoints) ? activity.waypoints : []
+    })) : [],
+    meals: day.meals,
+    accommodations: day.accommodations,
+    travelDuration: day.travelDuration,
+    travelMode: day.travelMode
   }));
 };

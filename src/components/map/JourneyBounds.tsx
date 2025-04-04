@@ -13,6 +13,35 @@ const JourneyBounds: React.FC<JourneyBoundsProps> = ({ map, journey }) => {
     try {
       // If journey is undefined or doesn't have bounds, exit early
       if (!journey || !journey.bounds || !journey.bounds.length || !map) {
+        console.log("Missing required data for setting map bounds");
+        
+        // If we have segments but no bounds, try to create bounds from segment coordinates
+        if (journey && journey.segments && journey.segments.length > 0) {
+          const bounds = new LngLatBounds();
+          let boundsAdded = false;
+          
+          // Try to extract bounds from segment coordinates
+          journey.segments.forEach(segment => {
+            if (segment.geometry && Array.isArray(segment.geometry.coordinates)) {
+              segment.geometry.coordinates.forEach(coord => {
+                if (Array.isArray(coord) && coord.length >= 2) {
+                  bounds.extend([coord[0], coord[1]]);
+                  boundsAdded = true;
+                }
+              });
+            }
+          });
+          
+          if (boundsAdded) {
+            console.log("Created bounds from segment coordinates");
+            map.fitBounds(bounds, {
+              padding: 40,
+              maxZoom: 14,
+              duration: 1000
+            });
+          }
+        }
+        
         return;
       }
 
