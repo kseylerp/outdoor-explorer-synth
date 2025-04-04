@@ -32,7 +32,7 @@ export interface Journey {
   segments: Segment[];
   totalDistance: number;
   totalDuration: number;
-  bounds: number[][]; // Note: This is not optional in the interface
+  bounds?: number[][]; // Changed from required to optional
 }
 
 export interface Activity {
