@@ -13,6 +13,7 @@ import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
+import GuidePortal from "./pages/GuidePortal";
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -38,6 +39,7 @@ const AppContent = () => {
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/guide-portal" element={<GuidePortal />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

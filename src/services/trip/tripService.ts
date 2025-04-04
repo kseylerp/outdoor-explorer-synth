@@ -32,8 +32,9 @@ export const generateTrips = async (
       thinkingCallback(data.thinking);
     }
 
-    // Return the trips from the response
-    return data.trips || [];
+    // The response structure should contain trips data from tripData
+    const trips = data.tripData?.trip || [];
+    return trips;
   } catch (error) {
     console.error("Error generating trips:", error);
     throw new Error(`Edge Function Error: ${error instanceof Error ? error.message : String(error)}`);
