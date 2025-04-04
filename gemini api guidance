@@ -1,0 +1,1211 @@
+import base64
+import os
+from google import genai
+from google.genai import types
+
+
+def generate():
+    client = genai.Client(
+        api_key=os.environ.get("GEMINI_API_KEY"),
+    )
+
+    model = "gemini-2.0-flash"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text="""I want to bike, hike, and raft throughout the Grand Canyon area with a few adventurous friends and my 12 year old son. We’ll be there for 10 days.
+"""),
+            ],
+        ),
+        types.Content(
+            role="model",
+            parts=[
+                types.Part.from_text(text="""```json
+[
+  {
+    \"Trip Title\": \"Grand Canyon Explorer\",
+    \"Adventure Score\": \"Moderate\",
+    \"Description\": \"Bike, hike, and raft through diverse landscapes near the Grand Canyon, focusing on less-traveled routes to support local communities and minimize environmental impact.\",
+    \"Justification\": \"This trip balances iconic Grand Canyon experiences with lesser-known, sustainable options, spreading economic benefits to smaller communities and reducing pressure on popular sites.\",
+    \"Itinerary Framework\": [
+      {
+        \"Day\": 1,
+        \"Location\": \"Arrival in Flagstaff & Bike Prep\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Arrive & Gear Check\",
+            \"Permit\": \"No\",
+            \"Company\": \"Local Bike Shop\",
+            \"Duration\": \"3 hours\",
+            \"Coordinates\": \"35.1983,-111.6513\",
+            \"Notes\": \"Bike fitting and gear check at local shop.\"
+          },
+          {
+            \"Activity Name\": \"Flagstaff Exploration\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"4 hours\",
+            \"Coordinates\": \"35.1983,-111.6513\",
+            \"Notes\": \"Explore downtown Flagstaff, dinner at local restaurant.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 2,
+        \"Location\": \"Bike to Williams\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Bike Route 66\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"6 hours\",
+            \"Coordinates\": \"35.1983,-111.6513 to 35.2519,-112.1886\",
+            \"Notes\": \"Scenic bike ride along Route 66.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 3,
+        \"Location\": \"Grand Canyon South Rim Hike\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"South Kaibab Trail Hike\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"6 hours\",
+            \"Coordinates\": \"36.0576,-112.1129\",
+            \"Notes\": \"Hike a portion of South Kaibab Trail.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 4,
+        \"Location\": \"Little Colorado River Navajo Rafting\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"LCR Navajo Rafting\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Navajo Parks & Rec\",
+            \"Duration\": \"8 hours\",
+            \"Coordinates\": \"36.4753,-111.3506\",
+            \"Notes\": \"Rafting tour on the Little Colorado River.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 5,
+        \"Location\": \"Antelope Canyon & Horseshoe Bend\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Antelope Canyon Tour\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Local Navajo Guides\",
+            \"Duration\": \"3 hours\",
+            \"Coordinates\": \"36.8623,-111.4051\",
+            \"Notes\": \"Guided tour of Antelope Canyon.\"
+          },
+          {
+            \"Activity Name\": \"Horseshoe Bend Hike\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"2 hours\",
+            \"Coordinates\": \"36.8797,-111.5098\",
+            \"Notes\": \"Hike to Horseshoe Bend overlook.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 6,
+        \"Location\": \"Drive to Kanab & Hike\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Hike to The Toadstools\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"3 hours\",
+            \"Coordinates\": \"37.1582,-112.1456\",
+            \"Notes\": \"Hike to The Toadstools geological formations.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 7,
+        \"Location\": \"Zion National Park Day Trip\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"The Narrows Hike\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Self-guided with rental gear\",
+            \"Duration\": \"6 hours\",
+            \"Coordinates\": \"37.2976,-112.9453\",
+            \"Notes\": \"Hike through The Narrows in Zion Canyon.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 8,
+        \"Location\": \"Bike ride to Bryce Canyon\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Scenic Byway 12 Ride\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"7 hours\",
+            \"Coordinates\": \"37.6283,-112.1562\",
+            \"Notes\": \"Bike ride through the scenic byway.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 9,
+        \"Location\": \"Bryce Canyon Exploration\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Navajo Loop & Queen's Garden\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"4 hours\",
+            \"Coordinates\": \"37.6278,-112.1672\",
+            \"Notes\": \"Hike the Navajo Loop and Queen's Garden Trail.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 10,
+        \"Location\": \"Departure from Las Vegas\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Drive to Las Vegas\",
+            \"Permit\": \"No\",
+            \"Company\": \"Rental Car\",
+            \"Duration\": \"4 hours\",
+            \"Coordinates\": \"37.6278,-112.1672 to 36.1699,-115.1398\",
+            \"Notes\": \"Drive to Las Vegas for departure.\"
+          }
+        ]
+      }
+    ],
+    \"Price Estimate\": \"$1800 - $3000\"
+  },
+  {
+    \"Trip Title\": \"Canyonlands Active Tour\",
+    \"Adventure Score\": \"Intense\",
+    \"Description\": \"A challenging bike, hike, and packraft adventure in the Canyonlands area, emphasizing backcountry exploration and minimal impact camping.\",
+    \"Justification\": \"This itinerary focuses on remote areas and self-sufficiency, reducing crowding and supporting responsible tourism practices.\",
+    \"Itinerary Framework\": [
+      {
+        \"Day\": 1,
+        \"Location\": \"Arrival in Moab & Bike Check\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Arrive & Bike Prep\",
+            \"Permit\": \"No\",
+            \"Company\": \"Local Bike Shop\",
+            \"Duration\": \"3 hours\",
+            \"Coordinates\": \"38.5733,-109.5498\",
+            \"Notes\": \"Bike fitting and gear check at local shop.\"
+          },
+          {
+            \"Activity Name\": \"Moab Exploration\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"4 hours\",
+            \"Coordinates\": \"38.5733,-109.5498\",
+            \"Notes\": \"Explore downtown Moab, dinner at local restaurant.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 2,
+        \"Location\": \"White Rim Road Biking\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"White Rim Road Day 1\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Self-supported\",
+            \"Duration\": \"8 hours\",
+            \"Coordinates\": \"38.4728,-109.8125\",
+            \"Notes\": \"Begin multi-day bike trip on White Rim Road.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 3,
+        \"Location\": \"White Rim Road Biking\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"White Rim Road Day 2\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Self-supported\",
+            \"Duration\": \"8 hours\",
+            \"Coordinates\": \"Various\",
+            \"Notes\": \"Continue biking on White Rim Road.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 4,
+        \"Location\": \"White Rim Road Biking\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"White Rim Road Day 3\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Self-supported\",
+            \"Duration\": \"8 hours\",
+            \"Coordinates\": \"Various\",
+            \"Notes\": \"Finish biking on White Rim Road.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 5,
+        \"Location\": \"Canyonlands Hiking\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Mesa Arch & Grand View\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"6 hours\",
+            \"Coordinates\": \"38.3962,-109.8679\",
+            \"Notes\": \"Hike to Mesa Arch and Grand View Point.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 6,
+        \"Location\": \"Packrafting the Green River\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Green River Packrafting\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Local Outfitters\",
+            \"Duration\": \"8 hours\",
+            \"Coordinates\": \"38.4667,-109.6000\",
+            \"Notes\": \"Packrafting down a section of the Green River.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 7,
+        \"Location\": \"Arches National Park\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Delicate Arch Hike\",
+            \"Permit\": \"Yes\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"6 hours\",
+            \"Coordinates\": \"38.7437,-109.4953\",
+            \"Notes\": \"Hike to Delicate Arch.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 8,
+        \"Location\": \"La Sal Mountains Day Trip\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Hiking in La Sals\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"7 hours\",
+            \"Coordinates\": \"38.6342,-109.3053\",
+            \"Notes\": \"Hike in the La Sal Mountains.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 9,
+        \"Location\": \"Mountain Biking\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Slickrock Trail\",
+            \"Permit\": \"No\",
+            \"Company\": \"Self-guided\",
+            \"Duration\": \"4 hours\",
+            \"Coordinates\": \"38.5522,-109.5378\",
+            \"Notes\": \"Ride the Slickrock Trail.\"
+          }
+        ]
+      },
+      {
+        \"Day\": 10,
+        \"Location\": \"Departure from Moab\",
+        \"Activities\": [
+          {
+            \"Activity Name\": \"Departure\",
+            \"Permit\": \"No\",
+            \"Company\": \"N/A\",
+            \"Duration\": \"2 hours\",
+            \"Coordinates\": \"38.5733,-109.5498\",
+            \"Notes\": \"Departure from Moab.\"
+          }
+        ]
+      }
+    ],
+    \"Price Estimate\": \"$2000 - $3500\"
+  }
+]
+```"""),
+            ],
+        ),
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text="""I want to bike, hike, and raft throughout the Grand Canyon area with a few adventurous friends and my 12 year old son. We’ll be there for 10 days. 
+"""),
+            ],
+        ),
+        types.Content(
+            role="model",
+            parts=[
+                types.Part.from_text(text="""{
+  \"trip\": [
+    {
+      \"description\": \"Explore the Grand Canyon area with a blend of biking, hiking, and rafting, focusing on less crowded and eco-friendly options suitable for families.\",
+      \"difficultyLevel\": \"Moderate\",
+      \"duration\": \"10 days\",
+      \"id\": \"GC-EcoAdv-1\",
+      \"itinerary\": [
+        {
+          \"activities\": [
+            {
+              \"description\": \"Arrive in Flagstaff, pick up rental bikes, and ensure proper fitting and gear check at a local bike shop.\",
+              \"duration\": \"3 hours\",
+              \"name\": \"Bike Fitting & Gear Check\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\",
+              \"outfitters\": [
+                \"Local Bike Shop\"
+              ]
+            },
+            {
+              \"description\": \"Explore downtown Flagstaff, dine at a local restaurant supporting sustainable practices.\",
+              \"duration\": \"4 hours\",
+              \"name\": \"Flagstaff Exploration\",
+              \"permitRequired\": false,
+              \"type\": \"Sightseeing\"
+            }
+          ],
+          \"day\": 1,
+          \"description\": \"Arrival and preparation in Flagstaff.\",
+          \"title\": \"Arrival & Bike Prep\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Bike along a scenic section of Route 66 towards the Grand Canyon, enjoying the landscapes and stopping at local diners.\",
+              \"duration\": \"6 hours\",
+              \"name\": \"Bike to Williams\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\"
+            }
+          ],
+          \"day\": 2,
+          \"description\": \"Bike from Flagstaff to Williams.\",
+          \"title\": \"Bike to Williams\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike a portion of the South Kaibab Trail, focusing on sustainable trail practices and respecting the natural environment. Hike down 3 miles and back.\",
+              \"duration\": \"6 hours\",
+              \"name\": \"South Kaibab Trail Hike\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\",
+              \"permitDetails\": \"Check weather conditions and trail closures before hiking.\"
+            }
+          ],
+          \"day\": 3,
+          \"description\": \"Hike a portion of the South Kaibab Trail.\",
+          \"title\": \"Grand Canyon South Rim Hike\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Participate in a rafting tour on the Little Colorado River led by Navajo guides, supporting local tourism and learning about Navajo culture.\",
+              \"duration\": \"8 hours\",
+              \"name\": \"LCR Navajo Rafting\",
+              \"permitRequired\": true,
+              \"type\": \"Hiking\",
+              \"outfitters\": [
+                \"Navajo Parks & Rec\"
+              ],
+              \"permitDetails\": \"Book permit in advance.\"
+            }
+          ],
+          \"day\": 4,
+          \"description\": \"Rafting tour on the Little Colorado River.\",
+          \"title\": \"Little Colorado River Navajo Rafting\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Guided tour of Antelope Canyon led by local Navajo guides, ensuring responsible tourism practices and cultural sensitivity.\",
+              \"duration\": \"3 hours\",
+              \"name\": \"Antelope Canyon Tour\",
+              \"permitRequired\": true,
+              \"type\": \"Sightseeing\",
+              \"outfitters\": [
+                \"Local Navajo Guides\"
+              ],
+              \"permitDetails\": \"Book tour in advance.\"
+            },
+            {
+              \"description\": \"Hike to Horseshoe Bend overlook, taking care to minimize environmental impact and respect the natural surroundings.\",
+              \"duration\": \"2 hours\",
+              \"name\": \"Horseshoe Bend Hike\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\"
+            }
+          ],
+          \"day\": 5,
+          \"description\": \"Visit Antelope Canyon and Horseshoe Bend.\",
+          \"title\": \"Antelope Canyon & Horseshoe Bend\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike to The Toadstools geological formations, a less crowded alternative, focusing on Leave No Trace principles.\",
+              \"duration\": \"3 hours\",
+              \"name\": \"Hike to The Toadstools\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\"
+            }
+          ],
+          \"day\": 6,
+          \"description\": \"Drive to Kanab and hike to The Toadstools.\",
+          \"title\": \"Drive to Kanab & Hike\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike through The Narrows in Zion Canyon, renting gear from a local outfitter and practicing responsible water usage.\",
+              \"duration\": \"6 hours\",
+              \"name\": \"The Narrows Hike\",
+              \"permitRequired\": true,
+              \"type\": \"Hiking\",
+              \"permitDetails\": \"Check water levels and closures before hiking.\"
+            }
+          ],
+          \"day\": 7,
+          \"description\": \"Day trip to Zion National Park to hike The Narrows.\",
+          \"title\": \"Zion National Park Day Trip\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Bike ride through Scenic Byway 12 towards Bryce Canyon, enjoying the natural beauty and supporting local businesses along the way.\",
+              \"duration\": \"7 hours\",
+              \"name\": \"Scenic Byway 12 Ride\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\"
+            }
+          ],
+          \"day\": 8,
+          \"description\": \"Bike ride to Bryce Canyon along Scenic Byway 12.\",
+          \"title\": \"Bike ride to Bryce Canyon\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike the Navajo Loop and Queen's Garden Trail in Bryce Canyon, sticking to marked paths and respecting the fragile environment.\",
+              \"duration\": \"4 hours\",
+              \"name\": \"Navajo Loop & Queen's Garden\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\"
+            }
+          ],
+          \"day\": 9,
+          \"description\": \"Explore Bryce Canyon with a hike on the Navajo Loop and Queen's Garden Trail.\",
+          \"title\": \"Bryce Canyon Exploration\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Drive to Las Vegas for departure.\",
+              \"duration\": \"4 hours\",
+              \"name\": \"Drive to Las Vegas\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\"
+            }
+          ],
+          \"day\": 10,
+          \"description\": \"Departure from Las Vegas.\",
+          \"title\": \"Departure from Las Vegas\"
+        }
+      ],
+      \"journey\": {
+        \"bounds\": [
+          [
+            35.1983,
+            -112.1886
+          ]
+        ],
+        \"segments\": [
+          {
+            \"distance\": 200000.0,
+            \"duration\": 7200.0,
+            \"from\": \"Flagstaff\",
+            \"geometry\": {
+              \"coordinates\": [
+                [
+                  35.1983,
+                  -111.6513
+                ],
+                [
+                  35.2519,
+                  -112.1886
+                ]
+              ]
+            },
+            \"mode\": \"cycling\",
+            \"to\": \"Williams\",
+            \"description\": \"Bike ride from Flagstaff to Williams\",
+            \"elevationGain\": 1000.0,
+            \"steps\": [
+              {
+                \"distance\": 100000.0,
+                \"duration\": 3600.0,
+                \"maneuver\": {
+                  \"instruction\": \"Head west on Route 66\",
+                  \"location\": [
+                    -111.6513
+                  ]
+                }
+              },
+              {
+                \"distance\": 100000.0,
+                \"duration\": 3600.0,
+                \"maneuver\": {
+                  \"instruction\": \"Continue on Route 66 to Williams\",
+                  \"location\": [
+                    -112.1886
+                  ]
+                }
+              }
+            ],
+            \"terrain\": \"paved\"
+          }
+        ],
+        \"totalDistance\": 200000.0,
+        \"totalDuration\": 7200.0
+      },
+      \"location\": \"Grand Canyon Area\",
+      \"mapCenter\": {
+        \"lat\": 36.0576,
+        \"lng\": -112.1129
+      },
+      \"markers\": [
+        {
+          \"coordinates\": {
+            \"lat\": 35.1983,
+            \"lng\": -111.6513
+          },
+          \"description\": \"Starting point of the trip.\",
+          \"name\": \"Flagstaff\",
+          \"details\": \"Initial gear check and exploration.\"
+        },
+        {
+          \"coordinates\": {
+            \"lat\": 36.0576,
+            \"lng\": -112.1129
+          },
+          \"description\": \"Iconic Grand Canyon hiking trail.\",
+          \"name\": \"South Kaibab Trailhead\",
+          \"elevation\": \"7260 ft\"
+        }
+      ],
+      \"priceEstimate\": 2500.0,
+      \"suggestedGuides\": [
+        \"Local Navajo Guides for cultural tours\",
+        \"Certified Wilderness First Responder\"
+      ],
+      \"title\": \"Grand Canyon Eco-Adventure\",
+      \"whyWeChoseThis\": \"This itinerary focuses on eco-friendly practices, supports local communities, and balances iconic sites with less-traveled destinations, making it suitable for an adventurous family.\"
+    },
+    {
+      \"description\": \"A challenging and immersive canyonlands tour, involving extensive biking, hiking, and packrafting through remote areas, emphasizing self-sufficiency and minimal environmental impact.\",
+      \"difficultyLevel\": \"Challenging\",
+      \"duration\": \"10 days\",
+      \"id\": \"Canyon-Intense-2\",
+      \"itinerary\": [
+        {
+          \"activities\": [
+            {
+              \"description\": \"Arrive in Moab, pick up and fit rental bikes at a local shop specializing in mountain biking gear.\",
+              \"duration\": \"3 hours\",
+              \"name\": \"Arrive & Bike Prep\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\",
+              \"outfitters\": [
+                \"Local Bike Shop\"
+              ]
+            },
+            {
+              \"description\": \"Explore downtown Moab, get last-minute supplies, and dine at a local restaurant.\",
+              \"duration\": \"4 hours\",
+              \"name\": \"Moab Exploration\",
+              \"permitRequired\": false,
+              \"type\": \"Sightseeing\"
+            }
+          ],
+          \"day\": 1,
+          \"description\": \"Arrival and preparation in Moab.\",
+          \"title\": \"Arrival in Moab & Bike Check\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Begin a multi-day biking trip on White Rim Road, focusing on self-supported camping and responsible waste management.\",
+              \"duration\": \"8 hours\",
+              \"name\": \"White Rim Road Day 1\",
+              \"permitRequired\": true,
+              \"type\": \"Transportation\",
+              \"permitDetails\": \"Permit required for overnight camping.\"
+            }
+          ],
+          \"day\": 2,
+          \"description\": \"First day of biking on White Rim Road.\",
+          \"title\": \"White Rim Road Biking\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Continue biking on White Rim Road, focusing on self-supported camping and responsible waste management.\",
+              \"duration\": \"8 hours\",
+              \"name\": \"White Rim Road Day 2\",
+              \"permitRequired\": true,
+              \"type\": \"Transportation\",
+              \"permitDetails\": \"Continue using camping permit.\"
+            }
+          ],
+          \"day\": 3,
+          \"description\": \"Second day of biking on White Rim Road.\",
+          \"title\": \"White Rim Road Biking\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Finish biking on White Rim Road, focusing on self-supported camping and responsible waste management.\",
+              \"duration\": \"8 hours\",
+              \"name\": \"White Rim Road Day 3\",
+              \"permitRequired\": true,
+              \"type\": \"Transportation\",
+              \"permitDetails\": \"Ensure all waste is packed out.\"
+            }
+          ],
+          \"day\": 4,
+          \"description\": \"Last day of biking on White Rim Road.\",
+          \"title\": \"White Rim Road Biking\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike to Mesa Arch for sunrise and then to Grand View Point, focusing on minimal impact hiking practices.\",
+              \"duration\": \"6 hours\",
+              \"name\": \"Mesa Arch & Grand View\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\"
+            }
+          ],
+          \"day\": 5,
+          \"description\": \"Hike to Mesa Arch and Grand View Point.\",
+          \"title\": \"Canyonlands Hiking\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Packrafting down a section of the Green River, using local outfitters and following responsible river practices.\",
+              \"duration\": \"8 hours\",
+              \"name\": \"Green River Packrafting\",
+              \"permitRequired\": true,
+              \"type\": \"Hiking\",
+              \"outfitters\": [
+                \"Local Outfitters\"
+              ],
+              \"permitDetails\": \"Check river conditions and obtain necessary permits.\"
+            }
+          ],
+          \"day\": 6,
+          \"description\": \"Packrafting down the Green River.\",
+          \"title\": \"Packrafting the Green River\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike to Delicate Arch, using the timed entry system to reduce crowding and minimize impact.\",
+              \"duration\": \"6 hours\",
+              \"name\": \"Delicate Arch Hike\",
+              \"permitRequired\": true,
+              \"type\": \"Hiking\",
+              \"permitDetails\": \"Timed entry permit required.\"
+            }
+          ],
+          \"day\": 7,
+          \"description\": \"Hike to Delicate Arch in Arches National Park.\",
+          \"title\": \"Arches National Park\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Hike in the La Sal Mountains, exploring high-altitude trails and practicing Leave No Trace principles.\",
+              \"duration\": \"7 hours\",
+              \"name\": \"Hiking in La Sals\",
+              \"permitRequired\": false,
+              \"type\": \"Hiking\"
+            }
+          ],
+          \"day\": 8,
+          \"description\": \"Day trip to the La Sal Mountains for hiking.\",
+          \"title\": \"La Sal Mountains Day Trip\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Ride the Slickrock Trail, focusing on responsible trail use and respecting the natural terrain.\",
+              \"duration\": \"4 hours\",
+              \"name\": \"Slickrock Trail\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\"
+            }
+          ],
+          \"day\": 9,
+          \"description\": \"Mountain biking on the Slickrock Trail.\",
+          \"title\": \"Mountain Biking\"
+        },
+        {
+          \"activities\": [
+            {
+              \"description\": \"Departure from Moab.\",
+              \"duration\": \"2 hours\",
+              \"name\": \"Departure\",
+              \"permitRequired\": false,
+              \"type\": \"Transportation\"
+            }
+          ],
+          \"day\": 10,
+          \"description\": \"Departure from Moab.\",
+          \"title\": \"Departure from Moab\"
+        }
+      ],
+      \"journey\": {
+        \"bounds\": [
+          [
+            38.5733,
+            -109.5498
+          ]
+        ],
+        \"segments\": [
+          {
+            \"distance\": 200000.0,
+            \"duration\": 7200.0,
+            \"from\": \"Moab\",
+            \"geometry\": {
+              \"coordinates\": [
+                [
+                  38.5733,
+                  -109.5498
+                ]
+              ]
+            },
+            \"mode\": \"cycling\",
+            \"to\": \"White Rim Road\",
+            \"description\": \"Bike ride from Moab to White Rim Road\",
+            \"elevationGain\": 1000.0,
+            \"steps\": [
+              {
+                \"distance\": 100000.0,
+                \"duration\": 3600.0,
+                \"maneuver\": {
+                  \"instruction\": \"Head west on White Rim Road\",
+                  \"location\": [
+                    -109.5498
+                  ]
+                }
+              },
+              {
+                \"distance\": 100000.0,
+                \"duration\": 3600.0,
+                \"maneuver\": {
+                  \"instruction\": \"Continue on White Rim Road\",
+                  \"location\": [
+                    -109.5498
+                  ]
+                }
+              }
+            ],
+            \"terrain\": \"trail\"
+          }
+        ],
+        \"totalDistance\": 200000.0,
+        \"totalDuration\": 7200.0
+      },
+      \"location\": \"Canyonlands Area\",
+      \"mapCenter\": {
+        \"lat\": 38.5733,
+        \"lng\": -109.5498
+      },
+      \"markers\": [
+        {
+          \"coordinates\": {
+            \"lat\": 38.5733,
+            \"lng\": -109.5498
+          },
+          \"description\": \"Starting point of the trip.\",
+          \"name\": \"Moab\",
+          \"details\": \"Initial gear check and exploration.\"
+        },
+        {
+          \"coordinates\": {
+            \"lat\": 38.3962,
+            \"lng\": -109.8679
+          },
+          \"description\": \"Iconic Canyonlands hiking trail.\",
+          \"name\": \"Mesa Arch\",
+          \"elevation\": \"6000 ft\"
+        }
+      ],
+      \"priceEstimate\": 3000.0,
+      \"suggestedGuides\": [
+        \"Certified Bike Mechanic\",
+        \"Wilderness First Responder\"
+      ],
+      \"title\": \"Canyonlands Active Tour\",
+      \"whyWeChoseThis\": \"This itinerary is designed for adventurous travelers seeking a challenging experience with a focus on remote exploration, self-sufficiency, and minimal environmental impact.\"
+    }
+  ]
+}"""),
+            ],
+        ),
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text="""INSERT_INPUT_HERE"""),
+            ],
+        ),
+    ]
+    generate_content_config = types.GenerateContentConfig(
+        temperature=0.75,
+        response_mime_type="application/json",
+        response_schema=genai.types.Schema(
+            type = genai.types.Type.OBJECT,
+            required = ["trip"],
+            properties = {
+                "trip": genai.types.Schema(
+                    type = genai.types.Type.ARRAY,
+                    description = "List of trip recommendations",
+                    items = genai.types.Schema(
+                        type = genai.types.Type.OBJECT,
+                        required = ["id", "title", "description", "whyWeChoseThis", "difficultyLevel", "priceEstimate", "duration", "location", "suggestedGuides", "mapCenter", "markers", "journey", "itinerary"],
+                        properties = {
+                            "id": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Unique identifier for the trip",
+                            ),
+                            "title": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Title of the trip",
+                            ),
+                            "journey": genai.types.Schema(
+                                type = genai.types.Type.OBJECT,
+                                description = "Journey details for the trip",
+                                required = ["segments", "totalDistance", "totalDuration", "bounds"],
+                                properties = {
+                                    "bounds": genai.types.Schema(
+                                        type = genai.types.Type.ARRAY,
+                                        description = "Bounding box for the journey [southwest, northeast]",
+                                        items = genai.types.Schema(
+                                            type = genai.types.Type.ARRAY,
+                                            description = "Coordinate pair [longitude, latitude]",
+                                            items = genai.types.Schema(
+                                                type = genai.types.Type.NUMBER,
+                                            ),
+                                        ),
+                                    ),
+                                    "segments": genai.types.Schema(
+                                        type = genai.types.Type.ARRAY,
+                                        description = "Segments of the journey",
+                                        items = genai.types.Schema(
+                                            type = genai.types.Type.OBJECT,
+                                            required = ["mode", "from", "to", "distance", "duration", "geometry"],
+                                            properties = {
+                                                "to": genai.types.Schema(
+                                                    type = genai.types.Type.STRING,
+                                                    description = "Ending point for this segment",
+                                                ),
+                                                "from": genai.types.Schema(
+                                                    type = genai.types.Type.STRING,
+                                                    description = "Starting point for this segment",
+                                                ),
+                                                "mode": genai.types.Schema(
+                                                    type = genai.types.Type.STRING,
+                                                    description = "Mode of transportation for this segment",
+                                                    enum = ["walking", "driving", "cycling", "transit"],
+                                                ),
+                                                "steps": genai.types.Schema(
+                                                    type = genai.types.Type.ARRAY,
+                                                    description = "Steps within this segment",
+                                                    items = genai.types.Schema(
+                                                        type = genai.types.Type.OBJECT,
+                                                        required = ["maneuver", "distance", "duration"],
+                                                        properties = {
+                                                            "distance": genai.types.Schema(
+                                                                type = genai.types.Type.NUMBER,
+                                                                description = "Distance in meters",
+                                                            ),
+                                                            "duration": genai.types.Schema(
+                                                                type = genai.types.Type.NUMBER,
+                                                                description = "Duration in seconds",
+                                                            ),
+                                                            "maneuver": genai.types.Schema(
+                                                                type = genai.types.Type.OBJECT,
+                                                                required = ["instruction", "location"],
+                                                                properties = {
+                                                                    "location": genai.types.Schema(
+                                                                        type = genai.types.Type.ARRAY,
+                                                                        description = "Location coordinates [longitude, latitude]",
+                                                                        items = genai.types.Schema(
+                                                                            type = genai.types.Type.NUMBER,
+                                                                        ),
+                                                                    ),
+                                                                    "instruction": genai.types.Schema(
+                                                                        type = genai.types.Type.STRING,
+                                                                        description = "Instruction for this step",
+                                                                    ),
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
+                                                ),
+                                                "terrain": genai.types.Schema(
+                                                    type = genai.types.Type.STRING,
+                                                    description = "Type of terrain for this segment",
+                                                    enum = ["trail", "paved", "rocky", "mixed"],
+                                                ),
+                                                "distance": genai.types.Schema(
+                                                    type = genai.types.Type.NUMBER,
+                                                    description = "Distance in meters",
+                                                ),
+                                                "duration": genai.types.Schema(
+                                                    type = genai.types.Type.NUMBER,
+                                                    description = "Duration in seconds",
+                                                ),
+                                                "geometry": genai.types.Schema(
+                                                    type = genai.types.Type.OBJECT,
+                                                    description = "Geometry of the route",
+                                                    required = ["coordinates"],
+                                                    properties = {
+                                                        "coordinates": genai.types.Schema(
+                                                            type = genai.types.Type.ARRAY,
+                                                            description = "Array of coordinate pairs for the route",
+                                                            items = genai.types.Schema(
+                                                                type = genai.types.Type.ARRAY,
+                                                                description = "Coordinate pair [longitude, latitude]",
+                                                                items = genai.types.Schema(
+                                                                    type = genai.types.Type.NUMBER,
+                                                                ),
+                                                            ),
+                                                        ),
+                                                    },
+                                                ),
+                                                "description": genai.types.Schema(
+                                                    type = genai.types.Type.STRING,
+                                                    description = "Description of this segment",
+                                                ),
+                                                "elevationGain": genai.types.Schema(
+                                                    type = genai.types.Type.NUMBER,
+                                                    description = "Elevation gain in meters",
+                                                ),
+                                            },
+                                        ),
+                                    ),
+                                    "totalDistance": genai.types.Schema(
+                                        type = genai.types.Type.NUMBER,
+                                        description = "Total distance of the journey in meters",
+                                    ),
+                                    "totalDuration": genai.types.Schema(
+                                        type = genai.types.Type.NUMBER,
+                                        description = "Total duration of the journey in seconds",
+                                    ),
+                                },
+                            ),
+                            "markers": genai.types.Schema(
+                                type = genai.types.Type.ARRAY,
+                                description = "Points of interest for the trip",
+                                items = genai.types.Schema(
+                                    type = genai.types.Type.OBJECT,
+                                    required = ["name", "coordinates", "description"],
+                                    properties = {
+                                        "name": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Name of the point of interest",
+                                        ),
+                                        "details": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Additional details about the location",
+                                        ),
+                                        "elevation": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Optional elevation information in feet",
+                                        ),
+                                        "coordinates": genai.types.Schema(
+                                            type = genai.types.Type.OBJECT,
+                                            description = "Coordinates of the point of interest",
+                                            required = ["lng", "lat"],
+                                            properties = {
+                                                "lat": genai.types.Schema(
+                                                    type = genai.types.Type.NUMBER,
+                                                    description = "Latitude of the point of interest",
+                                                ),
+                                                "lng": genai.types.Schema(
+                                                    type = genai.types.Type.NUMBER,
+                                                    description = "Longitude of the point of interest",
+                                                ),
+                                            },
+                                        ),
+                                        "description": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Description of the location",
+                                        ),
+                                    },
+                                ),
+                            ),
+                            "duration": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Duration of the trip, e.g., '3 days'",
+                            ),
+                            "location": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Destination of the trip",
+                            ),
+                            "itinerary": genai.types.Schema(
+                                type = genai.types.Type.ARRAY,
+                                description = "Daily itinerary for the trip",
+                                items = genai.types.Schema(
+                                    type = genai.types.Type.OBJECT,
+                                    required = ["day", "title", "description", "activities"],
+                                    properties = {
+                                        "day": genai.types.Schema(
+                                            type = genai.types.Type.INTEGER,
+                                            description = "Day number in the itinerary",
+                                        ),
+                                        "title": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Title for this day",
+                                        ),
+                                        "activities": genai.types.Schema(
+                                            type = genai.types.Type.ARRAY,
+                                            description = "Activities for this day",
+                                            items = genai.types.Schema(
+                                                type = genai.types.Type.OBJECT,
+                                                required = ["name", "type", "duration", "description", "permitRequired"],
+                                                properties = {
+                                                    "name": genai.types.Schema(
+                                                        type = genai.types.Type.STRING,
+                                                        description = "Name of the activity",
+                                                    ),
+                                                    "type": genai.types.Schema(
+                                                        type = genai.types.Type.STRING,
+                                                        description = "Type of activity",
+                                                        enum = ["Hiking", "Sightseeing", "Dining", "Accommodation", "Transportation"],
+                                                    ),
+                                                    "duration": genai.types.Schema(
+                                                        type = genai.types.Type.STRING,
+                                                        description = "Duration of the activity in human-readable format",
+                                                    ),
+                                                    "outfitters": genai.types.Schema(
+                                                        type = genai.types.Type.ARRAY,
+                                                        description = "Recommended outfitters for this activity",
+                                                        items = genai.types.Schema(
+                                                            type = genai.types.Type.STRING,
+                                                        ),
+                                                    ),
+                                                    "description": genai.types.Schema(
+                                                        type = genai.types.Type.STRING,
+                                                        description = "Description of the activity",
+                                                    ),
+                                                    "permitDetails": genai.types.Schema(
+                                                        type = genai.types.Type.STRING,
+                                                        description = "Details about required permits",
+                                                    ),
+                                                    "permitRequired": genai.types.Schema(
+                                                        type = genai.types.Type.BOOLEAN,
+                                                        description = "Whether a permit is required for this activity",
+                                                    ),
+                                                },
+                                            ),
+                                        ),
+                                        "description": genai.types.Schema(
+                                            type = genai.types.Type.STRING,
+                                            description = "Overview of this day's activities",
+                                        ),
+                                    },
+                                ),
+                            ),
+                            "mapCenter": genai.types.Schema(
+                                type = genai.types.Type.OBJECT,
+                                description = "Center coordinates for the trip map",
+                                required = ["lng", "lat"],
+                                properties = {
+                                    "lat": genai.types.Schema(
+                                        type = genai.types.Type.NUMBER,
+                                        description = "Latitude of the map center",
+                                    ),
+                                    "lng": genai.types.Schema(
+                                        type = genai.types.Type.NUMBER,
+                                        description = "Longitude of the map center",
+                                    ),
+                                },
+                            ),
+                            "description": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Brief description of the trip",
+                            ),
+                            "priceEstimate": genai.types.Schema(
+                                type = genai.types.Type.NUMBER,
+                                description = "Estimated price of the trip",
+                            ),
+                            "whyWeChoseThis": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Explanation of why this adventure matches the user's request",
+                            ),
+                            "difficultyLevel": genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                                description = "Difficulty level of the trip",
+                                enum = ["Easy", "Moderate", "Challenging", "Difficult", "Expert"],
+                            ),
+                            "suggestedGuides": genai.types.Schema(
+                                type = genai.types.Type.ARRAY,
+                                description = "List of recommended guides for the trip",
+                                items = genai.types.Schema(
+                                    type = genai.types.Type.STRING,
+                                ),
+                            ),
+                        },
+                    ),
+                ),
+            },
+        ),
+        system_instruction=[
+            types.Part.from_text(text="""You are an outdoor activity planning assistant. Provide two eco/local-friendly trip options to lesser-known destinations in valid JSON format.
+
+Analyze user prompts for destination, activities, duration, budget, intensity level, and special requirements.
+
+- Prioritize off-the-beaten-path locations and local operators
+- Consider shoulder-season times
+- Consider congestion
+- Consider preparedness
+- Activities and Itineraries need to consider the time it will take to do that activity, time of day, if you need to camp, and how long to get back. """),
+        ],
+    )
+
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        print(chunk.text, end="")
+
+if __name__ == "__main__":
+    generate()
