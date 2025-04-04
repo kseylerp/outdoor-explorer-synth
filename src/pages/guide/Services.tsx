@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,16 @@ const Services: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [activeTab, setActiveTab] = useState<string>("services");
+  const [formData, setFormData] = useState<Omit<Service, 'service_id'>>({
+    guide_id: '',
+    guide_name: '',
+    services: '',
+    location: '',
+    years_of_experience: '',
+    bio: '',
+    languages: [],
+    certifications: ''
+  });
 
   useEffect(() => {
     fetchServices();
@@ -52,23 +61,32 @@ const Services: React.FC = () => {
     }
   };
 
-  const handleAddService = async (formData: ServiceFormValues) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleLanguagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const languagesArray = e.target.value.split(',').map(lang => lang.trim());
+    setFormData({ ...formData, languages: languagesArray });
+  };
+
+  const handleAddService = async (serviceData: ServiceFormValues) => {
     try {
-      // Ensure all required fields are present with proper types
-      const serviceData = {
-        guide_id: formData.guide_id || `guide_${Date.now()}`,
-        guide_name: formData.guide_name || '',
-        services: formData.services || '',
-        location: formData.location || '',
-        years_of_experience: formData.years_of_experience || '',
-        bio: formData.bio || '',
-        languages: formData.languages || [],
-        certifications: formData.certifications || ''
+      const newServiceData = {
+        guide_id: serviceData.guide_id || `guide_${Date.now()}`,
+        guide_name: serviceData.guide_name || '',
+        services: serviceData.services || '',
+        location: serviceData.location || '',
+        years_of_experience: serviceData.years_of_experience || '',
+        bio: serviceData.bio || '',
+        languages: serviceData.languages || [],
+        certifications: serviceData.certifications || ''
       };
       
       const { data, error } = await supabase
         .from('guide_services')
-        .insert([serviceData])
+        .insert([newServiceData])
         .select();
 
       if (error) throw error;
@@ -80,6 +98,16 @@ const Services: React.FC = () => {
         description: 'New service added successfully',
       });
       
+      setFormData({
+        guide_id: '',
+        guide_name: '',
+        services: '',
+        location: '',
+        years_of_experience: '',
+        bio: '',
+        languages: [],
+        certifications: ''
+      });
       setActiveTab("services");
     } catch (error) {
       console.error('Error saving service:', error);
@@ -91,31 +119,30 @@ const Services: React.FC = () => {
     }
   };
 
-  const handleUpdateService = async (formData: ServiceFormValues) => {
+  const handleUpdateService = async (serviceData: ServiceFormValues) => {
     if (!editingService) return;
     
     try {
-      // Ensure all required fields are present with proper types
-      const serviceData = {
-        guide_id: formData.guide_id || editingService.guide_id,
-        guide_name: formData.guide_name || '',
-        services: formData.services || '',
-        location: formData.location || '',
-        years_of_experience: formData.years_of_experience || '',
-        bio: formData.bio || '',
-        languages: formData.languages || [],
-        certifications: formData.certifications || ''
+      const updatedServiceData = {
+        guide_id: serviceData.guide_id || editingService.guide_id,
+        guide_name: serviceData.guide_name || '',
+        services: serviceData.services || '',
+        location: serviceData.location || '',
+        years_of_experience: serviceData.years_of_experience || '',
+        bio: serviceData.bio || '',
+        languages: serviceData.languages || [],
+        certifications: serviceData.certifications || ''
       };
       
       const { error } = await supabase
         .from('guide_services')
-        .update(serviceData)
+        .update(updatedServiceData)
         .eq('service_id', editingService.service_id);
 
       if (error) throw error;
       
       setServices(services.map(service => 
-        service.service_id === editingService.service_id ? { ...service, ...serviceData } : service
+        service.service_id === editingService.service_id ? { ...service, ...updatedServiceData } : service
       ));
       
       toast({
@@ -124,6 +151,16 @@ const Services: React.FC = () => {
       });
       
       setEditingService(null);
+      setFormData({
+        guide_id: '',
+        guide_name: '',
+        services: '',
+        location: '',
+        years_of_experience: '',
+        bio: '',
+        languages: [],
+        certifications: ''
+      });
       setActiveTab("services");
     } catch (error) {
       console.error('Error updating service:', error);
@@ -137,6 +174,16 @@ const Services: React.FC = () => {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+    setFormData({
+      guide_id: service.guide_id,
+      guide_name: service.guide_name,
+      services: service.services,
+      location: service.location,
+      years_of_experience: service.years_of_experience,
+      bio: service.bio,
+      languages: service.languages,
+      certifications: service.certifications || ''
+    });
     setActiveTab("edit");
   };
 
@@ -167,6 +214,16 @@ const Services: React.FC = () => {
 
   const handleCancel = () => {
     setEditingService(null);
+    setFormData({
+      guide_id: '',
+      guide_name: '',
+      services: '',
+      location: '',
+      years_of_experience: '',
+      bio: '',
+      languages: [],
+      certifications: ''
+    });
     setActiveTab("services");
   };
 
@@ -225,6 +282,10 @@ const Services: React.FC = () => {
         
         <TabsContent value="add">
           <ServiceForm 
+            formData={formData}
+            editingId={null}
+            onInputChange={handleInputChange}
+            onLanguagesChange={handleLanguagesChange}
             onSubmit={handleAddService}
             onCancel={handleCancel}
           />
@@ -233,10 +294,13 @@ const Services: React.FC = () => {
         <TabsContent value="edit">
           {editingService && (
             <ServiceForm 
-              defaultValues={editingService}
+              formData={formData}
+              editingId={editingService.service_id}
+              onInputChange={handleInputChange}
+              onLanguagesChange={handleLanguagesChange}
               onSubmit={handleUpdateService}
               onCancel={handleCancel}
-              isEditing
+              isEditing={true}
             />
           )}
         </TabsContent>

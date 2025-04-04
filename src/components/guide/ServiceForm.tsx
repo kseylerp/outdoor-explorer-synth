@@ -2,6 +2,7 @@
 import React from 'react';
 import ServiceFormFields from './ServiceFormFields';
 import ServiceFormActions from './ServiceFormActions';
+import { ServiceFormValues } from './ServiceFormSchema';
 
 interface Service {
   service_id: string;
@@ -20,8 +21,10 @@ interface ServiceFormProps {
   editingId: string | null;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onLanguagesChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (formData: ServiceFormValues) => void;
   onCancel: () => void;
+  isEditing?: boolean;
+  defaultValues?: Service;
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -30,10 +33,27 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   onInputChange,
   onLanguagesChange,
   onSubmit,
-  onCancel
+  onCancel,
+  isEditing = false
 }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Convert formData to ServiceFormValues type
+    const serviceData: ServiceFormValues = {
+      guide_id: formData.guide_id,
+      guide_name: formData.guide_name,
+      services: formData.services,
+      location: formData.location,
+      years_of_experience: formData.years_of_experience,
+      bio: formData.bio,
+      languages: formData.languages,
+      certifications: formData.certifications
+    };
+    onSubmit(serviceData);
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4 border p-6 rounded-lg">
+    <form onSubmit={handleSubmit} className="space-y-4 border p-6 rounded-lg">
       <h3 className="text-xl font-medium mb-4">
         {editingId ? 'Edit Service' : 'Add New Service'}
       </h3>
@@ -45,7 +65,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
       />
       
       <ServiceFormActions 
-        isEditing={!!editingId}
+        isEditing={!!editingId || isEditing}
         onCancel={onCancel}
       />
     </form>
