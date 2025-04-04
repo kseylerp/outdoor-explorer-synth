@@ -85,7 +85,7 @@ const RouteLayer: React.FC<RouteLayerProps> = ({ map, journey }) => {
   return (
     <JourneyBounds 
       map={map} 
-      bounds={journey.bounds} 
+      journey={journey} 
     />
   );
 };
