@@ -8,8 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Get the API key from environment variables - add fallback for development
-const geminiApiKey = Deno.env.get('YUGEN_TO_GEMINI_API_KEY') || 'demo_api_key_for_dev';
+// Get the API key from environment variables
+const geminiApiKey = Deno.env.get('YUGEN_TO_GEMINI_API_KEY');
 const geminiApiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
 
 // Handle CORS preflight requests
@@ -140,10 +140,9 @@ async function callGeminiApi(prompt: string) {
   try {
     console.log("Calling Gemini API with prompt:", prompt);
     
-    if (!geminiApiKey || geminiApiKey === 'demo_api_key_for_dev') {
-      console.error("Gemini API key not properly configured");
-      // Return mock data instead of throwing an error for development
-      return getMockResponse();
+    if (!geminiApiKey) {
+      console.error("Gemini API key not configured");
+      throw new Error("API_KEY_MISSING: Gemini API key is not configured. Please set the YUGEN_TO_GEMINI_API_KEY secret in your Supabase project.");
     }
     
     const payload = createGeminiRequestPayload(prompt);
@@ -172,114 +171,6 @@ async function callGeminiApi(prompt: string) {
     console.error("Gemini API call failed:", error);
     throw error;
   }
-}
-
-// Function to generate mock data for development when API key is missing
-function getMockResponse() {
-  console.log("Returning mock trip data for development");
-  
-  const thinkingSteps = getThinkingSteps();
-  
-  // Create mock trip data
-  const mockTripData = {
-    trip: [
-      {
-        id: "denali-adventure-1",
-        title: "Denali Family Adventure: Biking, Hiking & Rafting",
-        description: "A 10-day adventure exploring the Denali region through diverse activities suitable for families with older children.",
-        whyWeChoseThis: "This balanced itinerary combines biking, hiking and rafting at a moderate pace appropriate for a 12-year-old while still offering exciting challenges for adults.",
-        difficultyLevel: "Moderate",
-        priceEstimate: 4800,
-        duration: "10 days",
-        location: "Denali National Park, Alaska",
-        suggestedGuides: ["Denali Adventure Tours", "Alaska Wildland Adventures"],
-        mapCenter: {
-          lng: -149.7642,
-          lat: 63.1148
-        },
-        markers: [
-          {
-            name: "Denali National Park Visitor Center",
-            coordinates: {
-              lng: -149.5946,
-              lat: 63.7339
-            },
-            description: "Starting point for your Denali adventure"
-          },
-          {
-            name: "Savage River Loop Trail",
-            coordinates: {
-              lng: -149.6523,
-              lat: 63.7405
-            },
-            description: "Family-friendly hiking trail with mountain views"
-          }
-        ],
-        journey: {
-          segments: [
-            {
-              mode: "driving",
-              from: "Anchorage",
-              to: "Denali National Park",
-              distance: 383000,
-              duration: 18000,
-              geometry: {
-                coordinates: [[-149.8948, 61.2176], [-149.7642, 63.1148]]
-              },
-              description: "Scenic drive from Anchorage to Denali"
-            }
-          ],
-          totalDistance: 383000,
-          totalDuration: 18000,
-          bounds: [[-149.8948, 61.2176], [-149.5946, 63.7405]]
-        },
-        itinerary: [
-          {
-            day: 1,
-            title: "Arrival & Park Introduction",
-            description: "Arrive in Anchorage, collect rental vehicle and drive to Denali.",
-            activities: [
-              {
-                name: "Drive to Denali National Park",
-                type: "Transportation",
-                duration: "4-5 hours",
-                description: "Scenic drive from Anchorage to Denali National Park",
-                permitRequired: false
-              },
-              {
-                name: "Denali Visitor Center",
-                type: "Sightseeing",
-                duration: "1-2 hours",
-                description: "Visit the main visitor center to get oriented and learn about the park",
-                permitRequired: false
-              }
-            ]
-          },
-          {
-            day: 2,
-            title: "Family Mountain Biking",
-            description: "Enjoy a guided family-friendly mountain biking experience on beginner trails.",
-            activities: [
-              {
-                name: "Guided Mountain Biking Tour",
-                type: "Hiking",
-                duration: "3-4 hours",
-                description: "Easy to moderate trails suitable for beginners and the 12-year-old",
-                permitRequired: false,
-                outfitters: ["Denali Mountain Biking", "Alaska Bike Adventures"]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  
-  return {
-    thinking: thinkingSteps,
-    tripData: mockTripData,
-    rawResponse: "Mock response for development (API key not configured)"
-  };
 }
 
 // Extract JSON from various formats in the Gemini response

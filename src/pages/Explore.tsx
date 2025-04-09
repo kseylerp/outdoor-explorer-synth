@@ -10,8 +10,9 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Settings, AlertOctagon } from 'lucide-react';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -50,143 +51,169 @@ const Explore: React.FC = () => {
       console.info(`Submitting prompt to generate trips with ${aiModel}: ${prompt}`);
       const result = await generateTrips(prompt, (thinkingSteps) => {
         setThinking(thinkingSteps);
+        setShowThinking(true);
       });
       
-      // Log full response data for debugging
-      console.info(`Received ${result.length} trips from ${aiModel} API`);
-      if (result.length > 0) {
-        console.info('First trip data sample:', JSON.stringify(result[0]).substring(0, 300) + '...');
+      if (result.length === 0) {
+        throw new Error("No trip recommendations were generated. Please try again or use a different prompt.");
       }
       
       setTrips(result);
+    } catch (error) {
+      console.error('Error processing prompt:', error);
       
-      if (thinking && thinking.length > 0) {
-        setShowThinking(true);
-      }
+      const errorMessage = error instanceof Error ? error.message : String(error);
       
-      if (result.length === 0) {
-        setError("No trips found for your request. Try a different prompt.");
-      }
-    } catch (err) {
-      console.error("Error generating trips:", err);
-      
-      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
-      setError(errorMessage);
-      
-      // Capture detailed error information for debugging
-      if (errorMessage.includes("|")) {
+      // Check for specific API_KEY_MISSING error
+      if (errorMessage.includes('API_KEY_MISSING')) {
+        const modelName = aiModel === 'claude' ? 'Claude (Anthropic)' : 'Gemini (Google)';
+        setError(`${modelName} API key is not configured`);
+        setErrorDetails(`This application requires a valid API key to generate trip recommendations. Please contact the administrator to set up the ${modelName} API key in the Supabase project settings.`);
+      } else if (errorMessage.includes("|")) {
+        // Split error message if it contains details
         const [mainError, details] = errorMessage.split("|", 2);
         setError(mainError.trim());
         setErrorDetails(details.trim());
+      } else {
+        setError(errorMessage);
       }
-      
-      toast({
-        title: "Error",
-        description: errorMessage.split("|")[0], // Only show main error in toast
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewTrip = (tripId: string) => {
-    navigate(`/trip/${tripId}`);
+  const handleRetry = () => {
+    // Switch AI models if error occurred
+    if (error && error.includes('API key')) {
+      const newModel = aiModel === 'claude' ? 'gemini' : 'claude';
+      localStorage.setItem('preferredAiModel', newModel);
+      setAiModel(newModel);
+      toast({
+        title: `Switched to ${newModel === 'claude' ? 'Claude' : 'Gemini'} model`,
+        description: `Trying with ${newModel === 'claude' ? 'Claude' : 'Gemini'} instead.`,
+      });
+    }
   };
 
-  const toggleThinking = () => {
-    setShowThinking(prev => !prev);
+  const handleSaveTrip = (trip: Trip) => {
+    try {
+      // Get existing saved trips or initialize empty array
+      const savedTripsJson = localStorage.getItem('savedTrips') || '[]';
+      const savedTrips = JSON.parse(savedTripsJson);
+      
+      // Check if already saved
+      if (savedTrips.some((saved: Trip) => saved.id === trip.id)) {
+        toast({
+          title: "Already saved",
+          description: "This trip is already in your saved collection",
+        });
+        return;
+      }
+      
+      // Add to saved trips
+      savedTrips.push(trip);
+      localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+      
+      toast({
+        title: "Trip saved!",
+        description: "This adventure has been added to your saved trips",
+      });
+    } catch (error) {
+      console.error('Error saving trip:', error);
+      toast({
+        title: "Error saving trip",
+        description: "Could not save this adventure. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl pb-32">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-purple-800">Explore Adventures</h1>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500 hidden md:inline">
-            AI Model: {aiModel === 'claude' ? 'Claude' : 'Gemini'}
-          </span>
-          <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link to="/settings">
-              <Settings size={16} className="mr-1" />
-              AI Settings
-            </Link>
-          </Button>
-        </div>
+    <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Let's find an <span className="offbeat-gradient">offbeat</span> adventure
+        </h1>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Powered by local guides: explore, plan, and experience better trips
+        </p>
       </div>
-      
-      {thinking && thinking.length > 0 && (
-        <div className="mb-4">
-          <button 
-            onClick={toggleThinking}
-            className="text-sm text-purple-600 hover:text-purple-800 underline flex items-center"
-          >
-            {showThinking ? "Hide AI thinking process" : "Show AI thinking process"}
-          </button>
-        </div>
+
+      <div className="mb-6 flex justify-end">
+        <Button 
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1.5"
+          onClick={() => navigate('/settings')}
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </Button>
+      </div>
+
+      {error && error.includes('API key') && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertOctagon className="h-4 w-4" />
+          <AlertTitle>API Configuration Required</AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">The {aiModel === 'claude' ? 'Claude' : 'Gemini'} API key is not configured.</p>
+            <p>This app requires a valid API key to generate trip recommendations. Please contact the administrator to set up the API keys in the Supabase project.</p>
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRetry}
+              >
+                Try with {aiModel === 'claude' ? 'Gemini' : 'Claude'} instead
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
-      
-      <ThinkingDisplay thinkingSteps={thinking} isVisible={showThinking} />
-      
-      {loading && (
-        <LoadingSpinner message={`Generating adventure recommendations with ${aiModel === 'claude' ? 'Claude' : 'Gemini'}...`} />
-      )}
-      
-      {error && !loading && (
+
+      <div className="mb-8">
+        <PromptInput 
+          onSubmit={handlePromptSubmit} 
+          isProcessing={loading} 
+          defaultValue=""
+          placeholder="Tell us about your dream trip. For example: A 5-day moderate hiking trip near Portland with waterfall views and minimal crowds"
+        />
+      </div>
+
+      {error && !error.includes('API key') && (
         <ApiConnectionError 
           customMessage={error}
           errorDetails={errorDetails || undefined}
-          onRetry={() => setError(null)}
+          onRetry={() => handlePromptSubmit('')}
         />
       )}
-      
-      {!loading && !error && trips.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-6">Recommended Adventures</h2>
-          
-          <div className="space-y-8">
-            {trips.map((trip, index) => (
-              <div key={trip.id || index} className="relative">
-                {trips.length > 1 && (
-                  <div className="absolute -top-4 -left-2 z-10">
-                    <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
-                      Option {index + 1}
-                    </span>
-                  </div>
-                )}
-                <TripCard 
-                  trip={trip} 
-                  onExpand={() => handleViewTrip(trip.id)}
-                />
-              </div>
-            ))}
-          </div>
-          
-          {/* Display model info */}
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>These adventures were generated by {aiModel === 'claude' ? 'Claude AI' : 'Google Gemini'}</p>
-          </div>
+
+      {loading && (
+        <div className="mb-8">
+          <LoadingSpinner />
+          {thinking && thinking.length > 0 && <ThinkingDisplay thinkingSteps={thinking} isVisible={showThinking} />}
         </div>
       )}
-      
-      {!loading && !error && trips.length === 0 && (
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-medium text-gray-700 mb-4">No adventures yet</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Enter a prompt above to generate personalized adventure recommendations.
-            Try something like "4-day hiking trip in Grand Canyon" or "Weekend kayaking adventure in Seattle".
-          </p>
+
+      {trips.length > 0 && (
+        <div className="space-y-8">
+          {trips.map((trip, index) => (
+            <div key={trip.id || `trip-${index}`} className="relative">
+              {trips.length > 1 && (
+                <div className="absolute -top-4 -left-2 z-10">
+                  <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
+                    Option {index + 1}
+                  </span>
+                </div>
+              )}
+              <TripCard 
+                trip={trip}
+                onSave={() => handleSaveTrip(trip)}
+              />
+            </div>
+          ))}
         </div>
       )}
-      
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50">
-        <div className="container mx-auto max-w-6xl">
-          <PromptInput 
-            onSubmit={handlePromptSubmit} 
-            isProcessing={loading} 
-          />
-        </div>
-      </div>
     </div>
   );
 };
