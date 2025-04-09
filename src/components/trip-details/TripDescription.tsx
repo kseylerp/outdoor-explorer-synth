@@ -19,8 +19,12 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
   if (compact) {
     return (
       <div>
-        <h4 className="text-[14px] font-bold text-purple-700">Why we chose this</h4>
-        <p className="text-sm text-gray-600 line-clamp-3">{whyWeChoseThis}</p>
+        {whyWeChoseThis && (
+          <>
+            <h4 className="text-[14px] font-bold text-purple-700">Why we chose this</h4>
+            <p className="text-sm text-gray-600 line-clamp-3">{whyWeChoseThis}</p>
+          </>
+        )}
         
         {suggestedGuides && suggestedGuides.length > 0 && (
           <div className="mt-2">
@@ -41,15 +45,19 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
   return (
     <div className="prose max-w-none mb-6">
       <h3 className="text-lg font-semibold">About This Trip</h3>
-      <p>{description || 'No description available'}</p>
+      {description ? (
+        <p>{description}</p>
+      ) : null}
       
-      <div className="bg-purple-50 p-4 rounded-md my-4 border-l-4 border-purple-300">
-        <h4 className="text-md font-semibold flex items-center gap-2 text-purple-800">
-          <Info className="h-4 w-4 text-purple-600" />
-          Why We Chose This
-        </h4>
-        <p className="text-sm">{whyWeChoseThis || 'No information available'}</p>
-      </div>
+      {whyWeChoseThis && (
+        <div className="bg-purple-50 p-4 rounded-md my-4 border-l-4 border-purple-300">
+          <h4 className="text-md font-semibold flex items-center gap-2 text-purple-800">
+            <Info className="h-4 w-4 text-purple-600" />
+            Why We Chose This
+          </h4>
+          <p className="text-sm">{whyWeChoseThis}</p>
+        </div>
+      )}
       
       {suggestedGuides && suggestedGuides.length > 0 && (
         <div className="mb-6">

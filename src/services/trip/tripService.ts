@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
 import { jsonToCoordinates, jsonToMarkers, jsonToJourney, jsonToItinerary } from "./tripMappers";
@@ -29,6 +28,9 @@ export const generateTrips = async (
       throw new Error("No data returned from the AI service");
     }
 
+    // Log the complete raw API response to see all available data
+    console.log("Complete AI API Response:", JSON.stringify(data, null, 2));
+
     // If the response contains an error object, throw it
     if (data.error) {
       console.error(`Error in ${edgeFunction} response:`, data);
@@ -45,7 +47,7 @@ export const generateTrips = async (
     
     // Check for raw response (debugging info)
     if (data.rawResponse) {
-      console.info("Raw response excerpt:", data.rawResponse);
+      console.info("Raw response:", data.rawResponse);
     }
     
     // Validate the structure of trips with detailed error messages
@@ -59,48 +61,9 @@ export const generateTrips = async (
       throw new Error("AI returned empty trip data: no trips were generated");
     }
     
-    // Verify all required trip fields exist
-    for (let i = 0; i < trips.length; i++) {
-      const trip = trips[i];
-      const missingFields = [];
-      
-      if (!trip.id) missingFields.push("id");
-      if (!trip.title) missingFields.push("title");
-      if (!trip.description) missingFields.push("description");
-      if (!trip.whyWeChoseThis) missingFields.push("whyWeChoseThis");
-      if (!trip.difficultyLevel) missingFields.push("difficultyLevel");
-      if (trip.priceEstimate === undefined) missingFields.push("priceEstimate");
-      if (!trip.duration) missingFields.push("duration");
-      if (!trip.location) missingFields.push("location");
-      if (!trip.mapCenter) missingFields.push("mapCenter");
-      if (!trip.itinerary) missingFields.push("itinerary");
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Trip at index ${i} is missing required fields: ${missingFields.join(", ")}`);
-      }
-      
-      // Process duration string to get number of days
-      const durationMatch = trip.duration.match(/(\d+)\s*days?/i);
-      const expectedDays = durationMatch ? parseInt(durationMatch[1]) : 0;
-      
-      // Check if all days are present in the itinerary
-      if (expectedDays > 0 && Array.isArray(trip.itinerary) && trip.itinerary.length < expectedDays) {
-        console.warn(
-          `Trip "${trip.title}" duration is ${trip.duration} but only has ${trip.itinerary.length} days in the itinerary. ` +
-          `This may indicate truncated output from the AI model.`
-        );
-        
-        // Ensure day numbers are consecutive
-        const existingDays = new Set(trip.itinerary.map(d => d.day));
-        for (let day = 1; day <= expectedDays; day++) {
-          if (!existingDays.has(day)) {
-            console.warn(`Day ${day} is missing from the itinerary.`);
-          }
-        }
-      }
-    }
+    // Log complete trip data to ensure we're capturing everything
+    console.log("Complete trip data from API:", JSON.stringify(trips, null, 2));
     
-    console.info(`Successfully generated ${trips.length} trips`);
     return trips;
   } catch (error) {
     console.error("Error generating trips:", error);

@@ -28,16 +28,8 @@ const TripCard: React.FC<TripCardProps> = ({
 }) => {
   const [isItineraryVisible, setIsItineraryVisible] = useState(expanded);
   
-  // Add console.log to debug trip data
-  console.log('TripCard rendering with trip:', trip);
-  console.log('Trip itinerary:', trip.itinerary);
-  
-  // Get the maximum day number to ensure we show all days
-  const maxDays = trip.itinerary && trip.itinerary.length > 0 
-    ? Math.max(...trip.itinerary.map(day => day.day))
-    : 0;
-  
-  console.log('Maximum days in itinerary:', maxDays);
+  // Log complete trip data to ensure we're using everything available
+  console.log('TripCard rendering with full trip data:', JSON.stringify(trip, null, 2));
   
   // Handle the click on the card while preventing it from affecting the itinerary expander
   const handleCardClick = (e: React.MouseEvent) => {

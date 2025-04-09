@@ -22,26 +22,6 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
     return `$${price.toLocaleString()}`;
   };
 
-  // Generate dynamic price breakdown from available data
-  const generatePriceBreakdown = () => {
-    if (priceDetails && Object.keys(priceDetails).length > 0) {
-      return Object.entries(priceDetails).map(([key, value], index) => (
-        <p key={index} className="text-sm text-gray-700">• {key}: {formatPrice(value)}</p>
-      ));
-    }
-
-    // Default breakdown if specific details aren't provided
-    return (
-      <>
-        <p className="text-sm text-gray-700">• Guide Services: ~$1,800</p>
-        <p className="text-sm text-gray-700">• Permits & Park Fees: ~$150</p>
-        <p className="text-sm text-gray-700">• Equipment Rental: ~$400</p>
-        <p className="text-sm text-gray-700">• Meals & Provisions: ~$350</p>
-        <p className="text-sm text-gray-700">• Transportation: ~$300</p>
-      </>
-    );
-  };
-
   return (
     <Card className="border border-purple-100">
       <CardContent className="pt-6">
@@ -65,16 +45,14 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
         
         <p className="text-2xl font-semibold mb-2">{formatPrice(totalPrice)}</p>
         
-        {!compact ? (
+        {!compact && priceDetails && Object.keys(priceDetails).length > 0 ? (
           <div className="text-sm text-gray-700 space-y-1">
-            {generatePriceBreakdown()}
+            {Object.entries(priceDetails).map(([key, value], index) => (
+              <p key={index} className="text-sm text-gray-700">• {key}: {formatPrice(value)}</p>
+            ))}
           </div>
         ) : (
           <p className="text-sm text-gray-500">Estimated total per person</p>
-        )}
-        
-        {!compact && (
-          <p className="text-sm text-gray-500 mt-2">Estimated total per person</p>
         )}
       </CardContent>
     </Card>
