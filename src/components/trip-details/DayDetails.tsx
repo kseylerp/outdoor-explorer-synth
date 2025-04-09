@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Coffee, Utensils, Home } from 'lucide-react';
+import { Calendar, Clock, Coffee, Utensils, Home, Map, AlertTriangle } from 'lucide-react';
 import { ItineraryDay } from '@/types/trips';
 import ActivityCard from './ActivityCard';
 
@@ -18,14 +18,16 @@ const DayDetails: React.FC<DayDetailsProps> = ({ day }) => {
         </div>
         <div>
           <h4 className="text-xl font-semibold mb-1 text-purple-800">{day.title || `Day ${day.day}`}</h4>
-          <Badge variant="outline" className="bg-purple-50 text-purple-700">
-            <Clock className="h-3 w-3 mr-1" /> {day.travelDuration || 'Full day'}
-          </Badge>
-          {day.travelMode && (
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 ml-2">
-              {day.travelMode}
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="bg-purple-50 text-purple-700">
+              <Clock className="h-3 w-3 mr-1" /> {day.travelDuration || 'Full day'}
             </Badge>
-          )}
+            {day.travelMode && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                {day.travelMode}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
       
@@ -93,6 +95,19 @@ const DayDetails: React.FC<DayDetailsProps> = ({ day }) => {
           </div>
         ) : (
           <p className="text-gray-500 text-center p-4">No activities available for this day.</p>
+        )}
+        
+        {/* Extra information about special considerations for this day */}
+        {day.activities.some(a => a.permitRequired) && (
+          <div className="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-100">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-700" />
+              <h5 className="text-md font-medium text-amber-800">Permit Information</h5>
+            </div>
+            <p className="text-sm text-gray-700 mt-1">
+              One or more activities today require permits. Check the activity details for more information.
+            </p>
+          </div>
         )}
       </div>
     </div>

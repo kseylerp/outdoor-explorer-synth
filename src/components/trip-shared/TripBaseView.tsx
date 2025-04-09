@@ -34,6 +34,9 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
             description={trip.description}
             whyWeChoseThis={trip.whyWeChoseThis}
             suggestedGuides={trip.suggestedGuides}
+            bestTimeToVisit={trip.bestTimeToVisit}
+            seasonalInfo={trip.weatherInfo}
+            highlights={trip.highlights}
             compact={compact}
           />
         </div>
@@ -47,7 +50,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
           />
           
           {/* Additional information that might be useful */}
-          {trip.bestTimeToVisit && (
+          {trip.bestTimeToVisit && !compact && (
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
               <h3 className="text-md font-semibold text-blue-900 mb-1">
                 Best Time to Visit
@@ -76,6 +79,30 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
                   <li key={index} className="text-sm text-gray-700">{item}</li>
                 ))}
               </ul>
+            </div>
+          )}
+          
+          {/* Local Tips section */}
+          {trip.localTips && trip.localTips.length > 0 && (
+            <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+              <h3 className="text-md font-semibold text-green-900 mb-2">
+                Local Tips
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                {trip.localTips.map((tip, index) => (
+                  <li key={index} className="text-sm text-gray-700">{tip}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {/* Safety Notes */}
+          {trip.safetyNotes && (
+            <div className="bg-red-50 rounded-lg p-4 border border-red-100">
+              <h3 className="text-md font-semibold text-red-900 mb-1">
+                Safety Notes
+              </h3>
+              <p className="text-gray-700">{trip.safetyNotes}</p>
             </div>
           )}
         </div>

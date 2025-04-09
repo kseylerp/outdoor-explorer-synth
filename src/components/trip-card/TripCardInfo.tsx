@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { CalendarClock, MapPin, Clock, HardHat, DollarSign, Calendar } from 'lucide-react';
 
 interface TripCardInfoProps {
   whyWeChoseThis: string;
@@ -8,6 +9,8 @@ interface TripCardInfoProps {
   location: string;
   difficultyLevel: string;
   suggestedGuides?: string[];
+  bestTimeToVisit?: string;
+  seasonalInfo?: string;
 }
 
 const TripCardInfo: React.FC<TripCardInfoProps> = ({
@@ -16,7 +19,9 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
   priceEstimate,
   location,
   difficultyLevel,
-  suggestedGuides
+  suggestedGuides,
+  bestTimeToVisit,
+  seasonalInfo
 }) => {
   // Format price as currency
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -29,23 +34,57 @@ const TripCardInfo: React.FC<TripCardInfoProps> = ({
     <div className="flex-1 space-y-3">
       {/* Trip Info Key Details */}
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div>
-          <span className="text-gray-600 block">Duration</span>
-          <span className="font-medium">{duration}</span>
+        <div className="flex items-start gap-1">
+          <Clock className="h-4 w-4 text-purple-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 block">Duration</span>
+            <span className="font-medium">{duration}</span>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-600 block">Est. Price</span>
-          <span className="font-medium">{formattedPrice}</span>
+        <div className="flex items-start gap-1">
+          <DollarSign className="h-4 w-4 text-purple-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 block">Est. Price</span>
+            <span className="font-medium">{formattedPrice}</span>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-600 block">Location</span>
-          <span className="font-medium">{location}</span>
+        <div className="flex items-start gap-1">
+          <MapPin className="h-4 w-4 text-purple-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 block">Location</span>
+            <span className="font-medium">{location}</span>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-600 block">Difficulty</span>
-          <span className="font-medium">{difficultyLevel}</span>
+        <div className="flex items-start gap-1">
+          <HardHat className="h-4 w-4 text-purple-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 block">Difficulty</span>
+            <span className="font-medium">{difficultyLevel}</span>
+          </div>
         </div>
       </div>
+      
+      {/* Best Time to Visit */}
+      {bestTimeToVisit && (
+        <div className="flex items-start gap-1 mt-3 pt-2 border-t border-gray-100">
+          <CalendarClock className="h-4 w-4 text-green-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 text-sm">Best Time to Visit</span>
+            <p className="text-sm">{bestTimeToVisit}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Seasonal Info */}
+      {seasonalInfo && (
+        <div className="flex items-start gap-1 mt-2">
+          <Calendar className="h-4 w-4 text-amber-600 mt-0.5" />
+          <div>
+            <span className="text-gray-600 text-sm">Seasonal Notes</span>
+            <p className="text-sm">{seasonalInfo}</p>
+          </div>
+        </div>
+      )}
       
       {/* Why We Chose This */}
       <div>
