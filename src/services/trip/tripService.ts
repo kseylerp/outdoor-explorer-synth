@@ -15,7 +15,7 @@ export const generateTrips = async (
     console.info(`Calling ${edgeFunction} edge function with prompt: ${prompt}`);
     
     const { data, error } = await supabase.functions.invoke(edgeFunction, {
-      body: { prompt },
+      body: { prompt, resultCount: 2 }, // Request 2 trip options
     });
 
     if (error) {

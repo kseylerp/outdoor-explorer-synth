@@ -102,7 +102,7 @@ const Index = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 break-words">
           Let's find an <span className="offbeat-gradient">offbeat</span> adventure
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -133,22 +133,24 @@ const Index = () => {
 
       {trips.length > 0 && (
         <div className="space-y-8">
-          {trips.map((trip, index) => (
-            <div key={trip.id || `trip-${index}`} className="relative">
-              {trips.length > 1 && (
-                <div className="absolute -top-4 -left-2 z-10">
+          <h2 className="text-2xl font-semibold mb-6 text-center">Recommended Adventures</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {trips.map((trip, index) => (
+              <div key={trip.id || `trip-${index}`} className="relative">
+                <div className="absolute -top-4 left-2 z-10">
                   <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
                     Option {index + 1}
                   </span>
                 </div>
-              )}
-              <TripCard 
-                key={index} 
-                trip={trip}
-                onSave={() => handleSaveTrip(trip)}
-              />
-            </div>
-          ))}
+                <TripCard 
+                  key={index} 
+                  trip={trip}
+                  onSave={() => handleSaveTrip(trip)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -156,3 +158,4 @@ const Index = () => {
 };
 
 export default Index;
+

@@ -22,18 +22,20 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
     return `$${price.toLocaleString()}`;
   };
 
+  const priceDetailsToDisplay = priceDetails || {};
+
   return (
     <Card className="border border-purple-100">
       <CardContent className="pt-6">
         <div className="flex items-center gap-2 mb-3">
-          <DollarSign className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold">Price Breakdown</h3>
+          <DollarSign className="h-5 w-5 text-purple-600 flex-shrink-0" />
+          <h3 className="text-lg font-semibold break-words">Price Breakdown</h3>
           
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="ml-1">
-                  <Info className="h-4 w-4 text-gray-400" />
+                  <Info className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 </button>
               </TooltipTrigger>
               <TooltipContent>
@@ -45,10 +47,13 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
         
         <p className="text-2xl font-semibold mb-2">{formatPrice(totalPrice)}</p>
         
-        {!compact && priceDetails && Object.keys(priceDetails).length > 0 ? (
+        {!compact && Object.keys(priceDetailsToDisplay).length > 0 ? (
           <div className="text-sm text-gray-700 space-y-1">
-            {Object.entries(priceDetails).map(([key, value], index) => (
-              <p key={index} className="text-sm text-gray-700">• {key}: {formatPrice(value)}</p>
+            {Object.entries(priceDetailsToDisplay).map(([key, value], index) => (
+              <p key={index} className="text-sm text-gray-700 flex">
+                <span className="mr-2 flex-shrink-0">•</span>
+                <span className="break-words">{key}: {formatPrice(value)}</span>
+              </p>
             ))}
           </div>
         ) : (
@@ -60,3 +65,4 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
 };
 
 export default PriceBreakdown;
+
