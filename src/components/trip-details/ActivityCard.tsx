@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Activity } from '@/types/trips';
-import { Clock, AlertTriangle, Map, ArrowUpRight, Mountain, Droplets } from 'lucide-react';
+import { Clock, AlertTriangle, Map, ArrowUpRight, Mountain, Droplets, Home } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
