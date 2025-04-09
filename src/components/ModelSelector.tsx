@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -15,9 +14,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   showLabels = true,
   onChange 
 }) => {
-  // Get preferred model from localStorage, default to 'gemini'
+  // Always default to 'gemini' now
   const [preferredModel, setPreferredModel] = useState<'claude' | 'gemini'>(
-    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'gemini'
+    () => 'gemini'
   );
 
   // Update localStorage when preference changes
@@ -41,36 +40,42 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   }, [preferredModel, compact, onChange]);
 
   const toggleModel = () => {
-    setPreferredModel(current => current === 'claude' ? 'gemini' : 'claude');
+    // Claude is temporarily disabled, so this is now a no-op
+    // We keep the function for future re-enabling
+    console.log('Claude is temporarily unavailable');
+    toast({
+      title: "Only Gemini available",
+      description: "Claude is temporarily unavailable. Using Gemini instead.",
+    });
   };
 
   if (compact) {
     return (
       <div className="flex items-center space-x-2">
-        <span className={`text-xs ${preferredModel === 'gemini' ? 'text-muted-foreground' : 'font-medium'}`}>C</span>
+        <span className="text-xs text-muted-foreground">C</span>
         <Switch 
-          checked={preferredModel === 'gemini'} 
-          onCheckedChange={toggleModel} 
+          checked={true} 
+          disabled={true}
           className="scale-75"
         />
-        <span className={`text-xs ${preferredModel === 'claude' ? 'text-muted-foreground' : 'font-medium'}`}>G</span>
+        <span className="text-xs font-medium">G</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center space-x-2">
-      <span className={`text-sm ${preferredModel === 'gemini' ? 'text-muted-foreground' : 'font-medium'}`}>Claude</span>
+      <span className="text-sm text-muted-foreground">Claude</span>
       <Switch 
         id="model-toggle" 
-        checked={preferredModel === 'gemini'} 
-        onCheckedChange={toggleModel} 
+        checked={true} 
+        disabled={true}
       />
-      <span className={`text-sm ${preferredModel === 'claude' ? 'text-muted-foreground' : 'font-medium'}`}>Gemini</span>
+      <span className="text-sm font-medium">Gemini</span>
       
       {showLabels && (
         <span className="ml-2 text-xs text-muted-foreground">
-          {preferredModel === 'claude' ? '(Anthropic)' : '(Google)'}
+          (Google)
         </span>
       )}
     </div>

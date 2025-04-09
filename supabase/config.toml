@@ -17,3 +17,7 @@ import_map = "functions/gemini-recommendations/import_map.json"
 [functions.get-mapbox-token]
 verify_jwt = false
 import_map = "functions/get-mapbox-token/import_map.json"
+
+[functions.process-routes]
+verify_jwt = false
+import_map = "functions/process-routes/import_map.json"

@@ -9,7 +9,7 @@ export const generateTrips = async (
 ): Promise<Trip[]> => {
   try {
     // Get the preferred AI model from localStorage, default to gemini
-    const preferredModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini' || 'gemini';
+    const preferredModel = 'gemini'; // Always use Gemini as Claude is temporarily disabled
     const edgeFunction = preferredModel === 'claude' ? 'claude-recommendations' : 'gemini-recommendations';
     
     console.info(`Using ${preferredModel} model for trip recommendations`);
@@ -41,27 +41,19 @@ export const generateTrips = async (
     // Process thinking steps if available
     if (data.thinking && thinkingCallback) {
       thinkingCallback(data.thinking);
+      console.log("Thinking steps processed and sent to UI");
     }
 
     // The response structure should contain trips data from tripData
     const trips = data.tripData?.trip || [];
     
-    // Check for raw response (debugging info)
+    // Check for raw response and enhance trip data if needed
     if (data.rawResponse) {
-      console.info("Raw response:", data.rawResponse);
+      console.info("Raw response available, trying to enhance trip data with it");
       
-      // Attempt to parse any additional data from the raw response if the itinerary is incomplete
-      try {
-        if (data.rawResponse && trips.length > 0 && (!trips[0].itinerary || trips[0].itinerary.length < 2)) {
-          console.log("Attempting to extract more complete itinerary data from raw response");
-          const rawResponseJson = JSON.parse(data.rawResponse);
-          if (rawResponseJson && rawResponseJson.trip && rawResponseJson.trip[0] && rawResponseJson.trip[0].itinerary) {
-            console.log("Found itinerary in raw response:", rawResponseJson.trip[0].itinerary);
-            trips[0].itinerary = rawResponseJson.trip[0].itinerary;
-          }
-        }
-      } catch (parseError) {
-        console.warn("Could not extract additional data from raw response:", parseError);
+      if (trips.length > 0) {
+        // Enhanced itinerary extraction
+        enhanceTripDataFromRawResponse(trips, data.rawResponse);
       }
     }
     
@@ -85,6 +77,76 @@ export const generateTrips = async (
     throw new Error(`${error instanceof Error ? error.message : String(error)}`);
   }
 };
+
+// Function to enhance trip data from raw response
+function enhanceTripDataFromRawResponse(trips: Trip[], rawResponse: string) {
+  try {
+    // Try to parse the raw response
+    let rawData: any = null;
+    
+    try {
+      // First attempt: Try to parse the entire raw response
+      rawData = JSON.parse(rawResponse);
+    } catch (parseError) {
+      console.log("Could not parse entire raw response, trying to extract JSON");
+      
+      // Second attempt: Try to extract JSON from the raw response
+      const jsonMatch = rawResponse.match(/\{[\s\S]*"trip"[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          rawData = JSON.parse(jsonMatch[0]);
+        } catch (extractError) {
+          console.warn("Could not extract JSON from raw response:", extractError);
+        }
+      }
+    }
+    
+    if (rawData && rawData.trip && Array.isArray(rawData.trip)) {
+      console.log("Successfully extracted trip data from raw response");
+      
+      // Enhance each trip with data from raw response
+      for (let i = 0; i < trips.length; i++) {
+        if (i < rawData.trip.length) {
+          const rawTrip = rawData.trip[i];
+          
+          // Enhance itinerary
+          if (rawTrip.itinerary && (!trips[i].itinerary || trips[i].itinerary.length === 0)) {
+            console.log(`Enhancing trip ${i} with itinerary from raw response`);
+            trips[i].itinerary = rawTrip.itinerary;
+          }
+          
+          // Enhance journey
+          if (rawTrip.journey && (!trips[i].journey || !trips[i].journey.segments || trips[i].journey.segments.length === 0)) {
+            console.log(`Enhancing trip ${i} with journey from raw response`);
+            trips[i].journey = rawTrip.journey;
+          }
+          
+          // Enhance markers
+          if (rawTrip.markers && (!trips[i].markers || trips[i].markers.length === 0)) {
+            console.log(`Enhancing trip ${i} with markers from raw response`);
+            trips[i].markers = rawTrip.markers;
+          }
+          
+          // Ensure all required fields are present
+          if (!trips[i].whyWeChoseThis && rawTrip.whyWeChoseThis) {
+            trips[i].whyWeChoseThis = rawTrip.whyWeChoseThis;
+          }
+          
+          if (!trips[i].difficultyLevel && rawTrip.difficultyLevel) {
+            trips[i].difficultyLevel = rawTrip.difficultyLevel;
+          }
+          
+          if (!trips[i].priceEstimate && rawTrip.priceEstimate) {
+            trips[i].priceEstimate = rawTrip.priceEstimate;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.warn("Error enhancing trip data from raw response:", error);
+    // Don't throw, just log the warning - this is an enhancement, not critical
+  }
+}
 
 // Fetch a trip by ID from the saved_trips table
 export const fetchTripById = async (id: string): Promise<Trip | null> => {

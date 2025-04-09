@@ -101,18 +101,20 @@ Format your response as valid JSON matching this exact schema:
 Your response MUST be a valid JSON object. Do not include any text outside of the JSON object. Do not format as a code block with backticks.`;
 }
 
-// Get example thinking steps for UI display
+// Get detailed thinking steps for UI display
 function getThinkingSteps() {
   return [
     "Analyzing user prompt to identify key requirements: destination, activities, duration, and preferences",
     "Researching suitable off-the-beaten-path destinations that match the requirements",
     "Evaluating potential destinations for shoulder season timing and lower congestion",
+    "Identifying unique local experiences and authentic cultural interactions",
     "Planning practical itineraries that consider realistic travel times between activities",
     "Identifying appropriate local guides and outfitters for the recommended activities",
     "Mapping key points of interest and creating journey segments with accurate coordinates",
     "Estimating costs for lodging, activities, transportation, and meals to provide a realistic budget",
     "Assessing difficulty levels based on terrain, elevation gain, and required skills",
-    "Creating detailed day-by-day itineraries with appropriate pacing and rest time"
+    "Creating detailed day-by-day itineraries with appropriate pacing and rest time",
+    "Finalizing trip options with comprehensive details and formatting response as JSON"
   ];
 }
 
@@ -128,7 +130,7 @@ function createGeminiRequestPayload(userPrompt: string) {
     ],
     generationConfig: {
       temperature: 1.0,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 10650, // Increased from 8192 to 10650 (30% increase)
       topP: 0.8,
       topK: 40
     }
@@ -293,7 +295,7 @@ function parseGeminiResponse(data: any, thinkingSteps: string[]) {
   return {
     thinking: thinkingSteps,
     tripData: tripData,
-    rawResponse: rawTextContent.substring(0, 500) // Include first 500 chars of raw response for debugging
+    rawResponse: rawTextContent // Include the full raw response for better debugging
   };
 }
 

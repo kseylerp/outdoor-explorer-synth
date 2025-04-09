@@ -16,7 +16,7 @@ const ThinkingDisplay: React.FC<ThinkingDisplayProps> = ({ thinkingSteps, isVisi
       <h3 className="text-lg font-medium text-purple-700 mb-2">AI Thinking Process</h3>
       <div className="space-y-3">
         {thinkingSteps.map((step, index) => (
-          <div key={index} className="text-sm text-gray-700">
+          <div key={index} className="text-sm text-gray-700 animate-pulse-slow">
             <span className="font-semibold text-purple-600">Step {index + 1}:</span>
             <p className="mt-1 whitespace-pre-line">{step}</p>
           </div>

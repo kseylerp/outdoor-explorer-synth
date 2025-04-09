@@ -23,6 +23,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const handleSubmit = () => {
     if (prompt.trim() && !isProcessing) {
       onSubmit(prompt.trim());
+      // Don't clear the prompt after submission to allow for easy modifications
     }
   };
 
