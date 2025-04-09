@@ -10,7 +10,7 @@ export const generateTrips = async (
   try {
     // Get the preferred AI model from localStorage, default to gemini
     const preferredModel = 'gemini'; // Always use Gemini as Claude is temporarily disabled
-    const edgeFunction = preferredModel === 'claude' ? 'claude-recommendations' : 'gemini-recommendations';
+    const edgeFunction = preferredModel === 'gemini' ? 'gemini-recommendations' : 'claude-recommendations';
     
     console.info(`Using ${preferredModel} model for trip recommendations`);
     console.info(`Calling ${edgeFunction} edge function with prompt: ${prompt}`);
