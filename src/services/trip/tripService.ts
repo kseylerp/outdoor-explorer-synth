@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
 import { jsonToCoordinates, jsonToMarkers, jsonToJourney, jsonToItinerary } from "./tripMappers";
@@ -48,6 +49,20 @@ export const generateTrips = async (
     // Check for raw response (debugging info)
     if (data.rawResponse) {
       console.info("Raw response:", data.rawResponse);
+      
+      // Attempt to parse any additional data from the raw response if the itinerary is incomplete
+      try {
+        if (data.rawResponse && trips.length > 0 && (!trips[0].itinerary || trips[0].itinerary.length < 2)) {
+          console.log("Attempting to extract more complete itinerary data from raw response");
+          const rawResponseJson = JSON.parse(data.rawResponse);
+          if (rawResponseJson && rawResponseJson.trip && rawResponseJson.trip[0] && rawResponseJson.trip[0].itinerary) {
+            console.log("Found itinerary in raw response:", rawResponseJson.trip[0].itinerary);
+            trips[0].itinerary = rawResponseJson.trip[0].itinerary;
+          }
+        }
+      } catch (parseError) {
+        console.warn("Could not extract additional data from raw response:", parseError);
+      }
     }
     
     // Validate the structure of trips with detailed error messages

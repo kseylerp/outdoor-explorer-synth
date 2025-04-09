@@ -5,6 +5,9 @@ import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, Pane
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+// Secret routes that should only be accessible via direct URL
+const ADMIN_MODE = false; // Set to true when you need to access hidden routes
+
 const MainNav: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
@@ -56,7 +59,10 @@ const MainNav: React.FC = () => {
             
             <MenuItem to="/saved-trips" icon={<BookmarkIcon size={20} />} label="Saved Trips" active={isActive('/saved-trips')} expanded={expanded} onClick={() => {}} />
             
-            <MenuItem to="/maps" icon={<Map size={20} />} label="Maps" active={isActive('/maps')} expanded={expanded} onClick={() => {}} />
+            {/* Hidden map navigation item - only visible in admin mode */}
+            {ADMIN_MODE && (
+              <MenuItem to="/maps" icon={<Map size={20} />} label="Maps" active={isActive('/maps')} expanded={expanded} onClick={() => {}} />
+            )}
             
             <MenuItem to="/buddies" icon={<Users size={20} />} label="Buddies" active={isActive('/buddies')} expanded={expanded} onClick={() => {}} />
             
@@ -66,16 +72,19 @@ const MainNav: React.FC = () => {
             
             <MenuItem to="/settings" icon={<Settings size={20} />} label="Settings" active={isActive('/settings')} expanded={expanded} onClick={() => {}} />
             
-            <div className="pt-4 mt-4 border-t border-gray-200">
-              <MenuItem 
-                to="/guide-portal" 
-                icon={<ShieldQuestion size={20} />} 
-                label="Guide Portal" 
-                active={isActive('/guide-portal')} 
-                expanded={expanded} 
-                onClick={() => {}} 
-              />
-            </div>
+            {/* Hidden guide portal navigation item - only visible in admin mode */}
+            {ADMIN_MODE && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <MenuItem 
+                  to="/guide-portal" 
+                  icon={<ShieldQuestion size={20} />} 
+                  label="Guide Portal" 
+                  active={isActive('/guide-portal')} 
+                  expanded={expanded} 
+                  onClick={() => {}} 
+                />
+              </div>
+            )}
           </nav>
         </div>
         

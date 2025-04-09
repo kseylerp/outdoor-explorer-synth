@@ -21,13 +21,16 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
     typeof marker.coordinates.lat === 'number'
   ) : [];
   
-  // Check if journey exists and has minimal required properties
-  const hasValidJourney = journey && 
+  // Temporarily disable route layer display
+  const disableRoutes = true;
+  
+  // Check if journey exists and has minimal required properties - only used if routes are enabled
+  const hasValidJourney = !disableRoutes && journey && 
     journey.segments && 
     Array.isArray(journey.segments) && 
     journey.segments.length > 0;
     
-  // Filter segments by route type if specified
+  // Filter segments by route type if specified - only used if routes are enabled
   const filteredJourney = hasValidJourney && routeType !== 'all' 
     ? {
         ...journey,
@@ -55,9 +58,11 @@ const MapContent: React.FC<MapContentProps> = ({ map, markers = [], journey, rou
         <MarkerLayer map={map} markers={validMarkers} />
       )}
       
+      {/* Temporarily removed route layer 
       {hasValidJourney && (
         <RouteLayer map={map} journey={filteredJourney} />
       )}
+      */}
     </>
   );
 };
