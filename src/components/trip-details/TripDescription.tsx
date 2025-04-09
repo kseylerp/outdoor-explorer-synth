@@ -16,6 +16,10 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
   suggestedGuides,
   compact = false
 }) => {
+  // Log description data to check for potential truncation
+  console.log('TripDescription - description length:', description?.length || 0);
+  console.log('TripDescription - whyWeChoseThis length:', whyWeChoseThis?.length || 0);
+  
   if (compact) {
     return (
       <div>
@@ -76,4 +80,3 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
 };
 
 export default TripDescription;
-

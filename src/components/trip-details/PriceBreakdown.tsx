@@ -22,6 +22,10 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
     return `$${price.toLocaleString()}`;
   };
 
+  // Log price data to verify we're not hardcoding or truncating
+  console.log('PriceBreakdown - totalPrice:', totalPrice);
+  console.log('PriceBreakdown - priceDetails:', priceDetails);
+
   const priceDetailsToDisplay = priceDetails || {};
 
   return (
@@ -65,4 +69,3 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ totalPrice, compact = f
 };
 
 export default PriceBreakdown;
-

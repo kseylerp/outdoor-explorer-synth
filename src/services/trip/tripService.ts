@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types/trips";
 import { jsonToCoordinates, jsonToMarkers, jsonToJourney, jsonToItinerary } from "./tripMappers";
@@ -63,6 +64,14 @@ export const generateTrips = async (
     
     // Log complete trip data to ensure we're capturing everything
     console.log("Complete trip data from API:", JSON.stringify(trips, null, 2));
+    
+    // Add additional logging for itinerary data
+    trips.forEach((trip, index) => {
+      console.log(`Trip ${index + 1} itinerary days count:`, trip.itinerary?.length || 0);
+      if (trip.itinerary && trip.itinerary.length > 0) {
+        console.log(`Trip ${index + 1} day numbers:`, trip.itinerary.map(day => day.day).join(', '));
+      }
+    });
     
     return trips;
   } catch (error) {

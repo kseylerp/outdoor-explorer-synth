@@ -30,6 +30,7 @@ const TripCard: React.FC<TripCardProps> = ({
   
   // Log complete trip data to ensure we're using everything available
   console.log('TripCard rendering with full trip data:', JSON.stringify(trip, null, 2));
+  console.log('TripCard itinerary days:', trip.itinerary?.length || 0);
   
   // Handle the click on the card while preventing it from affecting the itinerary expander
   const handleCardClick = (e: React.MouseEvent) => {

@@ -12,12 +12,10 @@ interface TripItineraryProps {
 const TripItinerary: React.FC<TripItineraryProps> = ({
   itinerary
 }) => {
-  // Expanded state for each day
-  const [expandedDays, setExpandedDays] = useState<{ [key: number]: boolean }>(
-    // Default to first day expanded
-    { 1: true }
-  );
-
+  // Log the full itinerary data to debug any truncation issues
+  console.log('TripItinerary rendering with itinerary:', JSON.stringify(itinerary, null, 2));
+  console.log('Number of itinerary days:', itinerary?.length || 0);
+  
   if (!itinerary || itinerary.length === 0) {
     return (
       <div className="px-6 py-4 bg-purple-50 border-t border-purple-100">
@@ -33,7 +31,7 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
         <Accordion type="multiple" className="space-y-6" defaultValue={["day-1"]}>
           {itinerary.map((day, idx) => (
             <AccordionItem 
-              key={idx} 
+              key={`day-${day.day}-${idx}`} // Use both day number and index to ensure unique keys
               value={`day-${day.day}`} 
               className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100"
             >
@@ -43,10 +41,10 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                     <CalendarDays className="h-5 w-5" />
                   </div>
                   <div className="flex-1 text-left">
-                    <h3 className="font-medium text-lg text-gray-900">
+                    <h3 className="font-medium text-lg text-gray-900 break-words">
                       Day {day.day} - {day.title || 'Activities'}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                       {day.description}
                     </p>
                   </div>
@@ -116,11 +114,11 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                     <div className="space-y-4">
                       {day.activities.map((activity, actIdx) => (
                         <div 
-                          key={actIdx} 
+                          key={`activity-${day.day}-${actIdx}`}
                           className="p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
                         >
                           <div className="flex justify-between items-start">
-                            <h4 className="font-medium text-purple-900">
+                            <h4 className="font-medium text-purple-900 break-words">
                               {activity.name || 'Unnamed Activity'}
                             </h4>
                             {activity.duration && (

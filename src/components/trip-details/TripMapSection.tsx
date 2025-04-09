@@ -27,4 +27,3 @@ const TripMapSection: React.FC<TripMapSectionProps> = ({ trip, height = "300px" 
 };
 
 export default TripMapSection;
-
