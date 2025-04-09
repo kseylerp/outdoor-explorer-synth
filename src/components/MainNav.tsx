@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, BookmarkIcon, Users, Info, Settings, PanelLeft } from 'lucide-react';
+import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -55,14 +56,26 @@ const MainNav: React.FC = () => {
             
             <MenuItem to="/saved-trips" icon={<BookmarkIcon size={20} />} label="Saved Trips" active={isActive('/saved-trips')} expanded={expanded} onClick={() => {}} />
             
+            <MenuItem to="/maps" icon={<Map size={20} />} label="Maps" active={isActive('/maps')} expanded={expanded} onClick={() => {}} />
+            
             <MenuItem to="/buddies" icon={<Users size={20} />} label="Buddies" active={isActive('/buddies')} expanded={expanded} onClick={() => {}} />
+            
+            <MenuItem to="/guides" icon={<ShieldQuestion size={20} />} label="Guides" active={isActive('/guides')} expanded={expanded} onClick={() => {}} />
             
             <MenuItem to="/about" icon={<Info size={20} />} label="About" active={isActive('/about')} expanded={expanded} onClick={() => {}} />
             
             <MenuItem to="/settings" icon={<Settings size={20} />} label="Settings" active={isActive('/settings')} expanded={expanded} onClick={() => {}} />
             
-            {/* Hidden items - only accessible via direct URL */}
-            {/* Guide Portal and Maps links removed from menu */}
+            <div className="pt-4 mt-4 border-t border-gray-200">
+              <MenuItem 
+                to="/guide-portal" 
+                icon={<ShieldQuestion size={20} />} 
+                label="Guide Portal" 
+                active={isActive('/guide-portal')} 
+                expanded={expanded} 
+                onClick={() => {}} 
+              />
+            </div>
           </nav>
         </div>
         

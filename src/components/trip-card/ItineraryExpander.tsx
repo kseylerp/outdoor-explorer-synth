@@ -9,14 +9,7 @@ interface ItineraryExpanderProps {
   children: React.ReactNode;
 }
 
-/**
- * ItineraryExpander provides collapsible functionality for trip itineraries
- */
-const ItineraryExpander: React.FC<ItineraryExpanderProps> = ({ 
-  isExpanded, 
-  onToggle, 
-  children 
-}) => {
+const ItineraryExpander: React.FC<ItineraryExpanderProps> = ({ isExpanded, onToggle, children }) => {
   // Stop event propagation when clicking on the expander
   const handleTriggerClick = (e: React.MouseEvent) => {
     e.stopPropagation();

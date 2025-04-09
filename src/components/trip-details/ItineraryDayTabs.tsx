@@ -16,18 +16,10 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
   selectedDay,
   onDayChange
 }) => {
-  // Log itinerary data to debug any issues
-  console.log('ItineraryDayTabs - Full itinerary:', JSON.stringify(itinerary, null, 2));
-  console.log('ItineraryDayTabs - Day numbers:', itinerary?.map(day => day.day) || []);
-  
   // Calculate maximum day number to ensure we show all days
   const maxDays = itinerary && itinerary.length > 0 
     ? Math.max(...itinerary.map(day => day.day))
     : 1;
-    
-  // Log the calculated max days
-  console.log('ItineraryDayTabs - Max days calculated:', maxDays);
-  console.log('ItineraryDayTabs - Itinerary length:', itinerary?.length || 0);
 
   return (
     <div>
@@ -59,7 +51,7 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
         
         {/* Render existing days from the API */}
         {itinerary.map((day) => (
-          <TabsContent key={`day-content-${day.day}`} value={day.day.toString()}>
+          <TabsContent key={day.day} value={day.day.toString()}>
             <DayDetails day={day} />
           </TabsContent>
         ))}
@@ -68,7 +60,7 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
         {Array.from({ length: maxDays }, (_, i) => i + 1)
           .filter(day => !itinerary.some(d => d.day === day))
           .map(day => (
-            <TabsContent key={`day-placeholder-${day}`} value={day.toString()}>
+            <TabsContent key={day} value={day.toString()}>
               <DayDetails 
                 day={{
                   day,

@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
+import TripItinerary from './TripItinerary';
 import TripBaseView from '../trip-shared/TripBaseView';
 import TripCardButtons from './TripCardButtons';
-import TripCardContent from './TripCardContent';
-import { useTripCardState } from '@/hooks/useTripCardState';
+import ItineraryExpander from './ItineraryExpander';
 
 interface TripCardProps {
   trip: Trip;
@@ -17,9 +17,6 @@ interface TripCardProps {
   onExpand?: () => void;
 }
 
-/**
- * TripCard component displays a trip with optional expandable itinerary
- */
 const TripCard: React.FC<TripCardProps> = ({ 
   trip,
   expanded = true,
@@ -29,17 +26,25 @@ const TripCard: React.FC<TripCardProps> = ({
   onRemove,
   onExpand
 }) => {
-  const { isItineraryVisible, toggleItinerary } = useTripCardState({ 
-    initialExpanded: expanded 
-  });
+  const [isItineraryVisible, setIsItineraryVisible] = useState(expanded);
   
-  // Handle card click event while preventing propagation from itinerary expander
+  // Log complete trip data to ensure we're using everything available
+  console.log('TripCard rendering with full trip data:', JSON.stringify(trip, null, 2));
+  
+  // Handle the click on the card while preventing it from affecting the itinerary expander
   const handleCardClick = (e: React.MouseEvent) => {
-    // Only trigger onExpand if the click is not within an itinerary expander
-    if (!onExpand) return;
+    // Only trigger onExpand if the click target is not part of the itinerary expander
+    // Check if the click is within the itinerary expander
+    const expanderElements = document.querySelectorAll('.itinerary-expander');
+    for (let i = 0; i < expanderElements.length; i++) {
+      if (expanderElements[i].contains(e.target as Node)) {
+        // Click is inside an expander, so don't trigger onExpand
+        return;
+      }
+    }
     
-    const isClickOnExpander = (e.target as Element).closest('.itinerary-expander');
-    if (!isClickOnExpander) {
+    // If we reach here, the click is not in an expander, so we can call onExpand
+    if (onExpand) {
       onExpand();
     }
   };
@@ -50,7 +55,7 @@ const TripCard: React.FC<TripCardProps> = ({
       onClick={handleCardClick}
     >
       <TripBaseView trip={trip} compact={!isItineraryVisible}>
-        {/* Trip action buttons section */}
+        {/* Buttons for saving/removing trips */}
         {(onSave || (showRemoveButton && onRemove)) && (
           <TripCardButtons 
             tripId={trip.id} 
@@ -61,12 +66,17 @@ const TripCard: React.FC<TripCardProps> = ({
           />
         )}
         
-        {/* Itinerary content section */}
-        <TripCardContent 
-          trip={trip}
-          isItineraryVisible={isItineraryVisible}
-          onToggleItinerary={toggleItinerary}
-        />
+        {/* Itinerary expander */}
+        <div className="itinerary-expander">
+          <ItineraryExpander 
+            isExpanded={isItineraryVisible}
+            onToggle={() => setIsItineraryVisible(!isItineraryVisible)}
+          >
+            {trip.itinerary && trip.itinerary.length > 0 && (
+              <TripItinerary itinerary={trip.itinerary} />
+            )}
+          </ItineraryExpander>
+        </div>
       </TripBaseView>
     </Card>
   );

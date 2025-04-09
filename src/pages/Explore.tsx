@@ -12,7 +12,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const Explore: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -21,13 +20,13 @@ const Explore: React.FC = () => {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
-  const [selectedTripIndex, setSelectedTripIndex] = useState<number>(0);
   const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
     () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'gemini'
   );
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Listen for changes to the AI model preference
   useEffect(() => {
     const handleStorageChange = () => {
       const storedModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini';
@@ -46,7 +45,6 @@ const Explore: React.FC = () => {
     setErrorDetails(null);
     setThinking(undefined);
     setTrips([]);
-    setSelectedTripIndex(0);
     
     try {
       console.info(`Submitting prompt to generate trips with ${aiModel}: ${prompt}`);
@@ -54,13 +52,10 @@ const Explore: React.FC = () => {
         setThinking(thinkingSteps);
       });
       
+      // Log full response data for debugging
       console.info(`Received ${result.length} trips from ${aiModel} API`);
       if (result.length > 0) {
         console.info('First trip data sample:', JSON.stringify(result[0]).substring(0, 300) + '...');
-        console.info('Full itinerary length for first trip:', result[0].itinerary?.length || 0);
-        
-        // Log full itinerary for debugging
-        console.info('Complete itinerary for first trip:', JSON.stringify(result[0].itinerary, null, 2));
       }
       
       setTrips(result);
@@ -78,6 +73,7 @@ const Explore: React.FC = () => {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       setError(errorMessage);
       
+      // Capture detailed error information for debugging
       if (errorMessage.includes("|")) {
         const [mainError, details] = errorMessage.split("|", 2);
         setError(mainError.trim());
@@ -86,7 +82,7 @@ const Explore: React.FC = () => {
       
       toast({
         title: "Error",
-        description: errorMessage.split("|")[0],
+        description: errorMessage.split("|")[0], // Only show main error in toast
         variant: "destructive",
       });
     } finally {
@@ -105,7 +101,7 @@ const Explore: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl pb-32">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-purple-800 break-words">Explore Adventures</h1>
+        <h1 className="text-3xl font-bold text-purple-800">Explore Adventures</h1>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500 hidden md:inline">
             AI Model: {aiModel === 'claude' ? 'Claude' : 'Gemini'}
@@ -146,36 +142,27 @@ const Explore: React.FC = () => {
       
       {!loading && !error && trips.length > 0 && (
         <div>
-          <h2 className="text-2xl font-semibold mb-4 text-center">Recommended Adventures</h2>
+          <h2 className="text-2xl font-semibold mb-6">Recommended Adventures</h2>
           
-          {/* Trip toggle options */}
-          <div className="flex justify-center mb-6">
-            <ToggleGroup type="single" value={selectedTripIndex.toString()} onValueChange={(value) => {
-              if (value) setSelectedTripIndex(parseInt(value));
-            }}>
-              {trips.map((trip, index) => (
-                <ToggleGroupItem 
-                  key={index} 
-                  value={index.toString()} 
-                  aria-label={`Option ${index + 1}`}
-                  className="px-5 py-2 data-[state=on]:bg-purple-600 data-[state=on]:text-white"
-                >
-                  Option {index + 1}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+          <div className="space-y-8">
+            {trips.map((trip, index) => (
+              <div key={trip.id || index} className="relative">
+                {trips.length > 1 && (
+                  <div className="absolute -top-4 -left-2 z-10">
+                    <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
+                      Option {index + 1}
+                    </span>
+                  </div>
+                )}
+                <TripCard 
+                  trip={trip} 
+                  onExpand={() => handleViewTrip(trip.id)}
+                />
+              </div>
+            ))}
           </div>
           
-          {/* Display selected trip */}
-          {trips[selectedTripIndex] && (
-            <div className="w-full max-w-3xl mx-auto">
-              <TripCard 
-                trip={trips[selectedTripIndex]} 
-                onExpand={() => handleViewTrip(trips[selectedTripIndex].id)}
-              />
-            </div>
-          )}
-          
+          {/* Display model info */}
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>These adventures were generated by {aiModel === 'claude' ? 'Claude AI' : 'Google Gemini'}</p>
           </div>
