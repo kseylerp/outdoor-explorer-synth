@@ -1,105 +1,24 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button'; 
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
-import { generateTrips } from '@/services/trip/tripService';
-import { Trip } from '@/types/trips';
-import { toast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
+import { useTrips } from '@/hooks/useTrips';
 
 const Index = () => {
-  const [prompt, setPrompt] = useState('');
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [thinking, setThinking] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
-
-  const handleSubmitPrompt = async (inputPrompt: string) => {
-    setPrompt(inputPrompt);
-    setLoading(true);
-    setError(null);
-    setErrorDetails(null);
-    setThinking([]);
-    setTrips([]);
-
-    try {
-      console.info(`Submitting prompt to generate trips: ${inputPrompt}`);
-      const result = await generateTrips(inputPrompt, (thinkingSteps) => {
-        setThinking(thinkingSteps);
-      });
-      
-      // Log entire trip data to help debug
-      console.info(`Received ${result.length} trips from API`);
-      if (result.length > 0) {
-        console.info('First trip details:', result[0]);
-        if (result[0].itinerary) {
-          console.log('First trip itinerary:', result[0].itinerary);
-        }
-      }
-      
-      setTrips(result);
-    } catch (err) {
-      console.error('Error processing prompt:', err);
-      
-      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
-      
-      // Split error message if it contains details
-      if (errorMessage.includes("|")) {
-        const [mainError, details] = errorMessage.split("|", 2);
-        setError(mainError.trim());
-        setErrorDetails(details.trim());
-      } else {
-        setError(errorMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRetry = () => {
-    if (prompt) {
-      handleSubmitPrompt(prompt);
-    }
-  };
-
-  const handleSaveTrip = (trip: Trip) => {
-    try {
-      // Get existing saved trips or initialize empty array
-      const savedTripsJson = localStorage.getItem('savedTrips') || '[]';
-      const savedTrips = JSON.parse(savedTripsJson);
-      
-      // Check if already saved
-      if (savedTrips.some((saved: Trip) => saved.id === trip.id)) {
-        toast({
-          title: "Already saved",
-          description: "This trip is already in your saved collection",
-        });
-        return;
-      }
-      
-      // Add to saved trips
-      savedTrips.push(trip);
-      localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
-      
-      toast({
-        title: "Trip saved!",
-        description: "This adventure has been added to your saved trips",
-      });
-    } catch (error) {
-      console.error('Error saving trip:', error);
-      toast({
-        title: "Error saving trip",
-        description: "Could not save this adventure. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
+  const { 
+    trips, 
+    loading, 
+    error, 
+    errorDetails, 
+    thinking,
+    handlePromptSubmit,
+    handleRetry,
+    handleSaveTrip
+  } = useTrips();
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -114,7 +33,7 @@ const Index = () => {
 
       <Card className="mb-8">
         <CardContent className="pt-6">
-          <PromptInput onSubmit={handleSubmitPrompt} isProcessing={loading} />
+          <PromptInput onSubmit={handlePromptSubmit} isProcessing={loading} />
         </CardContent>
       </Card>
 
@@ -129,7 +48,9 @@ const Index = () => {
       {loading && (
         <div className="mb-8">
           <LoadingSpinner />
-          {thinking.length > 0 && <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />}
+          {thinking && thinking.length > 0 && 
+            <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />
+          }
         </div>
       )}
 
@@ -145,7 +66,6 @@ const Index = () => {
                 </div>
               )}
               <TripCard 
-                key={index} 
                 trip={trip}
                 onSave={() => handleSaveTrip(trip)}
               />

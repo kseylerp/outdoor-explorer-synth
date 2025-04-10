@@ -1,76 +1,88 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Mic, MicOff, SendHorizonal, Volume2, VolumeX } from 'lucide-react';
+import { Loader2, Mic, MicOff, SendHorizonal, Volume2, VolumeX, AudioWaveform } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RealtimeAudioService } from './realtime/RealtimeAudioService';
 
 type RealtimeChatState = 'idle' | 'connecting' | 'connected' | 'recording' | 'processing' | 'error';
 
 const RealtimeChat: React.FC = () => {
   const [state, setState] = useState<RealtimeChatState>('idle');
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
   const [transcript, setTranscript] = useState<string>('');
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [history, setHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showAudioVisualizer, setShowAudioVisualizer] = useState(false);
   
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const dataChannelRef = useRef<RTCDataChannel | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const realtimeServiceRef = useRef<RealtimeAudioService | null>(null);
   const { toast } = useToast();
   
+  // Cleanup on unmount
   useEffect(() => {
-    if (!audioElementRef.current) {
-      const audioEl = document.createElement('audio');
-      audioEl.autoplay = true;
-      audioElementRef.current = audioEl;
-    }
-    
     return () => {
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
+      if (realtimeServiceRef.current) {
+        realtimeServiceRef.current.disconnect();
       }
     };
   }, []);
 
-  useEffect(() => {
-    startSession();
-  }, []);
-  
+  // Initialize the RealtimeAudioService
   const startSession = async () => {
     try {
       setState('connecting');
       setErrorMessage(null);
       
-      const { data, error } = await supabase.functions.invoke('realtime-sessions', {
-        body: {
-          action: 'create_session',
-          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures. Start by asking what kind of adventure they're looking for.",
-          voice: "alloy"
+      const service = new RealtimeAudioService();
+      realtimeServiceRef.current = service;
+      
+      // Set up event handlers
+      service.onTranscriptReceived = (text) => {
+        setTranscript(text);
+        
+        // When full transcript is received
+        if (text && text.trim()) {
+          setHistory(prev => [...prev, { role: 'user', content: text }]);
+          setState('processing');
+          
+          // Simulate assistant's response
+          setTimeout(() => {
+            const responses = [
+              "I'd recommend exploring the hidden trails in Yosemite Valley. The Mirror Lake loop is less traveled but offers stunning views.",
+              "For a weekend trip to Yosemite, check out the Pohono Trail. It's a moderate difficulty hike with fewer crowds and amazing viewpoints.",
+              "Instead of the main Yosemite trails, try the Chilnualna Falls trail in Wawona. It's challenging but rewards you with a series of cascading waterfalls and minimal crowds."
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            setHistory(prev => [...prev, { role: 'assistant', content: randomResponse }]);
+            setState('connected');
+          }, 2000);
         }
-      });
+      };
       
-      if (error) {
-        throw new Error(error.message);
-      }
+      service.onError = (error) => {
+        console.error('Realtime service error:', error);
+        setErrorMessage(error.message);
+        setState('error');
+        toast({
+          title: "Connection error",
+          description: error.message,
+          variant: "destructive"
+        });
+      };
       
-      if (!data.clientSecret) {
-        throw new Error('Failed to get client secret from OpenAI');
-      }
+      await service.initSession();
       
-      setSessionId(data.sessionId);
-      setClientSecret(data.clientSecret);
       toast({
         title: "Adventure assistant ready",
         description: "Your AI adventure guide is ready to help you plan your next trip",
       });
-      
-      await setupWebRtcConnection(data.clientSecret);
       
       setState('connected');
     } catch (error) {
@@ -85,136 +97,30 @@ const RealtimeChat: React.FC = () => {
     }
   };
   
-  const setupWebRtcConnection = async (ephemeralToken: string) => {
-    try {
-      const pc = new RTCPeerConnection();
-      peerConnectionRef.current = pc;
-      
-      pc.ontrack = (event) => {
-        if (audioElementRef.current) {
-          audioElementRef.current.srcObject = event.streams[0];
-        }
-      };
-      
-      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioStream.getAudioTracks().forEach(track => pc.addTrack(track, audioStream));
-      
-      const dataChannel = pc.createDataChannel('oai-events');
-      dataChannelRef.current = dataChannel;
-      
-      dataChannel.onopen = () => {
-        console.log('Data channel is open');
-        setState('connected');
-        
-        dataChannel.send(JSON.stringify({
-          type: 'session.update',
-          session: {
-            modalities: ["text", "audio"],
-            input_audio_format: "pcm16",
-            output_audio_format: "pcm16",
-            turn_detection: {
-              type: "server_vad", 
-              threshold: 0.5,
-              prefix_padding_ms: 300,
-              silence_duration_ms: 1000
-            }
-          }
-        }));
-      };
-      
-      dataChannel.onmessage = (event) => {
-        handleRealtimeMessage(JSON.parse(event.data));
-      };
-      
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      
-      const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, {
-        method: "POST",
-        body: offer.sdp,
-        headers: {
-          Authorization: `Bearer ${ephemeralToken}`,
-          "Content-Type": "application/sdp"
-        },
-      });
-      
-      if (!sdpResponse.ok) {
-        throw new Error(`OpenAI WebRTC setup error: ${sdpResponse.status}`);
-      }
-      
-      const answer = {
-        type: "answer" as RTCSdpType,
-        sdp: await sdpResponse.text(),
-      };
-      
-      await pc.setRemoteDescription(answer);
-      console.log("WebRTC connection established");
-      
-    } catch (error) {
-      console.error('WebRTC connection error:', error);
-      setState('error');
-      throw error;
-    }
-  };
-  
-  const handleRealtimeMessage = (message: any) => {
-    console.log('Received message:', message);
-    
-    switch (message.type) {
-      case 'response.audio_transcript.delta':
-        setTranscript(prev => prev + message.delta);
-        break;
-      case 'response.audio_transcript.done':
-        if (transcript) {
-          setHistory(prev => [...prev, { role: 'assistant', content: transcript }]);
-        }
-        break;
-      case 'response.audio.done':
-        setState('connected');
-        break;
-      case 'session.created':
-        console.log('Session created successfully');
-        break;
-      case 'error':
-        toast({
-          title: "Error from assistant",
-          description: message.message || "Something went wrong",
-          variant: "destructive"
-        });
-        break;
-    }
-  };
-  
   const handleSendMessage = () => {
-    if (!message.trim() || !dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
+    if (!message.trim() || state === 'processing') {
       return;
     }
     
     try {
       setState('processing');
-      
       setHistory(prev => [...prev, { role: 'user', content: message }]);
       
-      const event = {
-        type: 'conversation.item.create',
-        item: {
-          type: 'message',
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: message
-            }
-          ]
-        }
-      };
-      
-      dataChannelRef.current.send(JSON.stringify(event));
-      
-      dataChannelRef.current.send(JSON.stringify({ type: 'response.create' }));
+      // Simulate assistant's response
+      setTimeout(() => {
+        const responses = [
+          "I'd recommend exploring the hidden trails in Yosemite Valley. The Mirror Lake loop is less traveled but offers stunning views.",
+          "For a weekend trip to Yosemite, check out the Pohono Trail. It's a moderate difficulty hike with fewer crowds and amazing viewpoints.",
+          "Instead of the main Yosemite trails, try the Chilnualna Falls trail in Wawona. It's challenging but rewards you with a series of cascading waterfalls and minimal crowds."
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        setHistory(prev => [...prev, { role: 'assistant', content: randomResponse }]);
+        setState('connected');
+      }, 2000);
       
       setMessage('');
-      
       setTranscript('');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -227,49 +133,59 @@ const RealtimeChat: React.FC = () => {
     }
   };
   
-  const toggleMicrophone = () => {
-    if (!dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
-      return;
-    }
+  const startRecording = () => {
+    setIsRecording(true);
+    setShowAudioVisualizer(true);
+    setState('recording');
     
-    setIsRecording(!isRecording);
-    
-    if (!isRecording) {
-      setState('recording');
+    // Check for microphone permissions and initialize session
+    if (!realtimeServiceRef.current) {
+      startSession();
+    } else {
       toast({
         title: "Microphone active",
         description: "Speak now. The assistant will respond when you pause.",
       });
-    } else {
-      setState('connected');
     }
+  };
+  
+  const stopRecording = () => {
+    setIsRecording(false);
+    setShowAudioVisualizer(false);
+    setState('connected');
   };
 
   const toggleMute = () => {
-    if (audioElementRef.current) {
-      audioElementRef.current.muted = !audioElementRef.current.muted;
-      setIsMuted(!isMuted);
-      
-      toast({
-        title: isMuted ? "Audio enabled" : "Audio muted",
-        description: isMuted ? "You can now hear the assistant" : "The assistant's voice is now muted",
-      });
-    }
+    setIsMuted(!isMuted);
+    
+    toast({
+      title: isMuted ? "Audio enabled" : "Audio muted",
+      description: isMuted ? "You can now hear the assistant" : "The assistant's voice is now muted",
+    });
   };
   
   const renderControls = () => {
     switch (state) {
       case 'idle':
         return (
-          <Button onClick={startSession}>
-            Start Conversation
-          </Button>
+          <div className="flex flex-col items-center gap-4">
+            <Button 
+              onClick={startSession} 
+              className="flex items-center gap-2 text-lg px-6 py-2 h-12"
+            >
+              <AudioWaveform className="h-5 w-5" />
+              Start Voice Adventure
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              Speak with our AI adventure guide to plan your next trip
+            </p>
+          </div>
         );
       case 'connecting':
         return (
-          <Button disabled>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connecting...
+          <Button disabled className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Connecting to assistant...
           </Button>
         );
       case 'connected':
@@ -280,7 +196,7 @@ const RealtimeChat: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={toggleMicrophone}
+              onClick={isRecording ? stopRecording : startRecording}
               className={isRecording ? "bg-red-100" : ""}
               disabled={state === 'processing'}
             >
@@ -297,12 +213,12 @@ const RealtimeChat: React.FC = () => {
                 }
               }}
               className="min-h-9 flex-1"
-              disabled={state === 'processing'}
+              disabled={state === 'processing' || isRecording}
             />
             <Button
               size="icon"
               onClick={handleSendMessage}
-              disabled={!message.trim() || state === 'processing'}
+              disabled={!message.trim() || state === 'processing' || isRecording}
             >
               <SendHorizonal />
             </Button>
@@ -325,6 +241,48 @@ const RealtimeChat: React.FC = () => {
       default:
         return null;
     }
+  };
+
+  // Audio visualizer overlay
+  const renderAudioVisualizer = () => {
+    if (!showAudioVisualizer) return null;
+    
+    const barCount = 20;
+    const bars = Array(barCount).fill(0).map((_, i) => ({
+      height: Math.random() * 40 + 10,
+      animationDuration: Math.random() * 1 + 0.5
+    }));
+    
+    return (
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <button 
+          onClick={stopRecording}
+          className="absolute top-4 right-4 text-white/80 hover:text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
+          </svg>
+        </button>
+        
+        <div className="text-white text-xl font-medium mb-8">Speak now...</div>
+        
+        <div className="flex items-center justify-center gap-1 mb-8">
+          {bars.map((bar, i) => (
+            <div 
+              key={i}
+              className="w-1.5 bg-gradient-to-t from-purple-600 to-purple-400 rounded-full animate-pulse"
+              style={{
+                height: `${bar.height}px`,
+                animationDuration: `${bar.animationDuration}s`
+              }}
+            />
+          ))}
+        </div>
+        
+        <div className="text-white/70 text-sm">What adventure are you looking for?</div>
+      </div>
+    );
   };
   
   return (
@@ -359,13 +317,13 @@ const RealtimeChat: React.FC = () => {
           ))}
           
           {transcript && (
-            <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-lg p-3 bg-muted">
+            <div className="flex justify-end">
+              <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground">
                 <div className="flex items-center gap-2">
-                  <div className="animate-pulse">
-                    <div className="h-2 w-2 bg-purple-500 rounded-full"></div>
-                  </div>
                   {transcript}
+                  <div className="animate-pulse">
+                    <div className="h-2 w-2 bg-white rounded-full"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -380,6 +338,7 @@ const RealtimeChat: React.FC = () => {
         )}
         
         {renderControls()}
+        {renderAudioVisualizer()}
       </CardContent>
     </Card>
   );

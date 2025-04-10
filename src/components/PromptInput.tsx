@@ -2,29 +2,29 @@
 import React, { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import SendButton from './prompt/SendButton';
-import OpenAIMicButton from './prompt/OpenAIMicButton';
+import { useToast } from '@/hooks/use-toast';
+import { AudioWaveform } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
   isProcessing: boolean;
   defaultValue?: string;
-  placeholder?: string;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ 
   onSubmit, 
   isProcessing, 
   defaultValue = '', 
-  placeholder = 'I would like to do a weekend trip hiking Yosemite on trails with fewer people.' 
 }) => {
   const [prompt, setPrompt] = useState(defaultValue);
   const [showAudioExperience, setShowAudioExperience] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
 
   const handleSubmit = () => {
     if (prompt.trim() && !isProcessing) {
       onSubmit(prompt.trim());
-      // Don't clear the prompt after submission to allow for easy modifications
     }
   };
 
@@ -43,6 +43,30 @@ const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
+  const startVoiceExperience = () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Check if we have microphone permissions before showing the UI
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+          setShowAudioExperience(true);
+        })
+        .catch((err) => {
+          console.error('Error accessing microphone:', err);
+          toast({
+            title: 'Microphone access denied',
+            description: 'Please allow microphone access to use voice features.',
+            variant: 'destructive',
+          });
+        });
+    } else {
+      toast({
+        title: 'Voice input not supported',
+        description: 'Your browser does not support voice input.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-4 relative">
       {showAudioExperience && (
@@ -55,7 +79,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
       <div className="relative">
         <Textarea
           ref={textareaRef}
-          placeholder={placeholder}
+          placeholder=""
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -63,11 +87,17 @@ const PromptInput: React.FC<PromptInputProps> = ({
           className="min-h-24 pr-12 resize-none font-patano text-base"
         />
         <div className="absolute right-2 bottom-2 flex items-center gap-2">
-          <OpenAIMicButton 
-            onClick={() => setShowAudioExperience(true)}
+          <Button 
+            onClick={startVoiceExperience}
             disabled={isProcessing}
-            isProcessing={isProcessing}
-          />
+            size="icon"
+            variant="ghost"
+            className="rounded-full hover:bg-purple-100 group"
+          >
+            <AudioWaveform className="h-5 w-5 text-purple-600 group-hover:scale-110 transition-transform" />
+            <span className="sr-only">Voice Input</span>
+          </Button>
+          
           {prompt.trim() && (
             <SendButton 
               onSubmit={handleSubmit} 
@@ -94,17 +124,51 @@ interface AudioExperienceProps {
 
 const AudioExperience: React.FC<AudioExperienceProps> = ({ onClose, onTranscript }) => {
   const [isListening, setIsListening] = useState(true);
+  const [audioVisualizer, setAudioVisualizer] = useState<number[]>(Array(20).fill(10));
   
-  // Simulate receiving a transcript after a delay
+  // Create animated audio visualization
   React.useEffect(() => {
     if (isListening) {
-      const timer = setTimeout(() => {
-        setIsListening(false);
-        onTranscript("I want to go hiking in Yosemite National Park on some less crowded trails");
-        onClose();
-      }, 5000);
+      const interval = setInterval(() => {
+        setAudioVisualizer(Array(20).fill(0).map(() => Math.random() * 40 + 10));
+      }, 100);
       
-      return () => clearTimeout(timer);
+      return () => clearInterval(interval);
+    }
+  }, [isListening]);
+  
+  // Connect to the OpenAI Realtime API and start listening
+  React.useEffect(() => {
+    if (isListening) {
+      // Initialize WebRTC connection to OpenAI Realtime API
+      import('@/components/realtime/RealtimeAudioService').then(({ RealtimeAudioService }) => {
+        const service = new RealtimeAudioService();
+        
+        service.initSession()
+          .then((sessionId) => {
+            console.log('Realtime session started with ID:', sessionId);
+            
+            service.onTranscriptReceived = (transcript) => {
+              if (transcript && transcript.trim()) {
+                onTranscript(transcript);
+                onClose();
+              }
+            };
+            
+            service.onError = (error) => {
+              console.error('Realtime audio error:', error);
+              onClose();
+            };
+          })
+          .catch(error => {
+            console.error('Failed to initialize realtime session:', error);
+            onClose();
+          });
+          
+        return () => {
+          service.disconnect();
+        };
+      });
     }
   }, [isListening, onTranscript, onClose]);
   
@@ -120,22 +184,22 @@ const AudioExperience: React.FC<AudioExperienceProps> = ({ onClose, onTranscript
         </svg>
       </button>
       
-      <div className="text-white text-xl font-medium mb-8">Listening...</div>
+      <div className="text-white text-xl font-medium mb-8">Speak now...</div>
       
       <div className="flex items-center justify-center gap-1 mb-8">
-        {[...Array(20)].map((_, i) => (
+        {audioVisualizer.map((height, i) => (
           <div 
             key={i}
-            className="w-1.5 bg-gradient-to-t from-purple-600 to-purple-400 rounded-full animate-pulse"
+            className="w-1.5 bg-gradient-to-t from-purple-600 to-purple-400 rounded-full"
             style={{
-              height: `${Math.random() * 40 + 10}px`,
+              height: `${height}px`,
               animationDuration: `${Math.random() * 1 + 0.5}s`
             }}
           />
         ))}
       </div>
       
-      <div className="text-white/70 text-sm">Speak now or click X to cancel</div>
+      <div className="text-white/70 text-sm">What adventure are you looking for?</div>
     </div>
   );
 };
