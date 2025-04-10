@@ -9,7 +9,7 @@ export const generateTrips = async (
 ): Promise<Trip[]> => {
   try {
     // Get the preferred AI model from localStorage, default to gemini
-    const preferredModel = 'gemini'; // Always use Gemini as Claude is temporarily disabled
+    const preferredModel: 'claude' | 'gemini' = 'gemini'; // Always use Gemini as Claude is temporarily disabled
     const edgeFunction = preferredModel === 'claude' ? 'claude-recommendations' : 'gemini-recommendations';
     
     console.info(`Using ${preferredModel} model for trip recommendations`);
