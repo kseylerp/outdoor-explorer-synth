@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft } from 'lucide-react';
+import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -58,6 +58,16 @@ const MainNav: React.FC = () => {
             <MenuItem to="/" icon={<Compass size={20} />} label="Explore" active={isActive('/') || isActive('/explore')} expanded={expanded} onClick={() => {}} />
             
             <MenuItem to="/saved-trips" icon={<BookmarkIcon size={20} />} label="Saved Trips" active={isActive('/saved-trips')} expanded={expanded} onClick={() => {}} />
+            
+            {/* Add new menu item for Realtime Chat */}
+            <MenuItem 
+              to="/realtime-chat" 
+              icon={<MessageCircle size={20} />} 
+              label="AI Assistant" 
+              active={isActive('/realtime-chat')} 
+              expanded={expanded} 
+              onClick={() => {}} 
+            />
             
             {/* Hidden map navigation item - only visible in admin mode */}
             {ADMIN_MODE && (

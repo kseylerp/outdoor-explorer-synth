@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
 import CampgroundBooking from "./pages/CampgroundBooking";
+import RealtimeChatPage from "./pages/RealtimeChat";
 
 // Main app layout components
 import MainNav from "./components/MainNav";
@@ -53,6 +53,7 @@ const MainAppLayout = () => {
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/campground/:id" element={<CampgroundBooking />} />
+            <Route path="/realtime-chat" element={<RealtimeChatPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
