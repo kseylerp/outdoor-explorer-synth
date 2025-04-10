@@ -6,8 +6,8 @@ import { getThinkingSteps } from "./thinkingUtils.ts";
 
 // Get the API key from environment variables
 const geminiApiKey = Deno.env.get('YUGEN_TO_GEMINI_API_KEY');
-// New API URL for Gemini 2.0
-const geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-01-21:generateContentStream";
+// The updated API URL for Gemini - using the correct endpoint for Gemini 2.0 Pro
+const geminiApiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:streamGenerateContent";
 
 // Create the request payload for Gemini API
 function createGeminiRequestPayload(userPrompt: string) {
@@ -119,7 +119,7 @@ export async function callGeminiApi(prompt: string) {
     const payload = createGeminiRequestPayload(prompt);
     const urlWithKey = `${geminiApiUrl}?key=${geminiApiKey}`;
     
-    console.log("Making request to Gemini 2.0 Flash Thinking API");
+    console.log("Making request to Gemini Pro API");
     
     const response = await fetch(urlWithKey, {
       method: 'POST',
