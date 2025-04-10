@@ -65,14 +65,14 @@ const TripResponseContainer: React.FC = () => {
             disabled={loading || !prompt.trim()}
             className="w-full"
           >
-            {loading ? <LoadingSpinner size="sm" /> : "Generate Trip"}
+            {loading ? <LoadingSpinner /> : "Generate Trip"}
           </Button>
         </div>
       </Card>
       
       {loading && (
         <div className="text-center p-12">
-          <LoadingSpinner size="lg" />
+          <LoadingSpinner />
           <p className="mt-4 text-gray-500">Generating your perfect trip...</p>
           {thinking.length > 0 && (
             <div className="mt-4 text-sm text-gray-600 max-w-xl mx-auto">
