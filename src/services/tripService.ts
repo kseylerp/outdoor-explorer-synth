@@ -2,13 +2,5 @@
 // Re-export everything from the new modular structure
 export { generateTrips, fetchTripById } from './trip/tripService';
 
-// Placeholders for the missing functions referenced in the errors
-export const fetchGuides = async () => {
-  // Implementation will be added later
-  return [];
-};
-
-export const fetchActivities = async () => {
-  // Implementation will be added later
-  return [];
-};
+// Re-export the services from dataService to maintain backwards compatibility
+export { fetchGuides, fetchActivities } from './trip/dataService';
