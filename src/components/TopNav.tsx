@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ModeSelector } from './ModelSelector';
+import ModelSelector from './ModelSelector';
 
-const TopNav: React.FC = () => {
+const TopNav: React.FC<{ hideModelSelector?: boolean }> = ({ hideModelSelector = false }) => {
   const location = useLocation();
   
   const isActive = (path: string) => {
@@ -47,7 +47,7 @@ const TopNav: React.FC = () => {
         </div>
         
         <div className="flex items-center">
-          <ModeSelector />
+          {!hideModelSelector && <ModelSelector />}
         </div>
       </div>
     </header>
