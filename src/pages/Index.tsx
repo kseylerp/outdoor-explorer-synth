@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
@@ -16,9 +16,19 @@ const Index = () => {
     errorDetails, 
     thinking,
     handlePromptSubmit,
+    handleVoiceTripData,
     handleRetry,
     handleSaveTrip
   } = useTrips();
+
+  // Handle voice transcript and potential trip data
+  const handleTranscript = (transcript: string, tripData?: any) => {
+    if (tripData) {
+      handleVoiceTripData(tripData, transcript);
+    } else {
+      handlePromptSubmit(transcript);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -33,7 +43,11 @@ const Index = () => {
 
       <Card className="mb-8">
         <CardContent className="pt-6">
-          <PromptInput onSubmit={handlePromptSubmit} isProcessing={loading} />
+          <PromptInput 
+            onSubmit={handlePromptSubmit} 
+            isProcessing={loading}
+            placeholder="Tell us about your dream trip or click the microphone to speak"
+          />
         </CardContent>
       </Card>
 

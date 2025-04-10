@@ -16,9 +16,19 @@ const Explore: React.FC = () => {
     showThinking,
     aiModel,
     handlePromptSubmit,
+    handleVoiceTripData,
     handleRetry,
     handleSaveTrip
   } = useTrips();
+
+  // Handle voice transcript and potential trip data
+  const handleTranscript = (transcript: string, tripData?: any) => {
+    if (tripData) {
+      handleVoiceTripData(tripData, transcript);
+    } else {
+      handlePromptSubmit(transcript);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">

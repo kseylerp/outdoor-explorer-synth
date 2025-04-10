@@ -13,6 +13,9 @@ export class RealtimeAudioService {
   // Callback handlers
   public onTranscriptReceived: ((text: string) => void) | null = null;
   public onError: ((error: Error) => void) | null = null;
+  public onAIResponseStart: (() => void) | null = null;
+  public onAIResponseEnd: (() => void) | null = null;
+  public onTripDataReceived: ((tripData: any) => void) | null = null;
   
   constructor() {
     this.audioEl = document.createElement('audio');
@@ -35,7 +38,7 @@ export class RealtimeAudioService {
       const { data, error } = await supabase.functions.invoke('realtime-sessions', {
         body: {
           action: 'create_session',
-          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures. When a user asks about a destination, suggest lesser-known attractions and experiences. Keep responses concise and focused on adventure activities.",
+          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. First, engage in natural conversation to understand the user's request. After you understand their requirements, inform them you'll show them trip options on screen. Format your response after understanding as a JSON object with destination, activities, and description fields. For example: ```json{\"destination\":\"Yosemite\",\"activities\":[\"hiking\",\"camping\"],\"description\":\"Weekend trip with moderate trails and fewer crowds\"}```.",
           voice: "alloy"
         }
       });
@@ -76,6 +79,10 @@ export class RealtimeAudioService {
       this.pc.ontrack = (event) => {
         if (this.audioEl) {
           this.audioEl.srcObject = event.streams[0];
+          
+          if (this.onAIResponseStart) {
+            this.onAIResponseStart();
+          }
         }
       };
       
@@ -168,6 +175,19 @@ export class RealtimeAudioService {
         // Full transcript is now available
         if (this.onTranscriptReceived && message.transcript) {
           this.onTranscriptReceived(message.transcript);
+          
+          // Extract JSON if it exists in the response
+          try {
+            const jsonMatch = message.transcript.match(/```json(.*?)```/s);
+            if (jsonMatch && jsonMatch[1]) {
+              const jsonData = JSON.parse(jsonMatch[1].trim());
+              if (this.onTripDataReceived) {
+                this.onTripDataReceived(jsonData);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to parse JSON from transcript:', err);
+          }
         }
         break;
         
@@ -183,8 +203,14 @@ export class RealtimeAudioService {
         break;
         
       case 'response.audio.done':
-      case 'response.done':
         // Audio response is complete
+        if (this.onAIResponseEnd) {
+          this.onAIResponseEnd();
+        }
+        break;
+        
+      case 'response.done':
+        // Response is completely finished
         break;
     }
   }

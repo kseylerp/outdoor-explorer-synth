@@ -42,6 +42,14 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not set in environment variables');
     }
     
+    // Default instructions for travel planning and JSON formatting
+    const defaultInstructions = `You are an adventure guide that specializes in offbeat travel recommendations. 
+    Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. 
+    First, engage in natural conversation to understand the user's request. 
+    After you understand their requirements, inform them you'll show them trip options on screen. 
+    Format your response after understanding as a JSON object with destination, activities, and description fields. 
+    For example: \`\`\`json{"destination":"Yosemite","activities":["hiking","camping"],"description":"Weekend trip with moderate trails and fewer crowds"}\`\`\``;
+    
     // Request a session token from OpenAI
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -52,7 +60,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-realtime-preview-2024-12-17',
         voice: voice,
-        instructions: instructions || "You are an adventure guide that specializes in offbeat travel recommendations."
+        instructions: instructions || defaultInstructions
       }),
     });
     

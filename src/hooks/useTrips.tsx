@@ -29,7 +29,7 @@ export function useTrips() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [aiModel]);
 
-  const handlePromptSubmit = async (prompt: string) => {
+  const handlePromptSubmit = async (prompt: string, voiceTripData?: any) => {
     setLoading(true);
     setError(null);
     setErrorDetails(null);
@@ -37,8 +37,19 @@ export function useTrips() {
     setTrips([]);
     
     try {
-      console.info(`Submitting prompt to generate trips with ${aiModel}: ${prompt}`);
-      const result = await generateTrips(prompt, (thinkingSteps) => {
+      // If we have specific trip data from voice, use it to augment the prompt
+      let processedPrompt = prompt;
+      if (voiceTripData) {
+        console.info('Using voice trip data to generate trips:', voiceTripData);
+        // Augment the prompt with the voice data if available
+        processedPrompt = `${prompt} 
+        Destination: ${voiceTripData.destination || ''}
+        Activities: ${voiceTripData.activities ? voiceTripData.activities.join(', ') : ''}
+        Description: ${voiceTripData.description || ''}`;
+      }
+      
+      console.info(`Submitting prompt to generate trips with ${aiModel}: ${processedPrompt}`);
+      const result = await generateTrips(processedPrompt, (thinkingSteps) => {
         setThinking(thinkingSteps);
         setShowThinking(true);
       });
@@ -68,6 +79,16 @@ export function useTrips() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVoiceTripData = (tripData: any, transcript: string) => {
+    if (tripData && typeof tripData === 'object') {
+      // Use the voice trip data along with the transcript to generate trips
+      handlePromptSubmit(transcript, tripData);
+    } else {
+      // Fallback to just using the transcript if no structured data is available
+      handlePromptSubmit(transcript);
     }
   };
 
@@ -126,6 +147,7 @@ export function useTrips() {
     showThinking,
     aiModel,
     handlePromptSubmit,
+    handleVoiceTripData,
     handleRetry,
     handleSaveTrip
   };
