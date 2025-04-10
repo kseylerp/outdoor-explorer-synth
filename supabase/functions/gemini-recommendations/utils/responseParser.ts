@@ -56,23 +56,30 @@ export function parseGeminiResponse(data: any, thinkingSteps: string[]) {
   let tripData = null;
   let rawTextContent = '';
   
-  if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
-    const textContent = data.candidates[0].content.parts[0].text;
-    rawTextContent = textContent;
+  // Handle the standard Gemini API response format
+  if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+    const candidate = data.candidates[0];
     
-    if (textContent) {
-      try {
-        tripData = extractJsonFromText(textContent);
-        tripData = validateTripData(tripData);
-      } catch (error) {
-        console.error("Error processing Gemini response:", error);
-        throw new Error(`${error.message} | Raw content: ${textContent.substring(0, 200)}...`);
+    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+      const textContent = candidate.content.parts[0].text;
+      rawTextContent = textContent;
+      
+      if (textContent) {
+        try {
+          tripData = extractJsonFromText(textContent);
+          tripData = validateTripData(tripData);
+        } catch (error) {
+          console.error("Error processing Gemini response:", error);
+          throw new Error(`${error.message} | Raw content: ${textContent.substring(0, 200)}...`);
+        }
+      } else {
+        throw new Error("No text content in Gemini response");
       }
     } else {
-      throw new Error("No text content in Gemini response");
+      throw new Error("Invalid content structure in Gemini API response");
     }
   } else {
-    throw new Error("Invalid response structure from Gemini API - missing candidates or content parts");
+    throw new Error("Invalid response structure from Gemini API - missing candidates or content");
   }
   
   return {
