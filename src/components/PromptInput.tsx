@@ -129,7 +129,8 @@ const AudioExperience: React.FC<AudioExperienceProps> = ({ onClose, onTranscript
   const [audioVisualizer, setAudioVisualizer] = useState<number[]>(Array(20).fill(10));
   const [processingComplete, setProcessingComplete] = useState(false);
   const [aiResponseText, setAiResponseText] = useState<string | null>(null);
-  
+  const { toast } = useToast();
+
   // Create animated audio visualization
   React.useEffect(() => {
     if (isListening) {
@@ -197,7 +198,7 @@ const AudioExperience: React.FC<AudioExperienceProps> = ({ onClose, onTranscript
         };
       });
     }
-  }, [isListening, onTranscript]);
+  }, [isListening, onTranscript, toast]);
 
   // Handle manual close with confirmation if needed
   const handleClose = () => {
@@ -257,12 +258,6 @@ const AudioExperience: React.FC<AudioExperienceProps> = ({ onClose, onTranscript
       )}
     </div>
   );
-};
-
-const toast = {
-  title: (title: string) => console.log(title),
-  description: (desc: string) => console.log(desc),
-  variant: (variant: string) => console.log(variant)
 };
 
 export default PromptInput;
