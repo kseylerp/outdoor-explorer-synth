@@ -1,13 +1,16 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { RealtimeAudioOptions } from '@/utils/audio/types';
+import { AudioProcessor } from '@/utils/audio/audioProcessor';
+import { WebRTCHandler } from '@/utils/audio/webRTCHandler';
+import { MessageHandler } from '@/utils/audio/messageHandler';
+import { SessionManager } from '@/utils/audio/sessionManager';
 
 export class RealtimeAudioService {
-  private pc: RTCPeerConnection | null = null;
-  private dc: RTCDataChannel | null = null;
-  private audioEl: HTMLAudioElement | null = null;
-  private mediaStream: MediaStream | null = null;
-  private audioContext: AudioContext | null = null;
-  private audioProcessor: ScriptProcessorNode | null = null;
+  private webRTCHandler: WebRTCHandler | null = null;
+  private audioProcessor: AudioProcessor | null = null;
+  private messageHandler: MessageHandler | null = null;
+  private sessionManager: SessionManager;
   private sessionId: string | null = null;
   
   // Callback handlers
@@ -17,46 +20,46 @@ export class RealtimeAudioService {
   public onAIResponseEnd: (() => void) | null = null;
   public onTripDataReceived: ((tripData: any) => void) | null = null;
   
-  constructor() {
-    this.audioEl = document.createElement('audio');
-    this.audioEl.autoplay = true;
+  constructor(options: RealtimeAudioOptions = {}) {
+    // Initialize callback handlers from options
+    this.onTranscriptReceived = options.onTranscriptReceived || null;
+    this.onError = options.onError || null;
+    this.onAIResponseStart = options.onAIResponseStart || null;
+    this.onAIResponseEnd = options.onAIResponseEnd || null;
+    this.onTripDataReceived = options.onTripDataReceived || null;
+    
+    this.sessionManager = new SessionManager();
   }
 
   async initSession(): Promise<string> {
     try {
       console.log('Initializing realtime session...');
       
-      // Create audio context
-      this.audioContext = new AudioContext({
-        sampleRate: 24000,
-      });
+      // Create message handler
+      this.messageHandler = new MessageHandler(
+        this.onTranscriptReceived || undefined,
+        this.onError || undefined,
+        this.onAIResponseStart || undefined,
+        this.onAIResponseEnd || undefined,
+        this.onTripDataReceived || undefined
+      );
       
-      // Create RTCPeerConnection
-      this.pc = new RTCPeerConnection();
+      // Create WebRTC handler
+      this.webRTCHandler = new WebRTCHandler(
+        (event) => { if (this.onAIResponseStart) this.onAIResponseStart(); },
+        (message) => { if (this.messageHandler) this.messageHandler.handleMessage(message); },
+        () => this.sendSessionUpdate()
+      );
       
-      // Set up session with Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke('realtime-sessions', {
-        body: {
-          action: 'create_session',
-          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. First, engage in natural conversation to understand the user's request. After you understand their requirements, inform them you'll show them trip options on screen. Format your response after understanding as a JSON object with destination, activities, and description fields. For example: ```json{\"destination\":\"Yosemite\",\"activities\":[\"hiking\",\"camping\"],\"description\":\"Weekend trip with moderate trails and fewer crowds\"}```.",
-          voice: "alloy"
-        }
-      });
+      // Create audio processor
+      this.audioProcessor = new AudioProcessor((audioData) => this.sendAudioData(audioData));
       
-      if (error) {
-        console.error('Error creating session:', error);
-        throw new Error('Failed to create session: ' + error.message);
-      }
-      
-      if (!data?.clientSecret) {
-        throw new Error('Failed to get client secret from OpenAI');
-      }
-      
-      this.sessionId = data.sessionId;
-      console.log('Session created with ID:', this.sessionId);
+      // Create session with OpenAI via Supabase Edge Function
+      const { sessionId, clientSecret } = await this.sessionManager.createSession();
+      this.sessionId = sessionId;
       
       // Set up WebRTC connection
-      await this.setupWebRtcConnection(data.clientSecret);
+      await this.setupWebRtcConnection(clientSecret);
       await this.startAudioCapture();
       
       return this.sessionId;
@@ -70,60 +73,29 @@ export class RealtimeAudioService {
   }
   
   private async setupWebRtcConnection(ephemeralToken: string): Promise<void> {
-    if (!this.pc) {
-      throw new Error('PeerConnection not initialized');
+    if (!this.webRTCHandler) {
+      throw new Error('WebRTC handler not initialized');
     }
     
     try {
-      // Set up audio track handling
-      this.pc.ontrack = (event) => {
-        if (this.audioEl) {
-          this.audioEl.srcObject = event.streams[0];
-          
-          if (this.onAIResponseStart) {
-            this.onAIResponseStart();
-          }
-        }
-      };
+      // Initialize WebRTC connection
+      const pc = await this.webRTCHandler.initialize();
       
       // Create data channel
-      const dataChannel = this.pc.createDataChannel('oai-events');
-      this.dc = dataChannel;
-      
-      // Set up data channel event handlers
-      dataChannel.onopen = () => {
-        console.log('Data channel open');
-        this.sendSessionUpdate();
-      };
-      
-      dataChannel.onmessage = (event) => {
-        this.handleMessage(JSON.parse(event.data));
-      };
+      this.webRTCHandler.createDataChannel();
       
       // Create and set local description
-      const offer = await this.pc.createOffer();
-      await this.pc.setLocalDescription(offer);
+      const offer = await this.webRTCHandler.createOffer();
       
       // Connect to OpenAI
-      const response = await fetch(`https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, {
-        method: "POST",
-        body: offer.sdp,
-        headers: {
-          Authorization: `Bearer ${ephemeralToken}`,
-          "Content-Type": "application/sdp"
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`OpenAI WebRTC setup error: ${response.status}`);
-      }
+      const sdpAnswer = await this.sessionManager.connectToOpenAI(offer.sdp!, ephemeralToken);
       
       const answer = {
         type: "answer" as RTCSdpType,
-        sdp: await response.text(),
+        sdp: sdpAnswer,
       };
       
-      await this.pc.setRemoteDescription(answer);
+      await this.webRTCHandler.setRemoteDescription(answer);
       console.log('WebRTC connection established');
     } catch (error) {
       console.error('WebRTC connection failed:', error);
@@ -132,13 +104,13 @@ export class RealtimeAudioService {
   }
   
   private sendSessionUpdate(): void {
-    if (!this.dc || this.dc.readyState !== 'open') {
-      console.warn('Cannot send session update: data channel not open');
+    if (!this.webRTCHandler) {
+      console.warn('Cannot send session update: WebRTC handler not initialized');
       return;
     }
     
     try {
-      this.dc.send(JSON.stringify({
+      this.webRTCHandler.sendMessage({
         type: 'session.update',
         session: {
           modalities: ["text", "audio"],
@@ -151,7 +123,7 @@ export class RealtimeAudioService {
             silence_duration_ms: 1000
           }
         }
-      }));
+      });
       
       console.log('Session update sent');
     } catch (error) {
@@ -159,99 +131,24 @@ export class RealtimeAudioService {
     }
   }
   
-  private handleMessage(message: any): void {
-    // Log incoming messages for debugging
-    console.log('Received message:', message);
-    
-    switch (message.type) {
-      case 'response.audio_transcript.delta':
-        // Incremental transcript update
-        if (this.onTranscriptReceived && message.delta) {
-          this.onTranscriptReceived(message.delta);
-        }
-        break;
-        
-      case 'response.audio_transcript.done':
-        // Full transcript is now available
-        if (this.onTranscriptReceived && message.transcript) {
-          this.onTranscriptReceived(message.transcript);
-          
-          // Extract JSON if it exists in the response
-          try {
-            const jsonMatch = message.transcript.match(/```json(.*?)```/s);
-            if (jsonMatch && jsonMatch[1]) {
-              const jsonData = JSON.parse(jsonMatch[1].trim());
-              if (this.onTripDataReceived) {
-                this.onTripDataReceived(jsonData);
-              }
-            }
-          } catch (err) {
-            console.error('Failed to parse JSON from transcript:', err);
-          }
-        }
-        break;
-        
-      case 'error':
-        console.error('Error from OpenAI:', message);
-        if (this.onError) {
-          this.onError(new Error(message.message || 'Unknown error from OpenAI'));
-        }
-        break;
-        
-      case 'session.created':
-        console.log('Session created confirmation received');
-        break;
-        
-      case 'response.audio.done':
-        // Audio response is complete
-        if (this.onAIResponseEnd) {
-          this.onAIResponseEnd();
-        }
-        break;
-        
-      case 'response.done':
-        // Response is completely finished
-        break;
-    }
-  }
-  
   private async startAudioCapture(): Promise<void> {
+    if (!this.audioProcessor || !this.webRTCHandler) {
+      throw new Error('Audio processor or WebRTC handler not initialized');
+    }
+    
     try {
-      // Get audio stream
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 24000,
-          channelCount: 1
-        }
-      });
+      // Initialize audio processor and get audio stream
+      const mediaStream = await this.audioProcessor.initialize();
       
       // Add tracks to peer connection
-      if (this.pc) {
-        this.mediaStream.getAudioTracks().forEach(track => {
-          if (this.pc && this.mediaStream) {
-            this.pc.addTrack(track, this.mediaStream);
-          }
+      if (mediaStream) {
+        mediaStream.getAudioTracks().forEach(track => {
+          this.webRTCHandler?.addTrack(track, mediaStream);
         });
       }
       
-      // Set up audio processing
-      if (this.audioContext) {
-        const source = this.audioContext.createMediaStreamSource(this.mediaStream);
-        this.audioProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
-        
-        this.audioProcessor.onaudioprocess = (e) => {
-          if (this.dc && this.dc.readyState === 'open') {
-            const inputData = e.inputBuffer.getChannelData(0);
-            this.sendAudioData(inputData);
-          }
-        };
-        
-        source.connect(this.audioProcessor);
-        this.audioProcessor.connect(this.audioContext.destination);
-      }
+      // Set up audio processing pipeline
+      this.audioProcessor.setupProcessing(mediaStream);
     } catch (error) {
       console.error('Error starting audio capture:', error);
       throw error;
@@ -259,17 +156,13 @@ export class RealtimeAudioService {
   }
   
   private sendAudioData(float32Array: Float32Array): void {
-    if (!this.dc || this.dc.readyState !== 'open') {
+    if (!this.webRTCHandler) {
       return;
     }
     
     try {
       // Convert Float32Array to Int16Array (PCM format)
-      const int16Array = new Int16Array(float32Array.length);
-      for (let i = 0; i < float32Array.length; i++) {
-        const s = Math.max(-1, Math.min(1, float32Array[i]));
-        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-      }
+      const int16Array = AudioProcessor.convertAudioToInt16(float32Array);
       
       // Convert to base64
       const uint8Array = new Uint8Array(int16Array.buffer);
@@ -284,10 +177,10 @@ export class RealtimeAudioService {
       const base64 = btoa(binary);
       
       // Send audio data
-      this.dc.send(JSON.stringify({
+      this.webRTCHandler.sendMessage({
         type: 'input_audio_buffer.append',
         audio: base64
-      }));
+      });
     } catch (error) {
       console.error('Error sending audio data:', error);
     }
@@ -295,35 +188,19 @@ export class RealtimeAudioService {
   
   disconnect(): void {
     try {
-      // Stop audio processor
+      // Clean up audio processor
       if (this.audioProcessor) {
-        this.audioProcessor.disconnect();
+        this.audioProcessor.cleanup();
         this.audioProcessor = null;
       }
       
-      // Stop media tracks
-      if (this.mediaStream) {
-        this.mediaStream.getTracks().forEach(track => track.stop());
-        this.mediaStream = null;
+      // Close WebRTC connection
+      if (this.webRTCHandler) {
+        this.webRTCHandler.close();
+        this.webRTCHandler = null;
       }
       
-      // Close audio context
-      if (this.audioContext && this.audioContext.state !== 'closed') {
-        this.audioContext.close();
-        this.audioContext = null;
-      }
-      
-      // Close data channel
-      if (this.dc) {
-        this.dc.close();
-        this.dc = null;
-      }
-      
-      // Close peer connection
-      if (this.pc) {
-        this.pc.close();
-        this.pc = null;
-      }
+      this.messageHandler = null;
       
       console.log('RealtimeAudioService disconnected');
     } catch (error) {
