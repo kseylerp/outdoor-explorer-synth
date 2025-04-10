@@ -1,56 +1,57 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ModelSelector from './ModelSelector';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { PanelLeft } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
 
-const TopNav: React.FC<{ hideModelSelector?: boolean }> = ({ hideModelSelector = false }) => {
+interface TopNavProps {
+  hideModelSelector?: boolean;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ hideModelSelector }) => {
+  const isMobile = useIsMobile();
+  const { toggleSidebar } = useSidebar();
   const location = useLocation();
   
-  const isActive = (path: string) => {
-    return location.pathname === path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent';
-  };
+  // Don't show TopNav on guide portal routes
+  if (location.pathname.startsWith('/guide-portal')) {
+    return null;
+  }
 
   return (
-    <header className="border-b bg-background">
-      <div className="container flex h-14 items-center px-4 sm:px-6">
-        <div className="mr-8 hidden md:flex">
-          <Link to="/" className="text-xl font-bold flex items-center">
-            <span className="offbeat-gradient">OffBeat</span>
+    <div className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-3 md:px-6">
+      {isMobile && (
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-9 w-9" 
+            onClick={toggleSidebar}
+          >
+            <PanelLeft size={20} />
+          </Button>
+          
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" 
+              alt="Offbeat Logo" 
+              className="h-11 object-contain"
+            />
           </Link>
         </div>
-        
-        <div className="flex flex-1 items-center space-x-2 sm:space-x-4 md:justify-start">
-          <Link 
-            to="/" 
-            className={`h-8 rounded-md px-3 py-1.5 text-sm font-medium ${isActive('/')}`}
-          >
-            Home
-          </Link>
-          <Link 
-            to="/explore" 
-            className={`h-8 rounded-md px-3 py-1.5 text-sm font-medium ${isActive('/explore')}`}
-          >
-            Explore
-          </Link>
-          <Link 
-            to="/chat" 
-            className={`h-8 rounded-md px-3 py-1.5 text-sm font-medium ${isActive('/chat')}`}
-          >
-            Chat
-          </Link>
-          <Link 
-            to="/agent" 
-            className={`h-8 rounded-md px-3 py-1.5 text-sm font-medium ${isActive('/agent')}`}
-          >
-            AI Assistant
-          </Link>
-        </div>
-        
-        <div className="flex items-center">
-          {!hideModelSelector && <ModelSelector />}
-        </div>
+      )}
+      
+      <div className="flex gap-4 ml-auto">
+        <Button variant="outline" asChild className="font-patano">
+          <Link to="/login">Log In</Link>
+        </Button>
+        <Button asChild className="font-patano">
+          <Link to="/signup">Sign Up</Link>
+        </Button>
       </div>
-    </header>
+    </div>
   );
 };
 
