@@ -7,8 +7,8 @@ const RealtimeChatPage: React.FC = () => {
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">Chat with the Offbeat Adventure Assistant</h1>
       <p className="mb-6 text-gray-600 max-w-3xl">
-        This assistant uses OpenAI's Realtime API to provide audio and text responses about offbeat adventure travel. 
-        You can type messages or use voice to communicate with the AI.
+        Our AI-powered assistant can help you discover unique adventures, plan your trip, and find hidden gems off the beaten path.
+        Use your voice or text to interact with the assistant.
       </p>
       <RealtimeChat />
     </div>

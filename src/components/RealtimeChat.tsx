@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Mic, MicOff, SendHorizonal } from 'lucide-react';
+import { Loader2, Mic, MicOff, SendHorizonal, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,6 +16,8 @@ const RealtimeChat: React.FC = () => {
   const [message, setMessage] = useState<string>('');
   const [transcript, setTranscript] = useState<string>('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [history, setHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -38,6 +40,11 @@ const RealtimeChat: React.FC = () => {
       }
     };
   }, []);
+
+  // Auto-start on component mount for better initial experience
+  useEffect(() => {
+    startSession();
+  }, []);
   
   const startSession = async () => {
     try {
@@ -48,7 +55,7 @@ const RealtimeChat: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('realtime-sessions', {
         body: {
           action: 'create_session',
-          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures.",
+          instructions: "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures. Start by asking what kind of adventure they're looking for.",
           voice: "alloy" // Options: alloy, echo, fable, onyx, nova, shimmer
         }
       });
@@ -64,8 +71,8 @@ const RealtimeChat: React.FC = () => {
       setSessionId(data.sessionId);
       setClientSecret(data.clientSecret);
       toast({
-        title: "Session created",
-        description: "You're connected to the AI assistant",
+        title: "Adventure assistant ready",
+        description: "Your AI adventure guide is ready to help you plan your next trip",
       });
       
       // Establish WebRTC connection
@@ -171,6 +178,12 @@ const RealtimeChat: React.FC = () => {
       case 'response.audio_transcript.delta':
         setTranscript(prev => prev + message.delta);
         break;
+      case 'response.audio_transcript.done':
+        // Add assistant's message to history when complete
+        if (transcript) {
+          setHistory(prev => [...prev, { role: 'assistant', content: transcript }]);
+        }
+        break;
       case 'response.audio.done':
         setState('connected'); // Audio response finished
         break;
@@ -194,6 +207,9 @@ const RealtimeChat: React.FC = () => {
     
     try {
       setState('processing');
+      
+      // Add user message to history
+      setHistory(prev => [...prev, { role: 'user', content: message }]);
       
       // Create a conversation item
       const event = {
@@ -251,6 +267,18 @@ const RealtimeChat: React.FC = () => {
       setState('connected');
     }
   };
+
+  const toggleMute = () => {
+    if (audioElementRef.current) {
+      audioElementRef.current.muted = !audioElementRef.current.muted;
+      setIsMuted(!isMuted);
+      
+      toast({
+        title: isMuted ? "Audio enabled" : "Audio muted",
+        description: isMuted ? "You can now hear the assistant" : "The assistant's voice is now muted",
+      });
+    }
+  };
   
   const renderControls = () => {
     switch (state) {
@@ -269,6 +297,7 @@ const RealtimeChat: React.FC = () => {
         );
       case 'connected':
       case 'recording':
+      case 'processing':
         return (
           <div className="flex items-center space-x-2">
             <Button
@@ -276,6 +305,7 @@ const RealtimeChat: React.FC = () => {
               size="icon"
               onClick={toggleMicrophone}
               className={isRecording ? "bg-red-100" : ""}
+              disabled={state === 'processing'}
             >
               {isRecording ? <MicOff /> : <Mic />}
             </Button>
@@ -290,13 +320,21 @@ const RealtimeChat: React.FC = () => {
                 }
               }}
               className="min-h-9 flex-1"
+              disabled={state === 'processing'}
             />
             <Button
               size="icon"
               onClick={handleSendMessage}
-              disabled={!message.trim()}
+              disabled={!message.trim() || state === 'processing'}
             >
               <SendHorizonal />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleMute}
+            >
+              {isMuted ? <VolumeX /> : <Volume2 />}
             </Button>
           </div>
         );
@@ -318,12 +356,44 @@ const RealtimeChat: React.FC = () => {
         <CardTitle>Offbeat Adventure Assistant</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {transcript && (
-          <div className="bg-muted p-4 rounded-md">
-            <p className="font-medium">Assistant:</p>
-            <p>{transcript}</p>
-          </div>
-        )}
+        <div className="flex flex-col space-y-4 max-h-[500px] overflow-y-auto p-2">
+          {history.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>👋 Hi there! I'm your adventure guide.</p>
+              <p>Ask me about outdoor adventures, hiking trails, national parks, or unique travel experiences!</p>
+            </div>
+          )}
+
+          {history.map((msg, index) => (
+            <div 
+              key={index} 
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div 
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  msg.role === 'user' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted'
+                }`}
+              >
+                {msg.content}
+              </div>
+            </div>
+          ))}
+          
+          {transcript && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] rounded-lg p-3 bg-muted">
+                <div className="flex items-center gap-2">
+                  <div className="animate-pulse">
+                    <div className="h-2 w-2 bg-purple-500 rounded-full"></div>
+                  </div>
+                  {transcript}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         
         {state === 'processing' && (
           <div className="flex items-center justify-center space-x-2">

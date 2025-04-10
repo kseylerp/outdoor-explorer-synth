@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'; 
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -9,6 +10,9 @@ import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { generateTrips } from '@/services/trip/tripService';
 import { Trip } from '@/types/trips';
 import { toast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+import { MessageSquare } from 'lucide-react';
+import RealtimeChat from '@/components/RealtimeChat';
 
 const Index = () => {
   const [prompt, setPrompt] = useState('');
@@ -17,6 +21,7 @@ const Index = () => {
   const [thinking, setThinking] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [showChat, setShowChat] = useState(false);
 
   const handleSubmitPrompt = async (inputPrompt: string) => {
     setPrompt(inputPrompt);
@@ -109,6 +114,40 @@ const Index = () => {
           Powered by local guides: explore, plan, and experience better trips
         </p>
       </div>
+
+      {/* AI Assistant Banner */}
+      {!showChat && (
+        <div className="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-lg p-6 mb-8 shadow-sm">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Meet Your Adventure Assistant</h2>
+              <p className="text-gray-700">
+                Chat with our AI-powered adventure assistant to get personalized travel recommendations and trip planning help.
+              </p>
+            </div>
+            <Button 
+              onClick={() => setShowChat(true)} 
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Start Chat
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Realtime Chat */}
+      {showChat && (
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Adventure Assistant</h2>
+            <Button variant="outline" onClick={() => setShowChat(false)}>
+              Close Chat
+            </Button>
+          </div>
+          <RealtimeChat />
+        </div>
+      )}
 
       <Card className="mb-8">
         <CardContent className="pt-6">
