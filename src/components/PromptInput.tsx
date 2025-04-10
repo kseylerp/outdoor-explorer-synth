@@ -10,12 +10,14 @@ interface PromptInputProps {
   onSubmit: (prompt: string) => void;
   isProcessing: boolean;
   defaultValue?: string;
+  placeholder?: string;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ 
   onSubmit, 
   isProcessing, 
   defaultValue = '', 
+  placeholder = '',
 }) => {
   const [prompt, setPrompt] = useState(defaultValue);
   const [showAudioExperience, setShowAudioExperience] = useState(false);
@@ -79,7 +81,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
       <div className="relative">
         <Textarea
           ref={textareaRef}
-          placeholder=""
+          placeholder={placeholder}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
