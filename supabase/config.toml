@@ -25,3 +25,16 @@ import_map = "functions/process-routes/import_map.json"
 [functions.realtime-sessions]
 verify_jwt = false
 import_map = "functions/realtime-sessions/import_map.json"
+
+[functions.agent-triage]
+verify_jwt = false
+
+[functions.agent-search]
+verify_jwt = false
+
+[functions.agent-knowledge]
+verify_jwt = false
+
+[functions.agent-account]
+verify_jwt = false
+
