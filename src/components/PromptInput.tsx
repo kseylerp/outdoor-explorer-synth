@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
+  onTranscript?: (transcript: string, tripData?: any) => void; // Added this prop
   isProcessing: boolean;
   defaultValue?: string;
   placeholder?: string;
@@ -15,6 +16,7 @@ interface PromptInputProps {
 
 const PromptInput: React.FC<PromptInputProps> = ({
   onSubmit,
+  onTranscript,
   isProcessing,
   defaultValue = '',
   placeholder = ''
@@ -50,10 +52,15 @@ const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
-  const handleVoiceTranscript = (transcript: string) => {
+  const handleVoiceTranscript = (transcript: string, tripData?: any) => {
     setPrompt(transcript);
     if (textareaRef.current) {
       textareaRef.current.focus();
+    }
+    
+    // Call the onTranscript prop if provided
+    if (onTranscript) {
+      onTranscript(transcript, tripData);
     }
   };
 
@@ -90,7 +97,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
       >
         <Textarea 
           ref={textareaRef} 
-          placeholder="" 
+          placeholder={placeholder}
           value={prompt} 
           onChange={e => setPrompt(e.target.value)} 
           onKeyDown={handleKeyDown} 
