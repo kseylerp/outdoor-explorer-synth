@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Trip } from '@/types/trips';
 import TripItinerary from './TripItinerary';
 import TripBaseView from '../trip-shared/TripBaseView';
-import TripCardButtons from './TripCardButtons';
 import ItineraryExpander from './ItineraryExpander';
 
 interface TripCardProps {
@@ -51,21 +50,15 @@ const TripCard: React.FC<TripCardProps> = ({
   
   return (
     <Card 
-      className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md"
+      className="w-full overflow-hidden transition-all duration-300 border-gray-200 shadow-md dark:border-gray-700"
       onClick={handleCardClick}
     >
-      <TripBaseView trip={trip} compact={!isItineraryVisible}>
-        {/* Buttons for saving/removing trips */}
-        {(onSave || (showRemoveButton && onRemove)) && (
-          <TripCardButtons 
-            tripId={trip.id} 
-            isSaved={isSaved}
-            onSave={onSave}
-            showRemoveButton={showRemoveButton}
-            onRemove={onRemove}
-          />
-        )}
-        
+      <TripBaseView 
+        trip={trip} 
+        compact={!isItineraryVisible}
+        isSaved={isSaved}
+        onSave={onSave}
+      >
         {/* Itinerary expander */}
         <div className="itinerary-expander">
           <ItineraryExpander 

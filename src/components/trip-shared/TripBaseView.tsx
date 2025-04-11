@@ -5,14 +5,24 @@ import TripMapSection from '../trip-details/TripMapSection';
 import PriceBreakdown from '../trip-details/PriceBreakdown';
 import TripHeader from '../trip-details/TripHeader';
 import TripDescription from '../trip-details/TripDescription';
+import TripCardButtons from '../trip-card/TripCardButtons';
+import TripIntensityCard from '../trip-details/TripIntensityCard';
 
 interface TripBaseViewProps {
   trip: Trip;
   compact?: boolean;
   children?: React.ReactNode;
+  onSave?: () => void;
+  isSaved?: boolean;
 }
 
-const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, children }) => {
+const TripBaseView: React.FC<TripBaseViewProps> = ({ 
+  trip, 
+  compact = false, 
+  children,
+  onSave,
+  isSaved = false
+}) => {
   // Add console logging to debug the trip data
   console.log('TripBaseView - trip data:', trip);
   
@@ -49,34 +59,51 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
             priceDetails={trip.priceBreakdown}
           />
           
+          {/* Trip intensity card */}
+          {!compact && <TripIntensityCard difficultyLevel={trip.difficultyLevel} />}
+          
+          {/* Save Trip button */}
+          {onSave && (
+            <div className="mt-4">
+              <TripCardButtons 
+                tripId={trip.id} 
+                isSaved={isSaved}
+                onSave={onSave}
+                showRemoveButton={false}
+                onRemove={undefined}
+                fullWidth={true}
+              />
+            </div>
+          )}
+          
           {/* Additional information that might be useful */}
           {trip.bestTimeToVisit && !compact && (
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-              <h3 className="text-md font-semibold text-blue-900 mb-1">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
+              <h3 className="text-md font-semibold text-blue-900 dark:text-blue-300 mb-1">
                 Best Time to Visit
               </h3>
-              <p className="text-gray-700">{trip.bestTimeToVisit}</p>
+              <p className="text-gray-700 dark:text-gray-300">{trip.bestTimeToVisit}</p>
             </div>
           )}
           
           {trip.permits && trip.permits.required && (
-            <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-              <h3 className="text-md font-semibold text-amber-900 mb-1">
+            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-100 dark:border-amber-800">
+              <h3 className="text-md font-semibold text-amber-900 dark:text-amber-300 mb-1">
                 Permits
               </h3>
-              <p className="text-gray-700">{trip.permits.details}</p>
+              <p className="text-gray-700 dark:text-gray-300">{trip.permits.details}</p>
             </div>
           )}
           
           {/* Equipment recommendations if available */}
           {trip.equipmentRecommendations && trip.equipmentRecommendations.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-md font-semibold mb-2">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-md font-semibold mb-2 dark:text-gray-200">
                 Equipment Recommendations
               </h3>
               <ul className="list-disc list-inside space-y-1">
                 {trip.equipmentRecommendations.map((item, index) => (
-                  <li key={index} className="text-sm text-gray-700">{item}</li>
+                  <li key={index} className="text-sm text-gray-700 dark:text-gray-300">{item}</li>
                 ))}
               </ul>
             </div>
@@ -84,13 +111,13 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
           
           {/* Local Tips section */}
           {trip.localTips && trip.localTips.length > 0 && (
-            <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-              <h3 className="text-md font-semibold text-green-900 mb-2">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-100 dark:border-green-800">
+              <h3 className="text-md font-semibold text-green-900 dark:text-green-300 mb-2">
                 Local Tips
               </h3>
               <ul className="list-disc list-inside space-y-1">
                 {trip.localTips.map((tip, index) => (
-                  <li key={index} className="text-sm text-gray-700">{tip}</li>
+                  <li key={index} className="text-sm text-gray-700 dark:text-gray-300">{tip}</li>
                 ))}
               </ul>
             </div>
@@ -98,11 +125,11 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({ trip, compact = false, chil
           
           {/* Safety Notes */}
           {trip.safetyNotes && (
-            <div className="bg-red-50 rounded-lg p-4 border border-red-100">
-              <h3 className="text-md font-semibold text-red-900 mb-1">
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-100 dark:border-red-800">
+              <h3 className="text-md font-semibold text-red-900 dark:text-red-300 mb-1">
                 Safety Notes
               </h3>
-              <p className="text-gray-700">{trip.safetyNotes}</p>
+              <p className="text-gray-700 dark:text-gray-300">{trip.safetyNotes}</p>
             </div>
           )}
         </div>

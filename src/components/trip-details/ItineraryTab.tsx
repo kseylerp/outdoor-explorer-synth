@@ -7,7 +7,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import JourneyInfo from './JourneyInfo';
 import CampgroundSection from './CampgroundSection';
 import ItineraryDayTabs from './ItineraryDayTabs';
-import NotesSection from './NotesSection';
 
 interface ItineraryTabProps {
   itinerary: ItineraryDay[];
@@ -18,15 +17,10 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [showCampgrounds, setShowCampgrounds] = useState(false);
   const [showJourneyInfo, setShowJourneyInfo] = useState(false);
-  const [notes, setNotes] = useState<string>('');
 
   // Add console logs to debug the data
   console.log('ItineraryTab - itinerary:', itinerary);
   console.log('ItineraryTab - journey:', journey);
-
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNotes(e.target.value);
-  };
 
   return (
     <div>
@@ -82,16 +76,10 @@ const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary, journey }) => {
             selectedDay={selectedDay}
             onDayChange={setSelectedDay}
           />
-          
-          {/* Notes Section */}
-          <NotesSection 
-            notes={notes}
-            onNotesChange={handleNotesChange}
-          />
         </div>
       ) : (
-        <div className="text-center p-4 border border-gray-200 rounded-md">
-          <p className="text-gray-500">No itinerary information available for this trip.</p>
+        <div className="text-center p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+          <p className="text-gray-500 dark:text-gray-400">No itinerary information available for this trip.</p>
         </div>
       )}
     </div>
