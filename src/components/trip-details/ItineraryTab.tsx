@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { ItineraryDay, Journey } from '@/types/trips';
 import { Button } from '@/components/ui/button';
 import { Map, Tent } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import JourneyInfo from './JourneyInfo';
 import CampgroundSection from './CampgroundSection';
 import ItineraryDayTabs from './ItineraryDayTabs';

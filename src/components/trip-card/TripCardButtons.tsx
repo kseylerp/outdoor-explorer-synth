@@ -10,6 +10,7 @@ interface TripCardButtonsProps {
   showRemoveButton?: boolean;
   onRemove?: () => void;
   fullWidth?: boolean;
+  compactMode?: boolean;
 }
 
 const TripCardButtons: React.FC<TripCardButtonsProps> = ({
@@ -18,18 +19,20 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
   onSave,
   showRemoveButton = false,
   onRemove,
-  fullWidth = false
+  fullWidth = false,
+  compactMode = false
 }) => {
   return (
-    <div className={`flex justify-between items-center ${!fullWidth ? 'px-6 py-4 bg-white dark:bg-[#202020] shadow-sm' : ''}`}>
+    <div className={`flex justify-between items-center ${!fullWidth && !compactMode ? 'px-6 py-4 bg-white dark:bg-[#202020] shadow-sm' : ''}`}>
       <div className="flex gap-2">
         {onSave && (
           <Button
             onClick={onSave}
             variant={isSaved ? "outline" : "default"}
-            className={`flex items-center gap-2 ${fullWidth ? 'w-full' : ''}`}
+            className={`flex items-center gap-1 ${fullWidth ? 'w-full' : ''} ${compactMode ? 'py-1 h-auto text-xs' : ''}`}
+            size={compactMode ? "sm" : "default"}
           >
-            <BookmarkPlus className="h-4 w-4" />
+            <BookmarkPlus className={`${compactMode ? 'h-3 w-3' : 'h-4 w-4'}`} />
             {isSaved ? 'Saved' : 'Save Trip'}
           </Button>
         )}

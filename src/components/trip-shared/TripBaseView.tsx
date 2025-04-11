@@ -5,7 +5,6 @@ import TripMapSection from '../trip-details/TripMapSection';
 import PriceBreakdown from '../trip-details/PriceBreakdown';
 import TripHeader from '../trip-details/TripHeader';
 import TripDescription from '../trip-details/TripDescription';
-import TripCardButtons from '../trip-card/TripCardButtons';
 import TripIntensityCard from '../trip-details/TripIntensityCard';
 
 interface TripBaseViewProps {
@@ -31,6 +30,8 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
       <TripHeader 
         trip={trip}
         compact={compact}
+        onSave={onSave}
+        isSaved={isSaved}
       />
       
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -62,23 +63,9 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           {/* Trip intensity card */}
           {!compact && <TripIntensityCard difficultyLevel={trip.difficultyLevel} />}
           
-          {/* Save Trip button */}
-          {onSave && (
-            <div className="mt-4">
-              <TripCardButtons 
-                tripId={trip.id} 
-                isSaved={isSaved}
-                onSave={onSave}
-                showRemoveButton={false}
-                onRemove={undefined}
-                fullWidth={true}
-              />
-            </div>
-          )}
-          
-          {/* Additional information that might be useful */}
+          {/* Best Time to Visit info */}
           {trip.bestTimeToVisit && !compact && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
+            <div className="bg-blue-50 dark:bg-gray-800 rounded-lg p-4 border border-blue-100 dark:border-gray-700">
               <h3 className="text-md font-semibold text-blue-900 dark:text-blue-300 mb-1">
                 Best Time to Visit
               </h3>
@@ -86,8 +73,9 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
             </div>
           )}
           
+          {/* Permits info */}
           {trip.permits && trip.permits.required && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-100 dark:border-amber-800">
+            <div className="bg-amber-50 dark:bg-gray-800 rounded-lg p-4 border border-amber-100 dark:border-gray-700">
               <h3 className="text-md font-semibold text-amber-900 dark:text-amber-300 mb-1">
                 Permits
               </h3>
@@ -111,7 +99,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Local Tips section */}
           {trip.localTips && trip.localTips.length > 0 && (
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-100 dark:border-green-800">
+            <div className="bg-green-50 dark:bg-gray-800 rounded-lg p-4 border border-green-100 dark:border-gray-700">
               <h3 className="text-md font-semibold text-green-900 dark:text-green-300 mb-2">
                 Local Tips
               </h3>
@@ -125,7 +113,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Safety Notes */}
           {trip.safetyNotes && (
-            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-100 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-gray-800 rounded-lg p-4 border border-red-100 dark:border-gray-700">
               <h3 className="text-md font-semibold text-red-900 dark:text-red-300 mb-1">
                 Safety Notes
               </h3>
