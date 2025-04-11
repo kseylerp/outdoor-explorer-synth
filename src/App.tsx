@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,20 +7,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import TripDetails from "./pages/TripDetails";
 import NotFound from "./pages/NotFound";
-import Explore from "./pages/Explore";
-import Destinations from "./pages/Destinations";
 import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
 import CampgroundBooking from "./pages/CampgroundBooking";
-import RealtimeChatPage from "./pages/RealtimeChat";
 
 // Main app layout components
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "./hooks/use-mobile";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 // Guide Portal components
 import GuidePortalLayout from "./components/guide/GuidePortalLayout";
@@ -46,14 +45,11 @@ const MainAppLayout = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
-            <Route path="/explore" element={<Explore />} />
             <Route path="/saved-trips" element={<SavedTrips />} />
-            <Route path="/destinations" element={<Destinations />} />
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/campground/:id" element={<CampgroundBooking />} />
-            <Route path="/realtime-chat" element={<RealtimeChatPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
@@ -89,13 +85,15 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <SidebarProvider>
-            <AppContent />
-          </SidebarProvider>
-        </TooltipProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <SidebarProvider>
+              <AppContent />
+            </SidebarProvider>
+          </TooltipProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
