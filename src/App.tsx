@@ -33,9 +33,9 @@ const queryClient = new QueryClient();
 // Main App Layout wrapper
 const MainAppLayout = () => {
   const isMobile = useIsMobile();
-  return <div className="flex min-h-screen w-full bg-white">
+  return <div className="flex min-h-screen w-full bg-[#161616]">
       {!isMobile && <MainNav />}
-      <div className="flex-1 flex flex-col overflow-hidden bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#161616]">
         <TopNav />
         <main className="flex-1 overflow-auto bg-[#161616]">
           <Routes>
@@ -52,6 +52,7 @@ const MainAppLayout = () => {
       </div>
     </div>;
 };
+
 const AppContent = () => {
   return <Routes>
       {/* Main application routes */}
@@ -72,7 +73,6 @@ const AppContent = () => {
     </Routes>;
 };
 
-// Changed functional component definition to wrap providers properly
 const App = () => {
   return <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -88,4 +88,5 @@ const App = () => {
       </BrowserRouter>
     </QueryClientProvider>;
 };
+
 export default App;

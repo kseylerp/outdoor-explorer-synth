@@ -28,7 +28,7 @@ const MainNav: React.FC = () => {
   if (isGuidePortalRoute) {
     return null; // Don't show main nav on guide portal routes
   }
-  return <div className={`border-r border-gray-200 h-screen bg-sidebar transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
+  return <div className={`border-r border-gray-200 h-full min-h-screen bg-[#202020] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-[#202020]">
           {expanded ? <Link to="/" className="flex items-center">
@@ -54,7 +54,7 @@ const MainNav: React.FC = () => {
             {/* Hidden map navigation item - only visible in admin mode */}
             {ADMIN_MODE && <MenuItem to="/maps" icon={<Map size={20} />} label="Maps" active={isActive('/maps')} expanded={expanded} onClick={() => {}} />}
             
-            <MenuItem to="/buddies" icon={<Users size={20} />} label="Buddies" active={isActive('/buddies')} expanded={expanded} onClick={() => {}} />
+            <MenuItem to="/companions" icon={<Users size={20} />} label="Companions" active={isActive('/companions')} expanded={expanded} onClick={() => {}} />
             
             <MenuItem to="/guides" icon={<ShieldQuestion size={20} />} label="Guides" active={isActive('/guides')} expanded={expanded} onClick={() => {}} />
             

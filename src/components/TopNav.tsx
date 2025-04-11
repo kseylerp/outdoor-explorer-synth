@@ -1,12 +1,15 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PanelLeft } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+
 interface TopNavProps {
   hideModelSelector?: boolean;
 }
+
 const TopNav: React.FC<TopNavProps> = ({
   hideModelSelector
 }) => {
@@ -20,6 +23,7 @@ const TopNav: React.FC<TopNavProps> = ({
   if (location.pathname.startsWith('/guide-portal')) {
     return null;
   }
+  
   return <div className="h-16 border-b border-gray-200 flex items-center justify-between px-3 md:px-6 bg-[#202020]">
       {isMobile && <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleSidebar}>
@@ -41,4 +45,5 @@ const TopNav: React.FC<TopNavProps> = ({
       </div>
     </div>;
 };
+
 export default TopNav;

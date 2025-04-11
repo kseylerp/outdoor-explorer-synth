@@ -19,10 +19,10 @@ const ItineraryExpander: React.FC<ItineraryExpanderProps> = ({ isExpanded, onTog
   return (
     <Collapsible
       open={isExpanded}
-      className="w-full border-t border-purple-200"
+      className="w-full border-t border-purple-200 dark:border-purple-900/40"
     >
       <CollapsibleTrigger 
-        className="w-full flex items-center justify-center py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium"
+        className="w-full flex items-center justify-center py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium dark:bg-purple-900/20 dark:hover:bg-purple-900/30 dark:text-purple-300"
         onClick={handleTriggerClick}
       >
         {isExpanded ? (
