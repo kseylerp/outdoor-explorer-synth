@@ -55,12 +55,18 @@ export class RealtimeAudioService {
       this.audioProcessor = new AudioProcessor((audioData) => this.sendAudioData(audioData));
       
       // Create session with OpenAI via Supabase Edge Function
+      console.log('Requesting session from Supabase Edge Function...');
       const { sessionId, clientSecret } = await this.sessionManager.createSession();
       this.sessionId = sessionId;
+      console.log('Got session ID:', sessionId);
       
       // Set up WebRTC connection
+      console.log('Setting up WebRTC connection...');
       await this.setupWebRtcConnection(clientSecret);
+      console.log('WebRTC connection established successfully');
+      
       await this.startAudioCapture();
+      console.log('Audio capture started successfully');
       
       return this.sessionId;
     } catch (error) {

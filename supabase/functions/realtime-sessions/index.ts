@@ -42,6 +42,8 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not set in environment variables');
     }
     
+    console.log('Creating session with OpenAI Realtime API...');
+    
     // Default instructions for travel planning and JSON formatting
     const defaultInstructions = `You are an adventure guide that specializes in offbeat travel recommendations. 
     Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. 

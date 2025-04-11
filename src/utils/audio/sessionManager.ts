@@ -10,7 +10,7 @@ export class SessionManager {
     try {
       console.log('Creating realtime session...');
       
-      // Set up session with Supabase Edge Function
+      // Set up session with Supabase Edge Function - ensure we're using the correct URL
       const { data, error } = await supabase.functions.invoke('realtime-sessions', {
         body: {
           action: 'create_session',
@@ -41,19 +41,24 @@ export class SessionManager {
   }
   
   async connectToOpenAI(sdp: string, ephemeralToken: string): Promise<string> {
-    const response = await fetch(`https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, {
-      method: "POST",
-      body: sdp,
-      headers: {
-        Authorization: `Bearer ${ephemeralToken}`,
-        "Content-Type": "application/sdp"
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`OpenAI WebRTC setup error: ${response.status}`);
+    try {
+      const response = await fetch(`https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, {
+        method: "POST",
+        body: sdp,
+        headers: {
+          Authorization: `Bearer ${ephemeralToken}`,
+          "Content-Type": "application/sdp"
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`OpenAI WebRTC setup error: ${response.status}`);
+      }
+      
+      return await response.text();
+    } catch (error) {
+      console.error('Error connecting to OpenAI:', error);
+      throw error;
     }
-    
-    return await response.text();
   }
 }
