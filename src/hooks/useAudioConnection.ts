@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { RealtimeAudioService } from '@/components/realtime/RealtimeAudioService';
+import { RealtimeAudioService } from '@/services/audio/RealtimeAudioService';
 
 export const useAudioConnection = () => {
   const [connectionState, setConnectionState] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
