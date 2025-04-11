@@ -23,16 +23,16 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
   compactMode = false
 }) => {
   return (
-    <div className={`flex justify-between items-center ${!fullWidth && !compactMode ? 'px-6 py-4 bg-white dark:bg-[#202020] shadow-sm' : ''}`}>
+    <div className={`flex justify-between items-center ${!fullWidth && !compactMode ? 'px-6 py-4 bg-white dark:bg-[#202030] shadow-sm' : ''}`}>
       <div className="flex gap-2">
         {onSave && (
           <Button
             onClick={onSave}
             variant={isSaved ? "outline" : "default"}
-            className={`flex items-center gap-1 ${fullWidth ? 'w-full' : ''} ${compactMode ? 'py-1 h-auto text-xs' : ''}`}
+            className={`flex items-center gap-1 ${fullWidth ? 'w-full' : ''} ${compactMode ? 'py-1.5 h-auto text-sm font-medium shadow-md' : ''} ${isSaved ? 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-yugen-purple hover:bg-yugen-purple/90 dark:bg-yugen-bright dark:hover:bg-yugen-bright/90'}`}
             size={compactMode ? "sm" : "default"}
           >
-            <BookmarkPlus className={`${compactMode ? 'h-3 w-3' : 'h-4 w-4'}`} />
+            <BookmarkPlus className={`${compactMode ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
             {isSaved ? 'Saved' : 'Save Trip'}
           </Button>
         )}

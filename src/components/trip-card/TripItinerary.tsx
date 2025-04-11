@@ -20,26 +20,26 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
 
   if (!itinerary || itinerary.length === 0) {
     return (
-      <div className="px-6 py-4 bg-purple-50 border-t border-purple-100 dark:bg-[#1a1a2c] dark:border-[#2c2c40]">
+      <div className="px-6 py-4 bg-purple-50 border-t border-purple-100 dark:bg-[#202030] dark:border-[#2c2c40]">
         <p className="text-center text-gray-800 font-medium dark:text-gray-200">No itinerary information available</p>
       </div>
     );
   }
   
   return (
-    <div className="w-full bg-gray-50 border-t border-gray-200 dark:bg-[#1a1a2c] dark:border-[#2c2c40] itinerary-section">
+    <div className="w-full bg-gray-50 border-t border-gray-200 dark:bg-[#202030] dark:border-[#2c2c40] itinerary-section">
       <div className="px-6 py-4">
-        <h3 className="text-xl font-bold mb-4 text-purple-800 dark:text-purple-300">Complete Itinerary</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Complete Itinerary</h3>
         <Accordion type="multiple" className="space-y-6 accordion-itinerary" defaultValue={["day-1"]}>
           {itinerary.map((day, idx) => (
             <AccordionItem 
               key={idx} 
               value={`day-${day.day}`} 
-              className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:bg-[#1e1e2e] dark:border-[#2c2c40] itinerary-card"
+              className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:bg-[#202030] dark:border-[#2c2c40] itinerary-card"
             >
-              <AccordionTrigger className="px-5 py-4 hover:no-underline bg-white group dark:bg-[#2a2a40] dark:border-b dark:border-[#3d3d50] itinerary-day-header">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline bg-white group dark:bg-[#202030] dark:border-b dark:border-[#3d3d50] itinerary-day-header">
                 <div className="flex items-center gap-3 w-full">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">
+                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
                     <CalendarDays className="h-5 w-5" />
                   </div>
                   <div className="flex-1 text-left">
@@ -56,19 +56,14 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
               <AccordionContent className="px-5 pb-5 pt-0">
                 <div className="pl-[52px]"> {/* Align with the icon */}
                   <div className="mb-4">
-                    <Badge variant="outline" className="bg-purple-50 text-purple-700 mb-2 dark:bg-purple-900/30 dark:text-purple-200">
+                    <Badge variant="outline" className="bg-gray-50 text-gray-700 mb-2 dark:bg-gray-800 dark:text-gray-200">
                       <Clock className="h-3 w-3 mr-1" /> Full day
                     </Badge>
-                    
-                    <div className="mt-3">
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Notes</h4>
-                      <p className="text-sm text-gray-700 dark:text-gray-200">{day.description}</p>
-                    </div>
                   </div>
                   
                   {/* Meals Section */}
                   {day.meals && (Object.keys(day.meals).length > 0) && (
-                    <div className="mb-6 bg-amber-50 p-4 rounded-lg border border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30">
+                    <div className="mb-6 bg-amber-50 p-4 rounded-lg border border-amber-100 dark:bg-[#202030] dark:border-gray-700">
                       <h5 className="text-md font-medium mb-2 text-amber-800 dark:text-amber-300">Meals</h5>
                       <div className="space-y-2">
                         {day.meals.breakfast && (
@@ -101,7 +96,7 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                   
                   {/* Accommodations Section */}
                   {day.accommodations && (
-                    <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/30">
+                    <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100 dark:bg-[#202030] dark:border-gray-700">
                       <div className="flex items-center gap-2 mb-1">
                         <Home className="h-4 w-4 text-blue-700 dark:text-blue-400" />
                         <h5 className="text-md font-medium text-blue-800 dark:text-blue-300">Accommodations</h5>
@@ -117,10 +112,10 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                       {day.activities.map((activity, actIdx) => (
                         <div 
                           key={actIdx} 
-                          className="p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-[#1d1d2d] dark:border-[#2d2d40] dark:text-gray-100 itinerary-activity-card"
+                          className="p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-[#202030] dark:border-[#2d2d40] dark:text-gray-100 itinerary-activity-card"
                         >
                           <div className="flex justify-between items-start">
-                            <h4 className="font-medium text-purple-900 dark:text-purple-300">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-200">
                               {activity.name || 'Unnamed Activity'}
                             </h4>
                             {activity.duration && (
@@ -139,13 +134,13 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                           
                           <div className="mt-3 flex flex-wrap gap-2">
                             {activity.type && (
-                              <Badge variant="outline" className="bg-purple-50 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200">
+                              <Badge variant="outline" className="bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
                                 {activity.type}
                               </Badge>
                             )}
                             
                             {activity.permitRequired && (
-                              <Badge variant="outline" className="bg-amber-100 text-amber-800 font-medium dark:bg-amber-950/30 dark:text-amber-300">
+                              <Badge variant="outline" className="bg-amber-100 text-amber-800 font-medium dark:bg-amber-900/30 dark:text-amber-300">
                                 Permit Required
                               </Badge>
                             )}

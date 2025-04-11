@@ -20,7 +20,7 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
   compact = false
 }) => {
   return (
-    <Card className="border border-gray-200 dark:border-gray-700 dark:bg-[#202020]">
+    <Card className="border border-gray-200 dark:border-gray-700 dark:bg-[#202030]">
       <CardContent className="pt-6">
         {description && (
           <div className="mb-6">
@@ -45,7 +45,7 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
         {whyWeChoseThis && (
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-2">Why We Chose This</h3>
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md border border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-100 p-4 rounded-md border border-gray-200 dark:bg-[#202030] dark:border-gray-700">
               <p className="text-gray-700 dark:text-gray-300 italic">{whyWeChoseThis}</p>
             </div>
           </div>
@@ -59,7 +59,7 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
               {suggestedGuides.map((guide, index) => (
                 <span 
                   key={index} 
-                  className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-3 py-1 rounded-full text-sm"
+                  className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-3 py-1 rounded-full text-sm"
                 >
                   {guide}
                 </span>

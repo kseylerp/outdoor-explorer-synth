@@ -198,25 +198,25 @@
 
 /* Dark mode styles for itinerary and Why We Chose This sections */
 .dark .itinerary-day-header {
-  @apply bg-[#2a2a40] text-white border-[#3d3d50];
+  @apply bg-[#202030] text-white border-[#3d3d50];
 }
 
 .dark .itinerary-activity-card {
-  @apply bg-[#1d1d2d] border-[#2d2d40] text-gray-100;
+  @apply bg-[#202030] border-[#2d2d40] text-gray-100;
 }
 
 .dark .why-we-chose-box {
-  @apply bg-[#28204e] text-white border-[#3a2f77];
+  @apply bg-[#202030] text-white border-[#3a2f77];
 }
 
 .dark .itinerary-card {
-  @apply bg-[#1e1e2e] border-[#2c2c40];
+  @apply bg-[#202030] border-[#2c2c40];
 }
 
 .dark .itinerary-section {
-  @apply bg-[#1a1a2c] text-purple-100;
+  @apply bg-[#202030] text-gray-100;
 }
 
 .dark .accordion-itinerary {
-  @apply bg-[#1e1e2e] border-[#2c2c40];
+  @apply bg-[#202030] border-[#2c2c40];
 }

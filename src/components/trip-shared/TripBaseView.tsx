@@ -65,7 +65,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Best Time to Visit info */}
           {trip.bestTimeToVisit && !compact && (
-            <div className="bg-blue-50 dark:bg-gray-800 rounded-lg p-4 border border-blue-100 dark:border-gray-700">
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 dark:bg-[#202030] dark:border-gray-700">
               <h3 className="text-md font-semibold text-blue-900 dark:text-blue-300 mb-1">
                 Best Time to Visit
               </h3>
@@ -75,7 +75,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Permits info */}
           {trip.permits && trip.permits.required && (
-            <div className="bg-amber-50 dark:bg-gray-800 rounded-lg p-4 border border-amber-100 dark:border-gray-700">
+            <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 dark:bg-[#202030] dark:border-gray-700">
               <h3 className="text-md font-semibold text-amber-900 dark:text-amber-300 mb-1">
                 Permits
               </h3>
@@ -85,7 +85,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Equipment recommendations if available */}
           {trip.equipmentRecommendations && trip.equipmentRecommendations.length > 0 && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:bg-[#202030] dark:border-gray-700">
               <h3 className="text-md font-semibold mb-2 dark:text-gray-200">
                 Equipment Recommendations
               </h3>
@@ -99,7 +99,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Local Tips section */}
           {trip.localTips && trip.localTips.length > 0 && (
-            <div className="bg-green-50 dark:bg-gray-800 rounded-lg p-4 border border-green-100 dark:border-gray-700">
+            <div className="bg-green-50 rounded-lg p-4 border border-green-100 dark:bg-[#202030] dark:border-gray-700">
               <h3 className="text-md font-semibold text-green-900 dark:text-green-300 mb-2">
                 Local Tips
               </h3>
@@ -113,7 +113,7 @@ const TripBaseView: React.FC<TripBaseViewProps> = ({
           
           {/* Safety Notes */}
           {trip.safetyNotes && (
-            <div className="bg-red-50 dark:bg-gray-800 rounded-lg p-4 border border-red-100 dark:border-gray-700">
+            <div className="bg-red-50 rounded-lg p-4 border border-red-100 dark:bg-[#202030] dark:border-gray-700">
               <h3 className="text-md font-semibold text-red-900 dark:text-red-300 mb-1">
                 Safety Notes
               </h3>
