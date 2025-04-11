@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAudioConnection } from '@/hooks/useAudioConnection';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 import { useAudioRecording } from '@/hooks/useAudioRecording';
@@ -15,6 +15,7 @@ export const useChatState = () => {
     transcript,
     realtimeService,
     startSession,
+    disconnectSession,
     setTranscript
   } = useAudioConnection();
   
@@ -22,17 +23,20 @@ export const useChatState = () => {
     history,
     message,
     isProcessing,
+    pendingTranscript,
     setMessage,
     handleSendMessage,
     setIsProcessing,
     addUserMessage,
-    addAssistantMessage
+    addAssistantMessage,
+    processTranscript
   } = useChatMessages();
   
   const {
     isRecording,
     isMuted,
     showAudioVisualizer,
+    audioLevel,
     startRecording,
     stopRecording,
     toggleMute
@@ -62,37 +66,37 @@ export const useChatState = () => {
   // Handle transcript changes from the audio service
   useEffect(() => {
     if (transcript && transcript.trim()) {
-      addUserMessage(transcript);
-      setIsProcessing(true);
-      
-      // Simulate assistant's response
-      setTimeout(() => {
-        const responses = [
-          "I'd recommend exploring the hidden trails in Yosemite Valley. The Mirror Lake loop is less traveled but offers stunning views.",
-          "For a weekend trip to Yosemite, check out the Pohono Trail. It's a moderate difficulty hike with fewer crowds and amazing viewpoints.",
-          "Instead of the main Yosemite trails, try the Chilnualna Falls trail in Wawona. It's challenging but rewards you with a series of cascading waterfalls and minimal crowds."
-        ];
-        
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        addAssistantMessage(randomResponse);
-        setIsProcessing(false);
-      }, 2000);
+      processTranscript(transcript);
     }
-  }, [transcript]);
+  }, [transcript, processTranscript]);
+
+  const handleStartRecording = useCallback(() => {
+    // Make sure we have an active session before starting recording
+    if (connectionState !== 'connected' && connectionState !== 'recording') {
+      startSession().then(success => {
+        if (success) {
+          startRecording();
+        }
+      });
+    } else {
+      startRecording();
+    }
+  }, [connectionState, startSession, startRecording]);
 
   return {
     state,
     message,
-    transcript,
+    transcript: pendingTranscript || transcript,
     isRecording,
     isMuted,
     history,
     errorMessage,
     showAudioVisualizer,
+    audioLevel,
     setMessage,
     startSession,
     handleSendMessage,
-    startRecording,
+    startRecording: handleStartRecording,
     stopRecording,
     toggleMute,
     handleKeyDown

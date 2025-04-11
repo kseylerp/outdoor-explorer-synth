@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { RealtimeAudioService } from '@/components/realtime/RealtimeAudioService';
 
@@ -14,35 +14,39 @@ export const useAudioConnection = () => {
     return () => {
       if (realtimeServiceRef.current) {
         realtimeServiceRef.current.disconnect();
+        realtimeServiceRef.current = null;
       }
     };
   }, []);
 
-  const startSession = async () => {
+  const startSession = useCallback(async () => {
     try {
       setConnectionState('connecting');
       setErrorMessage(null);
       
-      const service = new RealtimeAudioService();
-      realtimeServiceRef.current = service;
+      // Create new service instance if needed
+      if (!realtimeServiceRef.current) {
+        const service = new RealtimeAudioService();
+        realtimeServiceRef.current = service;
+        
+        // Set up event handlers
+        service.onTranscriptReceived = (text) => {
+          setTranscript(text);
+        };
+        
+        service.onError = (error) => {
+          console.error('Realtime service error:', error);
+          setErrorMessage(error.message);
+          setConnectionState('error');
+          toast({
+            title: "Connection error",
+            description: error.message,
+            variant: "destructive"
+          });
+        };
+      }
       
-      // Set up event handlers
-      service.onTranscriptReceived = (text) => {
-        setTranscript(text);
-      };
-      
-      service.onError = (error) => {
-        console.error('Realtime service error:', error);
-        setErrorMessage(error.message);
-        setConnectionState('error');
-        toast({
-          title: "Connection error",
-          description: error.message,
-          variant: "destructive"
-        });
-      };
-      
-      await service.initSession();
+      await realtimeServiceRef.current.initSession();
       
       toast({
         title: "Adventure assistant ready",
@@ -50,6 +54,7 @@ export const useAudioConnection = () => {
       });
       
       setConnectionState('connected');
+      return true;
     } catch (error) {
       console.error('Failed to start session:', error);
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -60,8 +65,19 @@ export const useAudioConnection = () => {
         description: errorMsg,
         variant: "destructive"
       });
+      return false;
     }
-  };
+  }, []);
+
+  const disconnectSession = useCallback(() => {
+    if (realtimeServiceRef.current) {
+      realtimeServiceRef.current.disconnect();
+      realtimeServiceRef.current = null;
+      setConnectionState('idle');
+      return true;
+    }
+    return false;
+  }, []);
 
   return {
     connectionState,
@@ -69,6 +85,7 @@ export const useAudioConnection = () => {
     transcript,
     realtimeService: realtimeServiceRef.current,
     startSession,
+    disconnectSession,
     setTranscript
   };
 };

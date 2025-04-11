@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 export interface ChatMessage {
@@ -11,8 +11,9 @@ export const useChatMessages = () => {
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
   
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     if (!message.trim() || isProcessing) {
       return;
     }
@@ -45,24 +46,49 @@ export const useChatMessages = () => {
         variant: "destructive"
       });
     }
-  };
+  }, [message, isProcessing]);
 
-  const addUserMessage = (content: string) => {
+  const addUserMessage = useCallback((content: string) => {
     setHistory(prev => [...prev, { role: 'user', content }]);
-  };
+  }, []);
 
-  const addAssistantMessage = (content: string) => {
+  const addAssistantMessage = useCallback((content: string) => {
     setHistory(prev => [...prev, { role: 'assistant', content }]);
-  };
+  }, []);
+  
+  const processTranscript = useCallback((transcript: string) => {
+    if (transcript && transcript.trim()) {
+      setPendingTranscript(transcript);
+      addUserMessage(transcript);
+      setIsProcessing(true);
+      
+      // Simulate assistant's response
+      setTimeout(() => {
+        const responses = [
+          "I'd recommend exploring the hidden trails in Yosemite Valley. The Mirror Lake loop is less traveled but offers stunning views.",
+          "For a weekend trip to Yosemite, check out the Pohono Trail. It's a moderate difficulty hike with fewer crowds and amazing viewpoints.",
+          "Instead of the main Yosemite trails, try the Chilnualna Falls trail in Wawona. It's challenging but rewards you with a series of cascading waterfalls and minimal crowds."
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        addAssistantMessage(randomResponse);
+        setIsProcessing(false);
+        setPendingTranscript(null);
+      }, 2000);
+    }
+  }, [addUserMessage, addAssistantMessage]);
   
   return {
     history,
     message,
     isProcessing,
+    pendingTranscript,
     setMessage,
     handleSendMessage,
     setIsProcessing,
     addUserMessage,
-    addAssistantMessage
+    addAssistantMessage,
+    processTranscript
   };
 };

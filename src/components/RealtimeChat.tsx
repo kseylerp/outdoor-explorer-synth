@@ -17,6 +17,7 @@ const RealtimeChat: React.FC = () => {
     history,
     errorMessage,
     showAudioVisualizer,
+    audioLevel,
     setMessage,
     startSession,
     handleSendMessage,
@@ -51,7 +52,7 @@ const RealtimeChat: React.FC = () => {
           onKeyDown={handleKeyDown}
         />
         
-        {showAudioVisualizer && <AudioVisualizer onClose={stopRecording} />}
+        {showAudioVisualizer && <AudioVisualizer onClose={stopRecording} audioLevel={audioLevel} />}
       </CardContent>
     </Card>
   );

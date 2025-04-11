@@ -3,14 +3,20 @@ import React from 'react';
 
 interface AudioVisualizerProps {
   onClose: () => void;
+  audioLevel?: number[];
 }
 
-const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ onClose }) => {
-  const barCount = 20;
-  const bars = Array(barCount).fill(0).map((_, i) => ({
-    height: Math.random() * 40 + 10,
-    animationDuration: Math.random() * 1 + 0.5
-  }));
+const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ onClose, audioLevel }) => {
+  // If audioLevel is provided, use it, otherwise use random values
+  const bars = audioLevel 
+    ? audioLevel.map(height => ({
+        height: Math.max(10, height),
+        animationDuration: Math.random() * 1 + 0.5
+      }))
+    : Array(20).fill(0).map((_, i) => ({
+        height: Math.random() * 40 + 10,
+        animationDuration: Math.random() * 1 + 0.5
+      }));
   
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
