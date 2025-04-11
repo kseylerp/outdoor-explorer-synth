@@ -21,9 +21,9 @@ const TripHeader: React.FC<TripHeaderProps> = ({
 }) => {
   return (
     <CardHeader>
-      <CardTitle className={compact ? "text-xl font-bold" : "text-2xl font-bold"}>{trip.title}</CardTitle>
-      <div className="flex flex-wrap items-center justify-between mt-2">
-        <div className="flex flex-wrap gap-2">
+      <CardTitle className={compact ? "text-xl font-bold" : "text-2xl font-bold mb-4"}>{trip.title}</CardTitle>
+      <div className="flex flex-wrap items-center justify-between">
+        <div className="flex flex-wrap gap-2 items-center">
           <Badge variant="outline" className="flex gap-1 items-center text-sm">
             <MapPin className="h-3 w-3" /> {trip.location || 'Location not specified'}
           </Badge>
@@ -33,7 +33,7 @@ const TripHeader: React.FC<TripHeaderProps> = ({
         </div>
         
         {onSave && (
-          <div className="mt-0">
+          <div className="mt-0 ml-2">
             <TripCardButtons 
               tripId={trip.id} 
               isSaved={isSaved}

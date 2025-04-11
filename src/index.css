@@ -8,6 +8,7 @@
 
 @layer base {
   :root {
+    /* Light mode variables */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -39,19 +40,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
     
     /* Custom lens flash colors */
@@ -61,6 +55,7 @@
   }
 
   .dark {
+    /* Dark mode variables */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -129,11 +124,8 @@
 
 /* Custom gradient text classes */
 .offbeat-gradient {
-  @apply dark:from-yugen-bright dark:via-[#C68CAB] dark:to-[#F9AE80];
   background: linear-gradient(103deg, #9870FF 15.44%, #C68CAB 52.7%, #F9AE80 89.95%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  @apply bg-clip-text text-transparent;
 }
 
 .text-gradient {
@@ -196,7 +188,32 @@
   }
 }
 
-/* Dark mode styles for itinerary and Why We Chose This sections */
+/* Light mode styles */
+.itinerary-day-header {
+  @apply bg-white border-gray-200 text-gray-800;
+}
+
+.itinerary-activity-card {
+  @apply bg-white border-gray-200 text-gray-800;
+}
+
+.why-we-chose-box {
+  @apply bg-white text-gray-800 border-gray-200;
+}
+
+.itinerary-card {
+  @apply bg-white border-gray-200;
+}
+
+.itinerary-section {
+  @apply bg-white text-gray-800;
+}
+
+.accordion-itinerary {
+  @apply bg-white border-gray-200;
+}
+
+/* Dark mode styles */
 .dark .itinerary-day-header {
   @apply bg-[#202030] text-white border-[#3d3d50];
 }
@@ -206,7 +223,7 @@
 }
 
 .dark .why-we-chose-box {
-  @apply bg-[#202030] text-white border-[#3a2f77];
+  @apply bg-[#202030] text-white border-[#3d3d50];
 }
 
 .dark .itinerary-card {

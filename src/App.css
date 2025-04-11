@@ -46,3 +46,13 @@
 .dark .read-the-docs {
   color: #aaa;
 }
+
+/* Light mode overrides to ensure proper appearance */
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.dark .bg-white {
+  --tw-bg-opacity: 0;
+}

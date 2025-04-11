@@ -29,7 +29,7 @@ const TripCardButtons: React.FC<TripCardButtonsProps> = ({
           <Button
             onClick={onSave}
             variant={isSaved ? "outline" : "default"}
-            className={`flex items-center gap-1 ${fullWidth ? 'w-full' : ''} ${compactMode ? 'py-1.5 h-auto text-sm font-medium shadow-md' : ''} ${isSaved ? 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-yugen-purple hover:bg-yugen-purple/90 dark:bg-yugen-bright dark:hover:bg-yugen-bright/90'}`}
+            className={`flex items-center gap-1 ${fullWidth ? 'w-full' : ''} ${compactMode ? 'py-1.5 h-auto text-sm font-medium shadow-md' : ''} ${isSaved ? 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-yugen-purple hover:bg-yugen-purple/90 dark:bg-yugen-bright dark:text-white dark:hover:bg-yugen-bright/90 font-medium shadow-md'}`}
             size={compactMode ? "sm" : "default"}
           >
             <BookmarkPlus className={`${compactMode ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
