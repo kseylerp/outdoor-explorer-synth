@@ -12,6 +12,7 @@ export class RealtimeAudioService {
   private messageHandler: MessageHandler | null = null;
   private sessionManager: SessionManager;
   private sessionId: string | null = null;
+  private transcript: string = '';
   
   // Callback handlers
   public onTranscriptReceived: ((text: string) => void) | null = null;
@@ -31,13 +32,16 @@ export class RealtimeAudioService {
     this.sessionManager = new SessionManager();
   }
 
-  async initSession(): Promise<string> {
+  async initSession(voice: string = "sage"): Promise<string> {
     try {
-      console.log('Initializing realtime session...');
+      console.log('Initializing realtime session with voice:', voice);
       
-      // Create message handler
+      // Create message handler that will save transcript for later use
       this.messageHandler = new MessageHandler(
-        this.onTranscriptReceived || undefined,
+        (text: string) => {
+          this.transcript = text;
+          if (this.onTranscriptReceived) this.onTranscriptReceived(text);
+        },
         this.onError || undefined,
         this.onAIResponseStart || undefined,
         this.onAIResponseEnd || undefined,
@@ -56,7 +60,7 @@ export class RealtimeAudioService {
       
       // Create session with OpenAI via Supabase Edge Function
       console.log('Requesting session from Supabase Edge Function...');
-      const { sessionId, clientSecret } = await this.sessionManager.createSession();
+      const { sessionId, clientSecret } = await this.sessionManager.createSession(undefined, voice);
       this.sessionId = sessionId;
       console.log('Got session ID:', sessionId);
       
@@ -76,6 +80,11 @@ export class RealtimeAudioService {
       }
       throw error;
     }
+  }
+  
+  // Method to get the current transcript
+  async getTranscript(): Promise<string> {
+    return this.transcript;
   }
   
   private async setupWebRtcConnection(ephemeralToken: string): Promise<void> {

@@ -56,8 +56,30 @@ serve(async (req) => {
     - Travel style (budget, luxury, family-friendly)
     
     After you have enough information, inform them you'll show them trip options on screen.
-    Format your response after understanding as a JSON object with destination, activities, and description fields. 
-    For example: \`\`\`json{"destination":"Yosemite","activities":["hiking","camping"],"description":"Weekend trip with moderate trails and fewer crowds"}\`\`\``;
+    Format your response with a JSON object containing this structure:
+    {
+      "trip": [
+        {
+          "id": "unique-id-1",
+          "title": "Trip Title",
+          "description": "Detailed description of the trip",
+          "location": "Location name",
+          "duration": "X days",
+          "difficultyLevel": "easy|moderate|challenging",
+          "priceEstimate": number,
+          "whyWeChoseThis": "Reason for recommendation",
+          "activities": ["hiking", "camping", etc],
+          "itinerary": [
+            {
+              "day": 1,
+              "title": "Day 1 title",
+              "description": "Day 1 activities"
+            },
+            ...
+          ]
+        }
+      ]
+    }`;
     
     // Request a session token from OpenAI
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {

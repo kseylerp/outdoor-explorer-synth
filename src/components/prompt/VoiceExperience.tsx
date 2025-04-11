@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface VoiceExperienceProps {
   onClose: () => void;
-  onTranscript: (text: string) => void;
+  onTranscript: (text: string, tripData?: any) => void;
 }
 
 const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript }) => {
@@ -13,7 +13,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   const [audioVisualizer, setAudioVisualizer] = useState<number[]>(Array(20).fill(10));
   const [processingComplete, setProcessingComplete] = useState(false);
   const [aiResponseText, setAiResponseText] = useState<string | null>(null);
-  const [voice, setVoice] = useState<string>("sage"); // Default to sage voice
+  const [voice] = useState<string>("sage"); // Always use sage voice
   const { toast } = useToast();
 
   // Create animated audio visualization
@@ -31,7 +31,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   useEffect(() => {
     if (isListening) {
       // Initialize WebRTC connection to OpenAI Realtime API
-      import('@/components/realtime/RealtimeAudioService').then(({ RealtimeAudioService }) => {
+      import('@/services/audio/RealtimeAudioService').then(({ RealtimeAudioService }) => {
         const service = new RealtimeAudioService();
         
         service.initSession()
@@ -46,16 +46,19 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
             
             service.onTranscriptReceived = (transcript) => {
               if (transcript && transcript.trim()) {
-                onTranscript(transcript);
+                console.log("Received transcript:", transcript);
                 
                 // When we get the transcript, don't close yet, wait for AI response
                 setAiResponseText("I'm finding the perfect adventure options based on your request...");
                 setIsListening(false);
                 setProcessingComplete(false);
                 
+                // Pass transcript to parent
+                onTranscript(transcript);
+                
                 // Simulate AI response after a delay
                 setTimeout(() => {
-                  setAiResponseText("I understand you're looking for a weekend trip with hiking. Let me find some great offbeat options for you!");
+                  setAiResponseText("I understand your adventure request. Let me find some great offbeat options for you!");
                   
                   // After AI responds verbally, prepare to generate the trip with the transcript
                   setTimeout(() => {
@@ -63,6 +66,18 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
                     // User can now close the experience or keep listening to AI
                   }, 2000);
                 }, 1500);
+              }
+            };
+            
+            service.onTripDataReceived = (tripData) => {
+              console.log('Trip data received in VoiceExperience:', tripData);
+              if (tripData) {
+                // Pass both transcript and trip data to parent
+                service.getTranscript().then(transcript => {
+                  if (transcript) {
+                    onTranscript(transcript, tripData);
+                  }
+                });
               }
             };
             
@@ -82,6 +97,11 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
               description: "Could not connect to the voice service. Please try again.",
               variant: "destructive"
             });
+            
+            // Auto-close after error
+            setTimeout(() => {
+              onClose();
+            }, 3000);
           });
           
         return () => {
@@ -89,7 +109,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
         };
       });
     }
-  }, [isListening, onTranscript, toast]);
+  }, [isListening, onTranscript, toast, onClose]);
 
   // Handle manual close with confirmation if needed
   const handleClose = () => {

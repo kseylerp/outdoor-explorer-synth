@@ -22,6 +22,9 @@ const Index = () => {
 
   // Handle voice transcript and potential trip data
   const handleTranscript = (transcript: string, tripData?: any) => {
+    console.log('Index received transcript:', transcript);
+    console.log('Index received trip data:', tripData);
+    
     if (tripData) {
       handleVoiceTripData(tripData, transcript);
     } else {
@@ -43,6 +46,7 @@ const Index = () => {
       <div className="mb-8 w-full bg-white dark:bg-[#202020]">
         <PromptInput 
           onSubmit={handlePromptSubmit} 
+          onTranscript={handleTranscript}
           isProcessing={loading} 
           placeholder="Tell us about your dream trip..." 
         />
