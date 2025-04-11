@@ -8,6 +8,7 @@ interface UseMapInitializationProps {
   mapContainer: RefObject<HTMLDivElement>;
   center: Coordinates;
   interactive: boolean;
+  zoomLevel?: number;
 }
 
 interface UseMapInitializationResult {
@@ -22,7 +23,8 @@ interface UseMapInitializationResult {
 export const useMapInitialization = ({
   mapContainer,
   center,
-  interactive
+  interactive,
+  zoomLevel = 9
 }: UseMapInitializationProps): UseMapInitializationResult => {
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -45,9 +47,9 @@ export const useMapInitialization = ({
     try {
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v11', // Use outdoors style for better trail visibility
+        style: 'mapbox://styles/mapbox/outdoors-v12', // Updated to outdoors-v12
         center: [center.lng, center.lat],
-        zoom: 9,
+        zoom: zoomLevel,
         interactive: mapInteractive
       });
 
@@ -74,7 +76,7 @@ export const useMapInitialization = ({
         setMap(null);
       }
     };
-  }, [center, interactive, mapInteractive, mapboxToken, mapContainer]);
+  }, [center, interactive, mapInteractive, mapboxToken, mapContainer, zoomLevel]);
 
   const enableInteractiveMode = () => {
     if (!mapInteractive && map) {

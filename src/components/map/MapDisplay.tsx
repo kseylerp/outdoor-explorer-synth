@@ -13,10 +13,11 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   markers = [],
   center = { lng: -122.4194, lat: 37.7749 }, // Default to San Francisco
   interactive = false,
+  routeType = 'all',
+  zoomLevel = 9, // Add default zoom level of 9
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [routeType, setRouteType] = useState('all');
   
   const {
     map,
@@ -28,7 +29,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   } = useMapInitialization({
     mapContainer,
     center,
-    interactive
+    interactive,
+    zoomLevel, // Pass the zoom level to the initialization hook
   });
 
   // Determine if we should show the route selector

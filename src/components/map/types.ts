@@ -19,4 +19,6 @@ export interface MapDisplayProps {
   markers?: MapMarker[];
   center?: Coordinates;
   interactive?: boolean;
+  routeType?: string;
+  zoomLevel?: number;
 }

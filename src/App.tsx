@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,14 +11,30 @@ import Destinations from "./pages/Destinations";
 import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
+import Settings from "./pages/Settings";
+import CampgroundBooking from "./pages/CampgroundBooking";
+import RealtimeChatPage from "./pages/RealtimeChat";
+
+// Main app layout components
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "./hooks/use-mobile";
 
+// Guide Portal components
+import GuidePortalLayout from "./components/guide/GuidePortalLayout";
+import Services from "./pages/guide/Services";
+import GuideRecommendations from "./pages/guide/GuideRecommendations";
+import GuideContent from "./pages/guide/GuideContent";
+import GuideProfile from "./pages/guide/GuideProfile";
+import GuideAnalytics from "./pages/guide/GuideAnalytics";
+import Activities from "./pages/guide/Activities";
+import AddActivity from "./pages/guide/AddActivity";
+
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+// Main App Layout wrapper
+const MainAppLayout = () => {
   const isMobile = useIsMobile();
   
   return (
@@ -36,7 +51,9 @@ const AppContent = () => {
             <Route path="/destinations" element={<Destinations />} />
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/campground/:id" element={<CampgroundBooking />} />
+            <Route path="/realtime-chat" element={<RealtimeChatPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
@@ -45,18 +62,43 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <SidebarProvider>
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </SidebarProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const AppContent = () => {
+  return (
+    <Routes>
+      {/* Main application routes */}
+      <Route path="/*" element={<MainAppLayout />} />
+      
+      {/* Guide Portal routes - completely separate experience */}
+      <Route path="/guide-portal/*" element={<GuidePortalLayout />}>
+        <Route index element={<GuideAnalytics />} />
+        <Route path="activities" element={<Activities />} />
+        <Route path="add-activity" element={<AddActivity />} />
+        <Route path="edit-activity/:id" element={<AddActivity />} />
+        <Route path="services" element={<Services />} />
+        <Route path="recommendations" element={<GuideRecommendations />} />
+        <Route path="content" element={<GuideContent />} />
+        <Route path="profile" element={<GuideProfile />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
+  );
+};
+
+// Changed functional component definition to wrap providers properly
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <SidebarProvider>
+            <AppContent />
+          </SidebarProvider>
+        </TooltipProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

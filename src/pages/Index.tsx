@@ -1,149 +1,90 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
-import TripCard from '@/components/trip-card';
-import { Trip } from '@/types/trips';
-import { useNavigate } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
-import { generateTrips } from '@/services/tripService';
+import TripCard from '@/components/TripCard';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import ThinkingDisplay from '@/components/ThinkingDisplay';
+import ApiConnectionError from '@/components/common/ApiConnectionError';
+import { useTrips } from '@/hooks/useTrips';
 
-const Index: React.FC = () => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [savedTripIds, setSavedTripIds] = useState<string[]>([]);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
-  const navigate = useNavigate();
+const Index = () => {
+  const { 
+    trips, 
+    loading, 
+    error, 
+    errorDetails, 
+    thinking,
+    handlePromptSubmit,
+    handleVoiceTripData,
+    handleRetry,
+    handleSaveTrip
+  } = useTrips();
 
-  // Load saved trip IDs from localStorage
-  useEffect(() => {
-    const savedTripsData = localStorage.getItem('savedTrips');
-    if (savedTripsData) {
-      try {
-        const parsedTrips = JSON.parse(savedTripsData);
-        setSavedTripIds(parsedTrips.map((trip: Trip) => trip.id));
-      } catch (error) {
-        console.error('Error parsing saved trips:', error);
-      }
-    }
-  }, []);
-
-  const handleSubmitPrompt = async (prompt: string) => {
-    setIsProcessing(true);
-    setErrorDetails(null);
-    setTrips([]); // Clear any previous trips
-
-    try {
-      console.log('Submitting prompt to generate trips:', prompt);
-      const tripsData = await generateTrips(prompt);
-      if (!tripsData || tripsData.length === 0) {
-        throw new Error('No trip recommendations received');
-      }
-      console.log('Received trips data:', tripsData);
-
-      // Set the trips from the API response
-      setTrips(tripsData);
-      toast({
-        title: "Adventures Found!",
-        description: "We've found some perfect adventures for you."
-      });
-    } catch (error) {
-      console.error('Error processing prompt:', error);
-
-      // Detailed error for debugging
-      if (error instanceof Error) {
-        setErrorDetails(error.message);
-      } else {
-        setErrorDetails('Unknown error occurred');
-      }
-      toast({
-        title: "Error",
-        description: "Could not process your request. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleViewTripDetails = (tripId: string) => {
-    navigate(`/trip/${tripId}`);
-  };
-
-  const handleSaveTrip = (trip: Trip) => {
-    // Get existing saved trips
-    const savedTripsData = localStorage.getItem('savedTrips');
-    let savedTrips: Trip[] = [];
-    if (savedTripsData) {
-      try {
-        savedTrips = JSON.parse(savedTripsData);
-      } catch (error) {
-        console.error('Error parsing saved trips:', error);
-      }
-    }
-
-    // Check if trip is already saved
-    if (savedTripIds.includes(trip.id)) {
-      // Remove the trip if it's already saved
-      const updatedTrips = savedTrips.filter(savedTrip => savedTrip.id !== trip.id);
-      localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
-      setSavedTripIds(savedTripIds.filter(id => id !== trip.id));
-      toast({
-        title: "Trip Removed",
-        description: "The adventure has been removed from your saved trips."
-      });
+  // Handle voice transcript and potential trip data
+  const handleTranscript = (transcript: string, tripData?: any) => {
+    if (tripData) {
+      handleVoiceTripData(tripData, transcript);
     } else {
-      // Add the trip if it's not saved
-      const updatedTrips = [...savedTrips, trip];
-      localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
-      setSavedTripIds([...savedTripIds, trip.id]);
-      toast({
-        title: "Trip Saved!",
-        description: "The adventure has been saved to your collection."
-      });
+      handlePromptSubmit(transcript);
     }
   };
 
   return (
-    <div className="container max-w-5xl mx-auto p-4 space-y-8">
-      <div className="text-center space-y-2 mb-8">
-        <h1 className="font-poppins px-5 font-bold text-4xl">Let's find an
-          <span className="offbeat-gradient mx-"> offbeat</span> adventure
+    <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Let's find an <span className="offbeat-gradient">offbeat</span> adventure
         </h1>
-        <p className="font-patano text-lg font-medium">Powered by local guides: explore, plan, and experience better trips</p>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Powered by local guides: explore, plan, and experience better trips
+        </p>
       </div>
-      
-      <Card className="p-6 shadow-md">
-        <PromptInput onSubmit={handleSubmitPrompt} isProcessing={isProcessing} />
-        
-        {errorDetails && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
-            <p className="font-semibold">Error details (for debugging):</p>
-            <p className="font-mono text-xs mt-1">{errorDetails}</p>
-          </div>
-        )}
+
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <PromptInput 
+            onSubmit={handlePromptSubmit} 
+            isProcessing={loading}
+            placeholder="Tell us about your dream trip or click the microphone to speak"
+          />
+        </CardContent>
       </Card>
-      
+
+      {error && (
+        <ApiConnectionError 
+          customMessage={error}
+          errorDetails={errorDetails || undefined}
+          onRetry={handleRetry}
+        />
+      )}
+
+      {loading && (
+        <div className="mb-8">
+          <LoadingSpinner />
+          {thinking && thinking.length > 0 && 
+            <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />
+          }
+        </div>
+      )}
+
       {trips.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Recommended Adventures</h2>
-          <div className="grid grid-cols-1 gap-6">
-            {trips.map((trip, index) => (
-              <div key={trip.id} className="relative">
-                <div className="absolute -top-2 left-4 z-10">
-                  <span className="bg-[#9870FF] text-white px-3 py-1 text-sm font-medium rounded-full">
+        <div className="space-y-8">
+          {trips.map((trip, index) => (
+            <div key={trip.id || `trip-${index}`} className="relative">
+              {trips.length > 1 && (
+                <div className="absolute -top-4 -left-2 z-10">
+                  <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
                     Option {index + 1}
                   </span>
                 </div>
-                <TripCard 
-                  trip={trip} 
-                  onExpand={() => handleViewTripDetails(trip.id)} 
-                  isSaved={savedTripIds.includes(trip.id)} 
-                  onSave={() => handleSaveTrip(trip)} 
-                />
-              </div>
-            ))}
-          </div>
+              )}
+              <TripCard 
+                trip={trip}
+                onSave={() => handleSaveTrip(trip)}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

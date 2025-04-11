@@ -13,9 +13,10 @@ interface TripCardMapProps {
     details?: string;
   }>;
   journey?: Journey;
+  routeType?: string;
 }
 
-const TripCardMap: React.FC<TripCardMapProps> = ({ center, markers, journey }) => {
+const TripCardMap: React.FC<TripCardMapProps> = ({ center, markers, journey, routeType = 'all' }) => {
   return (
     <div className="h-[200px] w-full sm:w-1/2">
       <MapDisplay 
@@ -23,6 +24,7 @@ const TripCardMap: React.FC<TripCardMapProps> = ({ center, markers, journey }) =
         markers={markers}
         journey={journey}
         interactive={true}
+        routeType={routeType}
       />
     </div>
   );

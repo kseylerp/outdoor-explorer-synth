@@ -32,7 +32,7 @@ export interface Journey {
   segments: Segment[];
   totalDistance: number;
   totalDuration: number;
-  bounds: number[][];
+  bounds?: number[][]; // Changed from required to optional
 }
 
 export interface Activity {
@@ -43,6 +43,19 @@ export interface Activity {
   permitRequired: boolean;
   permitDetails?: string;
   outfitters?: string[];
+  location?: string;
+  price?: number | string;
+  equipmentNeeded?: string[];
+  weather?: string;
+  difficulty?: string;
+  distance?: number | string;
+  elevation?: number | string;
+  routeType?: 'out-and-back' | 'loop' | 'one-way' | 'multi-day' | string;
+  waypoints?: {
+    name: string;
+    coordinates: Coordinates;
+    description?: string;
+  }[];
 }
 
 export interface ItineraryDay {
@@ -50,6 +63,14 @@ export interface ItineraryDay {
   title: string;
   description: string;
   activities: Activity[];
+  meals?: {
+    breakfast?: string;
+    lunch?: string;
+    dinner?: string;
+  };
+  accommodations?: string;
+  travelDuration?: string;
+  travelMode?: string;
 }
 
 export interface Trip {
@@ -59,6 +80,7 @@ export interface Trip {
   whyWeChoseThis: string;
   difficultyLevel: string;
   priceEstimate: number;
+  priceBreakdown?: Record<string, number | string>;
   duration: string;
   location: string;
   suggestedGuides?: string[];
@@ -72,4 +94,22 @@ export interface Trip {
   }>;
   journey?: Journey;
   itinerary: ItineraryDay[];
+  seasonalInfo?: string;
+  bestTimeToVisit?: string;
+  permits?: {
+    required: boolean;
+    details?: string;
+  };
+  weatherInfo?: string;
+  equipmentRecommendations?: string[];
+  localTips?: string[];
+  accessibility?: string;
+  environmentalImpact?: string;
+  alternativeOptions?: string[];
+  highlights?: string[];
+  safetyNotes?: string;
+  languagesSpoken?: string[];
+  currency?: string;
+  timeZone?: string;
+  visaRequirements?: string;
 }

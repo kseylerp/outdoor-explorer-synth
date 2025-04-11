@@ -46,6 +46,25 @@ export const validateAndTransformTrip = (trip: any): Trip => {
     }
   }
   
+  // Extract price breakdown if available
+  const priceBreakdown: Record<string, number | string> = {};
+  if (trip.priceBreakdown) {
+    Object.assign(priceBreakdown, trip.priceBreakdown);
+  }
+  
+  // Look for top-level price fields that might be part of a breakdown
+  const priceRelatedKeys = Object.keys(trip).filter(key => 
+    key.toLowerCase().includes('price') || 
+    key.toLowerCase().includes('cost') ||
+    key.toLowerCase().includes('fee')
+  );
+  
+  priceRelatedKeys.forEach(key => {
+    if (key !== 'priceEstimate' && key !== 'priceBreakdown') {
+      priceBreakdown[key] = trip[key];
+    }
+  });
+  
   // Create validated trip object preserving structure for missing data
   const validatedTrip: Trip = {
     id: trip.id,
@@ -59,6 +78,24 @@ export const validateAndTransformTrip = (trip: any): Trip => {
     mapCenter: trip.mapCenter || { lng: 0, lat: 0 },
     itinerary: trip.itinerary ? validateItinerary(trip.itinerary) : [],
   };
+  
+  // Add price breakdown if we found any
+  if (Object.keys(priceBreakdown).length > 0) {
+    validatedTrip.priceBreakdown = priceBreakdown;
+  }
+  
+  // Process all extra fields to preserve data
+  for (const [key, value] of Object.entries(trip)) {
+    if (
+      !['id', 'title', 'description', 'whyWeChoseThis', 'difficultyLevel', 
+        'priceEstimate', 'duration', 'location', 'mapCenter', 'itinerary',
+        'journey', 'markers', 'suggestedGuides'].includes(key) && 
+      value !== undefined
+    ) {
+      // @ts-ignore - Add any extra fields to the trip object
+      validatedTrip[key] = value;
+    }
+  }
   
   // Optional fields - only add if present in input
   if (trip.suggestedGuides && Array.isArray(trip.suggestedGuides)) {
@@ -95,6 +132,21 @@ export const validateAndTransformTrip = (trip: any): Trip => {
       ]
     };
   }
+  
+  // Add additional fields for complete data preservation
+  const additionalFields = [
+    'seasonalInfo', 'bestTimeToVisit', 'permits', 'weatherInfo', 
+    'equipmentRecommendations', 'localTips', 'accessibility',
+    'environmentalImpact', 'alternativeOptions', 'highlights',
+    'safetyNotes', 'languagesSpoken', 'currency', 'timeZone', 'visaRequirements'
+  ];
+  
+  additionalFields.forEach(field => {
+    if (trip[field] !== undefined) {
+      // @ts-ignore - We've defined these fields in the Trip interface
+      validatedTrip[field] = trip[field];
+    }
+  });
   
   return validatedTrip;
 };
