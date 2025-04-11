@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -9,11 +8,11 @@ import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { useTrips } from '@/hooks/useTrips';
 
 const Index = () => {
-  const { 
-    trips, 
-    loading, 
-    error, 
-    errorDetails, 
+  const {
+    trips,
+    loading,
+    error,
+    errorDetails,
     thinking,
     handlePromptSubmit,
     handleVoiceTripData,
@@ -31,40 +30,38 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+    <div className="container mx-auto px-4 py-6 max-w-6xl bg-white dark:bg-[#202020]">
+      <div className="mb-8 text-center my-[20px] mx-0">
+        <h1 className="text-4xl font-bold mb-4 py-0 mx-[2px] md:text-5xl my-px">
           Let's find an <span className="offbeat-gradient">offbeat</span> adventure
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-200 text-base my-0">
           Powered by local guides: explore, plan, and experience better trips
         </p>
       </div>
 
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <PromptInput 
-            onSubmit={handlePromptSubmit} 
-            isProcessing={loading}
-            placeholder="Tell us about your dream trip or click the microphone to speak"
-          />
-        </CardContent>
-      </Card>
+      <div className="mb-8 w-full bg-white dark:bg-[#202020]">
+        <PromptInput 
+          onSubmit={handlePromptSubmit} 
+          isProcessing={loading} 
+          placeholder="Tell us about your dream trip..." 
+        />
+      </div>
 
       {error && (
         <ApiConnectionError 
-          customMessage={error}
-          errorDetails={errorDetails || undefined}
-          onRetry={handleRetry}
+          customMessage={error} 
+          errorDetails={errorDetails || undefined} 
+          onRetry={handleRetry} 
         />
       )}
 
       {loading && (
         <div className="mb-8">
           <LoadingSpinner />
-          {thinking && thinking.length > 0 && 
+          {thinking && thinking.length > 0 && (
             <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />
-          }
+          )}
         </div>
       )}
 
@@ -79,10 +76,7 @@ const Index = () => {
                   </span>
                 </div>
               )}
-              <TripCard 
-                trip={trip}
-                onSave={() => handleSaveTrip(trip)}
-              />
+              <TripCard trip={trip} onSave={() => handleSaveTrip(trip)} />
             </div>
           ))}
         </div>

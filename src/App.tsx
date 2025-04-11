@@ -6,20 +6,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import TripDetails from "./pages/TripDetails";
 import NotFound from "./pages/NotFound";
-import Explore from "./pages/Explore";
-import Destinations from "./pages/Destinations";
 import Maps from "./pages/Maps";
 import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
 import CampgroundBooking from "./pages/CampgroundBooking";
-import RealtimeChatPage from "./pages/RealtimeChat";
 
 // Main app layout components
 import MainNav from "./components/MainNav";
 import TopNav from "./components/TopNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "./hooks/use-mobile";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 // Guide Portal components
 import GuidePortalLayout from "./components/guide/GuidePortalLayout";
@@ -30,41 +28,33 @@ import GuideProfile from "./pages/guide/GuideProfile";
 import GuideAnalytics from "./pages/guide/GuideAnalytics";
 import Activities from "./pages/guide/Activities";
 import AddActivity from "./pages/guide/AddActivity";
-
 const queryClient = new QueryClient();
 
 // Main App Layout wrapper
 const MainAppLayout = () => {
   const isMobile = useIsMobile();
-  
-  return (
-    <div className="flex min-h-screen w-full">
+  return <div className="flex min-h-screen w-full bg-[#161616]">
       {!isMobile && <MainNav />}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#161616]">
         <TopNav />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-[#161616]">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
-            <Route path="/explore" element={<Explore />} />
             <Route path="/saved-trips" element={<SavedTrips />} />
-            <Route path="/destinations" element={<Destinations />} />
             <Route path="/maps" element={<Maps />} />
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/campground/:id" element={<CampgroundBooking />} />
-            <Route path="/realtime-chat" element={<RealtimeChatPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
 
 const AppContent = () => {
-  return (
-    <Routes>
+  return <Routes>
       {/* Main application routes */}
       <Route path="/*" element={<MainAppLayout />} />
       
@@ -80,25 +70,23 @@ const AppContent = () => {
         <Route path="profile" element={<GuideProfile />} />
         <Route path="settings" element={<Settings />} />
       </Route>
-    </Routes>
-  );
+    </Routes>;
 };
 
-// Changed functional component definition to wrap providers properly
 const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
+  return <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <SidebarProvider>
-            <AppContent />
-          </SidebarProvider>
-        </TooltipProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <SidebarProvider>
+              <AppContent />
+            </SidebarProvider>
+          </TooltipProvider>
+        </ThemeProvider>
       </BrowserRouter>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>;
 };
 
 export default App;

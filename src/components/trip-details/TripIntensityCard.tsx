@@ -23,17 +23,17 @@ const TripIntensityCard: React.FC<TripIntensityCardProps> = ({ difficultyLevel }
   };
 
   return (
-    <Card className="border border-purple-100">
+    <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#202030]">
       <CardContent className="pt-6">
         <div className="flex items-center gap-2 mb-3">
-          <Gauge className="h-5 w-5 text-purple-600" />
+          <Gauge className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           <h3 className="text-lg font-semibold">Trip Intensity</h3>
         </div>
         <TripIntensityBar 
           level={difficultyToIntensity(difficultyLevel)} 
           readOnly={true} 
         />
-        <p className="text-sm text-gray-500 mt-2">Based on terrain, activities, and required fitness level</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Based on terrain, activities, and required fitness level</p>
       </CardContent>
     </Card>
   );

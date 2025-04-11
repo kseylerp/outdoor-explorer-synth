@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,27 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Light mode explicit overrides */
+:root:not(.dark) {
+  --bg-color: 255, 255, 255;
+  --text-color: 0, 0, 0;
+  background-color: rgb(var(--bg-color));
+  color: rgba(var(--text-color), 0.9);
+}
+
+/* Light mode styles */
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+/* Ensure prompt box has light background in light mode */
+:root:not(.dark) .bg-background {
+  background-color: #ffffff;
+}
+
+:root:not(.dark) .border-border {
+  border-color: #e5e7eb;
 }
