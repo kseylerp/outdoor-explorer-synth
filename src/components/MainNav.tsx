@@ -33,7 +33,7 @@ const MainNav: React.FC = () => {
   return (
     <div className={`h-full min-h-screen bg-white dark:bg-[#202020] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-3 h-14 bg-white dark:bg-[#202020]">
+        <div className="flex items-center justify-between p-3 h-16 bg-white dark:bg-[#202020]">
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" alt="Full Logo Offbeat" className="h-10" />

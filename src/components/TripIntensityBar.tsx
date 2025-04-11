@@ -29,12 +29,9 @@ const TripIntensityBar: React.FC<TripIntensityBarProps> = ({
   
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="text-gray-700 dark:text-yugen-bright font-semibold text-sm">Activity intensity:</span>
-        <span className={`font-medium text-sm ${getColorClass()}`}>
-          {intensityLabel}
-        </span>
-      </div>
+      <span className={`font-medium text-sm ${getColorClass()}`}>
+        {intensityLabel}
+      </span>
     </div>
   );
 };

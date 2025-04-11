@@ -30,7 +30,7 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <div className="container mx-auto px-4 py-6 max-w-6xl bg-white dark:bg-[#202020]">
       <div className="mb-8 text-center my-[20px] mx-0">
         <h1 className="text-4xl font-bold mb-4 py-0 mx-[2px] md:text-5xl my-px">
           Let's find an <span className="offbeat-gradient">offbeat</span> adventure
@@ -40,7 +40,7 @@ const Index = () => {
         </p>
       </div>
 
-      <div className="mb-8 w-full">
+      <div className="mb-8 w-full bg-white dark:bg-[#202020]">
         <PromptInput 
           onSubmit={handlePromptSubmit} 
           isProcessing={loading} 

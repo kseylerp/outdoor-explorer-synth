@@ -19,13 +19,17 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
   suggestedGuides,
   compact = false
 }) => {
+  // Add console.log to debug the description text
+  console.log("Description content:", description);
+  console.log("Description length:", description?.length);
+  
   return (
     <Card className="border border-gray-200 dark:border-gray-700 dark:bg-[#202030]">
       <CardContent className="pt-6">
         {description && (
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-gray-700 dark:text-gray-300">{description}</p>
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line break-words">{description}</p>
           </div>
         )}
         
@@ -46,7 +50,7 @@ const TripDescription: React.FC<TripDescriptionProps> = ({
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-2">Why We Chose This</h3>
             <div className="bg-gray-100 p-4 rounded-md border border-gray-200 dark:bg-[#202030] dark:border-gray-700">
-              <p className="text-gray-700 dark:text-gray-300 italic">{whyWeChoseThis}</p>
+              <p className="text-gray-700 dark:text-gray-300 italic whitespace-pre-line">{whyWeChoseThis}</p>
             </div>
           </div>
         )}
