@@ -29,7 +29,7 @@ const GuidePortalLayout: React.FC = () => {
         <div className="flex flex-1 overflow-hidden">
           <GuidePortalSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
-            <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-6">
+            <header className="h-16 border-b border-gray-200 bg-sidebar flex items-center justify-between px-6">
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/">

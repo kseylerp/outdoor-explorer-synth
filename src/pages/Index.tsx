@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -41,15 +41,13 @@ const Index = () => {
         </p>
       </div>
 
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <PromptInput 
-            onSubmit={handlePromptSubmit} 
-            isProcessing={loading}
-            placeholder="Tell us about your dream trip or click the microphone to speak"
-          />
-        </CardContent>
-      </Card>
+      <div className="mb-8 w-full">
+        <PromptInput 
+          onSubmit={handlePromptSubmit} 
+          isProcessing={loading}
+          placeholder=""
+        />
+      </div>
 
       {error && (
         <ApiConnectionError 

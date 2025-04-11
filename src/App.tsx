@@ -37,9 +37,9 @@ const MainAppLayout = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full bg-white">
       {!isMobile && <MainNav />}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-white">
         <TopNav />
         <main className="flex-1 overflow-auto">
           <Routes>

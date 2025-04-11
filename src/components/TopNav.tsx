@@ -21,7 +21,7 @@ const TopNav: React.FC<TopNavProps> = ({ hideModelSelector }) => {
   }
 
   return (
-    <div className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-3 md:px-6">
+    <div className="h-16 border-b border-gray-200 bg-sidebar flex items-center justify-between px-3 md:px-6">
       {isMobile && (
         <div className="flex items-center gap-2">
           <Button 

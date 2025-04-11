@@ -78,29 +78,27 @@ const PromptInput: React.FC<PromptInputProps> = ({
         />
       )}
       
-      <div className="relative">
+      <div className="relative border border-gray-200 rounded-md bg-black p-4">
         <Textarea
           ref={textareaRef}
-          placeholder={placeholder}
+          placeholder=""
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isProcessing || showAudioExperience}
-          className="min-h-24 pr-12 resize-none font-patano text-base"
+          className="min-h-24 pr-12 mb-2 resize-none font-patano text-base w-full border-0 focus:ring-0 focus-visible:ring-0 bg-black text-white placeholder:text-gray-400"
         />
-        <div className="absolute right-2 bottom-2 flex items-center gap-2">
+        <div className="absolute right-4 bottom-4 flex items-center gap-2">
           <AudioButton 
             onClick={startVoiceExperience}
             disabled={isProcessing}
           />
           
-          {prompt.trim() && (
-            <SendButton 
-              onSubmit={handleSubmit} 
-              isProcessing={isProcessing} 
-              disabled={!prompt.trim()}
-            />
-          )}
+          <SendButton 
+            onSubmit={handleSubmit} 
+            isProcessing={isProcessing} 
+            disabled={!prompt.trim()}
+          />
         </div>
       </div>
       
