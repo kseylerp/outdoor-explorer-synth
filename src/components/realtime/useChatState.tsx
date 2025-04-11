@@ -72,7 +72,7 @@ export const useChatState = () => {
 
   const handleStartRecording = useCallback(() => {
     // Make sure we have an active session before starting recording
-    if (connectionState !== 'connected' && connectionState !== 'recording') {
+    if (connectionState !== 'connected') {
       startSession().then(success => {
         if (success) {
           startRecording();
