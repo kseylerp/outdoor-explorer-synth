@@ -24,7 +24,7 @@ serve(async (req) => {
   
   try {
     // Parse request body
-    const { action, instructions, voice = "alloy" } = await req.json();
+    const { action, instructions, voice = "sage" } = await req.json(); // Default to "sage" voice
     
     if (action !== 'create_session') {
       return new Response(
@@ -48,7 +48,14 @@ serve(async (req) => {
     const defaultInstructions = `You are an adventure guide that specializes in offbeat travel recommendations. 
     Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. 
     First, engage in natural conversation to understand the user's request. 
-    After you understand their requirements, inform them you'll show them trip options on screen. 
+    Ask follow-up questions to better understand their preferences for:
+    - Destination or general region they're interested in
+    - Activity level (easy, moderate, challenging)
+    - Duration of the trip
+    - Any special interests (wildlife, photography, local food)
+    - Travel style (budget, luxury, family-friendly)
+    
+    After you have enough information, inform them you'll show them trip options on screen.
     Format your response after understanding as a JSON object with destination, activities, and description fields. 
     For example: \`\`\`json{"destination":"Yosemite","activities":["hiking","camping"],"description":"Weekend trip with moderate trails and fewer crowds"}\`\`\``;
     
@@ -61,7 +68,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-realtime-preview-2024-12-17',
-        voice: voice,
+        voice: voice, // Use the specified voice (default: "sage")
         instructions: instructions || defaultInstructions
       }),
     });
@@ -80,7 +87,8 @@ serve(async (req) => {
       JSON.stringify({
         sessionId: data.id,
         clientSecret: data.client_secret.value,
-        expiresAt: data.client_secret.expires_at
+        expiresAt: data.client_secret.expires_at,
+        voice: voice // Return the voice being used
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

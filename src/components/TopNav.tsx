@@ -25,7 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({
   }
   
   return (
-    <div className="h-16 flex items-center justify-between px-3 md:px-6 bg-white dark:bg-[#202020] shadow-sm">
+    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-white dark:bg-[#202020] shadow-sm">
       {isMobile && (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleSidebar}>

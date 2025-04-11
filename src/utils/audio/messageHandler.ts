@@ -52,19 +52,64 @@ export class MessageHandler {
         
       case 'response.done':
         // Response is completely finished
+        this.extractTripDataFromCompleteResponse(message);
         break;
     }
   }
   
   private extractTripData(transcript: string): void {
     try {
+      // Look for JSON format in the transcript
       const jsonMatch = transcript.match(/```json(.*?)```/s);
       if (jsonMatch && jsonMatch[1] && this.onTripDataReceived) {
-        const jsonData = JSON.parse(jsonMatch[1].trim());
-        this.onTripDataReceived(jsonData);
+        try {
+          const jsonData = JSON.parse(jsonMatch[1].trim());
+          console.log("Extracted trip data from transcript:", jsonData);
+          this.onTripDataReceived(jsonData);
+          return;
+        } catch (err) {
+          console.error('Failed to parse JSON from transcript match:', err);
+        }
+      }
+      
+      // Alternative format without code blocks
+      const curlyBraceMatch = transcript.match(/{[\s\S]*"destination"[\s\S]*}/);
+      if (curlyBraceMatch && this.onTripDataReceived) {
+        try {
+          const jsonData = JSON.parse(curlyBraceMatch[0]);
+          console.log("Extracted trip data from transcript (curly brace match):", jsonData);
+          this.onTripDataReceived(jsonData);
+          return;
+        } catch (err) {
+          console.error('Failed to parse JSON from curly brace match:', err);
+        }
+      }
+      
+      console.log('No valid JSON data found in transcript');
+    } catch (err) {
+      console.error('Error extracting trip data from transcript:', err);
+    }
+  }
+  
+  private extractTripDataFromCompleteResponse(message: any): void {
+    if (!message.response || !this.onTripDataReceived) return;
+    
+    try {
+      // Try to find any JSON in the complete response
+      const items = message.response.items || [];
+      
+      for (const item of items) {
+        if (item.content && Array.isArray(item.content)) {
+          for (const content of item.content) {
+            if (content.type === 'text' && content.text) {
+              // Extract JSON from the text
+              this.extractTripData(content.text);
+            }
+          }
+        }
       }
     } catch (err) {
-      console.error('Failed to parse JSON from transcript:', err);
+      console.error('Error extracting trip data from complete response:', err);
     }
   }
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +13,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   const [audioVisualizer, setAudioVisualizer] = useState<number[]>(Array(20).fill(10));
   const [processingComplete, setProcessingComplete] = useState(false);
   const [aiResponseText, setAiResponseText] = useState<string | null>(null);
+  const [voice, setVoice] = useState<string>("sage"); // Default to sage voice
   const { toast } = useToast();
 
   // Create animated audio visualization
@@ -35,6 +37,12 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
         service.initSession()
           .then((sessionId) => {
             console.log('Realtime session started with ID:', sessionId);
+            
+            // When we connect, check the voice being used
+            toast({
+              title: "Connected with Sage voice",
+              description: "You're now connected using OpenAI's Sage voice assistant",
+            });
             
             service.onTranscriptReceived = (transcript) => {
               if (transcript && transcript.trim()) {
@@ -104,8 +112,12 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
         <X className="h-6 w-6" />
       </button>
       
-      <div className="text-white text-xl font-medium mb-8">
+      <div className="text-white text-xl font-medium mb-2">
         {isListening ? 'Speak now...' : aiResponseText || 'Processing...'}
+      </div>
+
+      <div className="text-white/70 text-sm mb-6">
+        Using OpenAI with Sage voice
       </div>
       
       <div className="flex items-center justify-center gap-1 mb-8">

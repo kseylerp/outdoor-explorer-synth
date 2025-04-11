@@ -8,15 +8,10 @@ export const generateTrips = async (
   thinkingCallback?: (steps: string[]) => void
 ): Promise<Trip[]> => {
   try {
-    // Get the preferred AI model from localStorage, default to gemini
-    const preferredModel: 'claude' | 'gemini' = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini' || 'gemini';
+    // We're only using gemini-recommendations (which will be updated to use OpenAI)
+    const edgeFunction = 'gemini-recommendations';
     
-    // Use a type-safe way to determine the edge function
-    const edgeFunction = preferredModel === 'claude' 
-      ? 'claude-recommendations' 
-      : 'gemini-recommendations';
-    
-    console.info(`Using ${preferredModel} model for trip recommendations`);
+    console.info(`Using OpenAI model for trip recommendations`);
     console.info(`Calling ${edgeFunction} edge function with prompt: ${prompt}`);
     
     const { data, error } = await supabase.functions.invoke(edgeFunction, {
@@ -75,6 +70,24 @@ export const generateTrips = async (
     // Log complete trip data to ensure we're capturing everything
     console.log("Complete trip data from API:", JSON.stringify(trips, null, 2));
     
+    // Make sure descriptions are properly set
+    trips.forEach((trip, index) => {
+      if (!trip.description || trip.description.length < 10) {
+        console.warn(`Trip ${index} has missing or short description:`, trip.description);
+        
+        // Try to extract description from whyWeChoseThis if needed
+        if (trip.whyWeChoseThis && trip.whyWeChoseThis.length > 50) {
+          console.log(`Using whyWeChoseThis as fallback for description in trip ${index}`);
+          trip.description = trip.whyWeChoseThis;
+        }
+      }
+      
+      // Ensure ID is set
+      if (!trip.id) {
+        trip.id = `trip-${Date.now()}-${index}`;
+      }
+    });
+    
     return trips;
   } catch (error) {
     console.error("Error generating trips:", error);
@@ -131,7 +144,14 @@ function enhanceTripDataFromRawResponse(trips: Trip[], rawResponse: string) {
             trips[i].markers = rawTrip.markers;
           }
           
-          // Ensure all required fields are present
+          // Ensure all required fields are present and have content
+          if (!trips[i].description || trips[i].description.trim().length === 0) {
+            console.log(`Trip ${i} missing description, trying to fix`);
+            if (rawTrip.description && rawTrip.description.trim().length > 0) {
+              trips[i].description = rawTrip.description;
+            }
+          }
+          
           if (!trips[i].whyWeChoseThis && rawTrip.whyWeChoseThis) {
             trips[i].whyWeChoseThis = rawTrip.whyWeChoseThis;
           }

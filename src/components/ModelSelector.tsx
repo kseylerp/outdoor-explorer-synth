@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -6,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 interface ModelSelectorProps {
   compact?: boolean; // For more compact display in headers
   showLabels?: boolean; // Whether to show descriptive labels
-  onChange?: (model: 'claude' | 'gemini') => void; // Optional callback when model changes
+  onChange?: (model: 'gemini') => void; // Only OpenAI option now
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ 
@@ -14,21 +15,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   showLabels = true,
   onChange 
 }) => {
-  // Always default to 'gemini' now
-  const [preferredModel, setPreferredModel] = useState<'claude' | 'gemini'>(
+  // Always use OpenAI via Gemini endpoint
+  const [preferredModel, setPreferredModel] = useState<'gemini'>(
     () => 'gemini'
   );
 
-  // Update localStorage when preference changes
+  // Update localStorage when preference changes (though we only have one option now)
   useEffect(() => {
     localStorage.setItem('preferredAiModel', preferredModel);
-    
-    if (!compact) {
-      toast({
-        title: "Preference Saved",
-        description: `${preferredModel === 'claude' ? 'Claude' : 'Gemini'} set as your preferred AI model.`,
-      });
-    }
     
     // Call the onChange callback if provided
     if (onChange) {
@@ -37,45 +31,24 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     
     // Trigger a storage event so other components can react to the change
     window.dispatchEvent(new Event('storage'));
-  }, [preferredModel, compact, onChange]);
+  }, [preferredModel, onChange]);
 
-  const toggleModel = () => {
-    // Claude is temporarily disabled, so this is now a no-op
-    // We keep the function for future re-enabling
-    console.log('Claude is temporarily unavailable');
-    toast({
-      title: "Only Gemini available",
-      description: "Claude is temporarily unavailable. Using Gemini instead.",
-    });
-  };
-
+  // Only show a message that we're using OpenAI
   if (compact) {
     return (
       <div className="flex items-center space-x-2">
-        <span className="text-xs text-muted-foreground">C</span>
-        <Switch 
-          checked={true} 
-          disabled={true}
-          className="scale-75"
-        />
-        <span className="text-xs font-medium">G</span>
+        <span className="text-xs text-muted-foreground">Using OpenAI</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm text-muted-foreground">Claude</span>
-      <Switch 
-        id="model-toggle" 
-        checked={true} 
-        disabled={true}
-      />
-      <span className="text-sm font-medium">Gemini</span>
+      <span className="text-sm font-medium">Using OpenAI</span>
       
       {showLabels && (
         <span className="ml-2 text-xs text-muted-foreground">
-          (Google)
+          (powered by gpt-4o)
         </span>
       )}
     </div>
