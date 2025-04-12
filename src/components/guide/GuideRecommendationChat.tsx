@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { PaperAirplaneIcon, PaperclipIcon } from 'lucide-react';
+import { Send, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -249,7 +249,7 @@ const GuideRecommendationChat: React.FC = () => {
             className="h-8 w-8"
             disabled={isSubmitting}
           >
-            <PaperclipIcon size={18} />
+            <Paperclip size={18} />
           </Button>
           <Button
             type="button"
@@ -258,7 +258,7 @@ const GuideRecommendationChat: React.FC = () => {
             className="h-8 w-8"
             disabled={isSubmitting || !message.trim()}
           >
-            <PaperAirplaneIcon size={18} />
+            <Send size={18} />
           </Button>
         </div>
       </div>
