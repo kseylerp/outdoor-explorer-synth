@@ -15,7 +15,7 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
   // Animation effect when bubble appears
   useEffect(() => {
     if (bubbleRef.current) {
-      bubbleRef.current.classList.add('chat-bubble-in');
+      bubbleRef.current.classList.add('bubble-animate');
     }
   }, []);
   
@@ -23,11 +23,12 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div 
         ref={bubbleRef}
-        className={`triage-bubble ${
+        className={`max-w-[80%] py-3 px-4 rounded-lg ${
           isUser 
-            ? 'triage-user' 
-            : 'triage-ai'
-        }`}
+            ? 'bg-primary text-primary-foreground' 
+            : 'bg-muted text-foreground dark:bg-zinc-800'
+        } opacity-0 transition-opacity duration-300 ease-in-out`}
+        style={{ wordBreak: 'break-word' }}
       >
         {message}
       </div>

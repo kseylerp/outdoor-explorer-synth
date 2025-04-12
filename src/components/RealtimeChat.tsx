@@ -45,7 +45,9 @@ const RealtimeChat: React.FC = () => {
   // Generate follow-up questions based on conversation content
   useEffect(() => {
     if (history.length > 1 && !isProcessing) {
-      const lastBotMessage = history.findLast(msg => msg.role === 'assistant' || msg.role === 'system');
+      // Get all assistant or system messages and find the last one
+      const assistantMessages = history.filter(msg => msg.role === 'assistant' || msg.role === 'system');
+      const lastBotMessage = assistantMessages.length > 0 ? assistantMessages[assistantMessages.length - 1] : null;
       
       if (lastBotMessage) {
         // Generate follow-up questions based on last message content
