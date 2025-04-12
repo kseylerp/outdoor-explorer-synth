@@ -89,9 +89,11 @@ export function useAssistants() {
       }
 
       const response = data as AssistantResponse;
+      let textContent = '';
+      
       if (response.message) {
         // Process the assistant message
-        const textContent = response.message.content
+        textContent = response.message.content
           .filter(item => item.type === 'text')
           .map(item => item.text?.value || '')
           .join('\n');
