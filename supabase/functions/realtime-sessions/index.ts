@@ -47,7 +47,7 @@ serve(async (req) => {
     
     console.log('Creating session with OpenAI Realtime API...');
     
-    // Default instructions for travel planning with improved triage and follow-up questions
+    // Enhanced instructions for travel planning with improved triage and follow-up questions
     const defaultInstructions = `You are an adventure guide that specializes in offbeat travel recommendations. 
     Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. 
     

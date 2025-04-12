@@ -6,6 +6,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ThinkingDisplay from '@/components/ThinkingDisplay';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { useTrips } from '@/hooks/useTrips';
+import ResponseDialog from '@/components/prompt/ResponseDialog';
 
 const Index = () => {
   const {
@@ -21,6 +22,8 @@ const Index = () => {
   } = useTrips();
   
   const [dialogQuestion, setDialogQuestion] = useState<string | null>(null);
+  const [showResponseDialog, setShowResponseDialog] = useState(false);
+  const [quickResponseOptions, setQuickResponseOptions] = useState<Array<{text: string, value: string}>>([]);
   
   // Handle voice transcript and potential trip data
   const handleTranscript = (transcript: string, tripData?: any) => {
@@ -32,6 +35,12 @@ const Index = () => {
     } else {
       handlePromptSubmit(transcript);
     }
+  };
+
+  // Handle dialog response submission
+  const handleDialogResponse = (response: string) => {
+    console.log('Dialog response received:', response);
+    handlePromptSubmit(response);
   };
 
   return (
@@ -53,6 +62,15 @@ const Index = () => {
           placeholder="Tell us about your dream trip..." 
         />
       </div>
+
+      {/* Response Dialog for follow-up questions */}
+      <ResponseDialog
+        isOpen={showResponseDialog}
+        onClose={() => setShowResponseDialog(false)}
+        question={dialogQuestion || ""}
+        onSubmit={handleDialogResponse}
+        options={quickResponseOptions}
+      />
 
       {error && (
         <ApiConnectionError 

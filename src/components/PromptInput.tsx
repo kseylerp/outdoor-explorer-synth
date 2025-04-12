@@ -165,7 +165,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
-  return <div className="space-y-4 relative">
+  return (
+    <div className="space-y-4 relative">
       {/* Voice Experience Modal */}
       {showAudioExperience && (
         <VoiceExperience 
@@ -203,10 +204,13 @@ const PromptInput: React.FC<PromptInputProps> = ({
         </div>
       </div>
       
-      {isProcessing && <div className="text-center text-base font-patano text-gray-800 animate-pulse">
+      {isProcessing && (
+        <div className="text-center text-base font-patano text-gray-800 animate-pulse">
           Our AI is crafting your perfect adventure experience...
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default PromptInput;
