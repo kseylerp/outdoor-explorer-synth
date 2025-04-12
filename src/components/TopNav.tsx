@@ -39,12 +39,12 @@ const TopNav: React.FC<TopNavProps> = ({
       )}
       
       <div className="flex gap-4 ml-auto">
-        <Button variant="outline" asChild className="font-patano">
+        <Button variant="outline" asChild className="font-medium">
           <Link to="/login">Log In</Link>
         </Button>
         <Button 
           asChild 
-          className="font-patano primary-button"
+          className="font-medium primary-button"
         >
           <Link to="/signup">Sign Up</Link>
         </Button>

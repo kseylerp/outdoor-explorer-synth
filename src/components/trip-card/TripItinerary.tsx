@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ItineraryDay } from '@/types/trips';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -17,6 +17,11 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
     // Default to first day expanded
     { 1: true }
   );
+  
+  // Ensure itinerary is properly loaded
+  useEffect(() => {
+    console.log("Itinerary data loaded:", itinerary);
+  }, [itinerary]);
 
   if (!itinerary || itinerary.length === 0) {
     return (

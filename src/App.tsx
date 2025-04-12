@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,16 +29,18 @@ import GuideProfile from "./pages/guide/GuideProfile";
 import GuideAnalytics from "./pages/guide/GuideAnalytics";
 import Activities from "./pages/guide/Activities";
 import AddActivity from "./pages/guide/AddActivity";
+
 const queryClient = new QueryClient();
 
 // Main App Layout wrapper
 const MainAppLayout = () => {
   const isMobile = useIsMobile();
-  return <div className="flex min-h-screen w-full bg-[#161616]">
+  return (
+    <div className="flex min-h-screen w-full bg-[#F4F7F3] dark:bg-[#161616]">
       {!isMobile && <MainNav />}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#161616]">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#F4F7F3] dark:bg-[#161616]">
         <TopNav />
-        <main className="flex-1 overflow-auto bg-[#161616]">
+        <main className="flex-1 overflow-auto bg-[#F4F7F3] dark:bg-[#161616]">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
@@ -50,11 +53,13 @@ const MainAppLayout = () => {
           </Routes>
         </main>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 const AppContent = () => {
-  return <Routes>
+  return (
+    <Routes>
       {/* Main application routes */}
       <Route path="/*" element={<MainAppLayout />} />
       
@@ -70,11 +75,13 @@ const AppContent = () => {
         <Route path="profile" element={<GuideProfile />} />
         <Route path="settings" element={<Settings />} />
       </Route>
-    </Routes>;
+    </Routes>
+  );
 };
 
 const App = () => {
-  return <QueryClientProvider client={queryClient}>
+  return (
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
@@ -86,7 +93,8 @@ const App = () => {
           </TooltipProvider>
         </ThemeProvider>
       </BrowserRouter>
-    </QueryClientProvider>;
+    </QueryClientProvider>
+  );
 };
 
 export default App;

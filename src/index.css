@@ -22,3 +22,8 @@
 .primary-button {
   @apply bg-primary hover:bg-primary/90 text-primary-foreground;
 }
+
+/* Add a gradient for the offbeat text */
+.offbeat-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#65558F] to-[#A27BE7];
+}

@@ -110,13 +110,15 @@ const Index = () => {
 
       <div className="flex-grow overflow-y-auto">
         {/* Response Dialog for follow-up questions */}
-        <ResponseDialog
-          isOpen={showResponseDialog}
-          onClose={() => setShowResponseDialog(false)}
-          question={dialogQuestion || ""}
-          onSubmit={handleDialogResponse}
-          options={quickResponseOptions}
-        />
+        {dialogQuestion && (
+          <ResponseDialog
+            isOpen={showResponseDialog}
+            onClose={() => setShowResponseDialog(false)}
+            question={dialogQuestion}
+            onSubmit={handleDialogResponse}
+            options={quickResponseOptions}
+          />
+        )}
 
         {error && (
           <ApiConnectionError 

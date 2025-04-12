@@ -27,7 +27,7 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
           isUser 
             ? 'bg-primary text-primary-foreground' 
             : 'bg-muted text-foreground dark:bg-zinc-800'
-        } opacity-0 transition-opacity duration-300 ease-in-out`}
+        } opacity-0 bubble-animate`}
         style={{ wordBreak: 'break-word' }}
       >
         {message}
