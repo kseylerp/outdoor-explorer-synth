@@ -12,6 +12,7 @@ import About from "./pages/About";
 import SavedTrips from "./pages/SavedTrips";
 import Settings from "./pages/Settings";
 import CampgroundBooking from "./pages/CampgroundBooking";
+import RealtimeChatPage from "./pages/RealtimeChat";
 
 // Main app layout components
 import MainNav from "./components/MainNav";
@@ -36,11 +37,11 @@ const queryClient = new QueryClient();
 const MainAppLayout = () => {
   const isMobile = useIsMobile();
   return (
-    <div className="flex min-h-screen w-full bg-[#F4F7F3] dark:bg-[#161616]">
+    <div className="flex min-h-screen w-full bg-[#EFF3EE] dark:bg-[#161616]">
       {!isMobile && <MainNav />}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#F4F7F3] dark:bg-[#161616]">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#EFF3EE] dark:bg-[#161616]">
         <TopNav />
-        <main className="flex-1 overflow-auto bg-[#F4F7F3] dark:bg-[#161616]">
+        <main className="flex-1 overflow-auto bg-[#EFF3EE] dark:bg-[#161616]">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/trip/:id" element={<TripDetails />} />
@@ -49,6 +50,7 @@ const MainAppLayout = () => {
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/campground/:id" element={<CampgroundBooking />} />
+            <Route path="/realtime-chat" element={<RealtimeChatPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

@@ -26,11 +26,16 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
         className={`max-w-[80%] py-3 px-4 rounded-lg ${
           isUser 
             ? 'bg-primary text-primary-foreground' 
-            : 'bg-muted text-foreground dark:bg-zinc-800'
+            : 'bg-white dark:bg-zinc-800 text-foreground shadow-sm'
         } opacity-0 bubble-animate`}
         style={{ wordBreak: 'break-word' }}
       >
-        {message}
+        {message.split('\n').map((line, i) => (
+          <React.Fragment key={i}>
+            {line}
+            {i < message.split('\n').length - 1 && <br />}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );

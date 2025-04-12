@@ -15,7 +15,8 @@ const TopNav: React.FC<TopNavProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const {
-    toggleSidebar
+    toggleSidebar,
+    isOpen
   } = useSidebar();
   const location = useLocation();
 
@@ -25,11 +26,17 @@ const TopNav: React.FC<TopNavProps> = ({
   }
   
   return (
-    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#F4F7F3] dark:bg-[#1E1E1E] top-nav">
+    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#EFF3EE] dark:bg-[#1E1E1E] top-nav">
       {isMobile && (
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleSidebar}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-9 w-9" 
+            onClick={toggleSidebar}
+          >
             <PanelLeft size={20} />
+            <span className="sr-only">Toggle Sidebar</span>
           </Button>
           
           <Link to="/" className="flex items-center">

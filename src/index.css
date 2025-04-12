@@ -14,7 +14,7 @@
 
 /* Make sure the sidebar has consistent styling */
 .side-nav, .main-nav {
-  @apply bg-[#F4F7F3] dark:bg-[#202020] border-r border-gray-200 dark:border-gray-800;
+  @apply bg-[#EFF3EE] dark:bg-[#202020] border-r border-gray-200 dark:border-gray-800;
 }
 
 .top-nav {
@@ -29,4 +29,28 @@
 /* Add a gradient for the offbeat text */
 .offbeat-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-[#65558F] to-[#A27BE7];
+}
+
+/* Updated background colors */
+.dawn-background {
+  @apply bg-[#EFF3EE];
+}
+
+.conversation-container {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trip-results-container {
+  max-height: calc(100vh - 40vh - 120px);
+  overflow-y: auto;
+}
+
+.sticky-prompt {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 10;
+  padding: 0 1rem;
 }

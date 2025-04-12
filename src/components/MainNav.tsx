@@ -36,7 +36,7 @@ const MainNav: React.FC = () => {
   }
   
   return (
-    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
+    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative bg-[#EFF3EE] dark:bg-[#202020]`}>
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-3 h-16 top-nav">
           {expanded ? (

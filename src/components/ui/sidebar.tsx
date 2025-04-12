@@ -73,7 +73,7 @@ export function Sidebar({
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed top-0 left-0 z-50 h-screen transition-transform duration-300 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
+          "fixed top-0 left-0 z-50 h-screen transition-transform duration-300 bg-[#EFF3EE] dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           mobileFullWidth ? "w-full sm:w-64 md:w-64" : "w-64",
           className
@@ -84,6 +84,7 @@ export function Sidebar({
             <button 
               className="md:hidden absolute right-2 top-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={toggleSidebar}
+              aria-label="Close sidebar"
             >
               <PanelLeft className="h-4 w-4" />
             </button>
