@@ -25,13 +25,11 @@ const ResponseDialog: React.FC<ResponseDialogProps> = ({
     if (textResponse.trim()) {
       onSubmit(textResponse);
       setTextResponse('');
-      onClose();
     }
   };
 
   const handleOptionClick = (value: string) => {
     onSubmit(value);
-    onClose();
   };
 
   return (

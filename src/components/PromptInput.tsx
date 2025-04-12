@@ -30,9 +30,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const [quickResponseOptions, setQuickResponseOptions] = useState<Array<{text: string, value: string}>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const promptBoxRef = useRef<HTMLDivElement>(null);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
 
   // Trigger lens flash effect when user types
   useEffect(() => {
@@ -108,7 +106,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
     ];
     
     return responsePatterns.some(pattern => pattern.test(text.trim()));
-  }
+  };
 
   // Check if the prompt might contain questions that need follow-up
   const checkForQuestions = (text: string) => {
@@ -163,6 +161,9 @@ const PromptInput: React.FC<PromptInputProps> = ({
       onSubmit(response);
       setPrompt('');
     }
+    
+    // Close the dialog
+    setShowResponseDialog(false);
   };
 
   return (
