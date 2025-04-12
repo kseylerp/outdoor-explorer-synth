@@ -1,89 +1,57 @@
 
+/**
+ * Component to display chat conversation history
+ * 
+ * Features:
+ * - Displays message exchange between user and assistant
+ * - Shows current transcript being processed
+ * - Handles empty state with welcome message
+ * - Visual differentiation between user and assistant messages
+ */
 import React from 'react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
 interface ChatHistoryProps {
-  history: Array<{ role: string; content: string }>;
-  transcript?: string;
-  followUpQuestions?: string[];
-  onFollowUpClick?: (question: string) => void;
+  history: {role: 'user' | 'assistant', content: string}[];
+  transcript: string;
 }
 
-const ChatHistory: React.FC<ChatHistoryProps> = ({ 
-  history,
-  transcript,
-  followUpQuestions = [],
-  onFollowUpClick
-}) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ history, transcript }) => {
   return (
-    <div className="space-y-6">
-      {history.map((message, index) => (
+    <div className="flex flex-col space-y-4 max-h-[500px] overflow-y-auto p-2">
+      {history.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p>👋 Hi there! I'm your adventure guide.</p>
+          <p>Ask me about outdoor adventures, hiking trails, national parks, or unique travel experiences!</p>
+        </div>
+      )}
+
+      {history.map((msg, index) => (
         <div 
           key={index} 
-          className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
         >
-          {message.role !== 'user' && (
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="AI" />
-              <AvatarFallback>AI</AvatarFallback>
-            </Avatar>
-          )}
-          
-          <div className="max-w-[80%]">
-            <div
-              className={`p-3 rounded-lg ${
-                message.role === 'user' 
-                  ? 'bg-[#65558F] text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100'
-              }`}
-            >
-              <p className="whitespace-pre-wrap">{message.content}</p>
-            </div>
-            
-            {/* Follow-up questions shown after AI responses */}
-            {message.role === 'assistant' && index === history.length - 1 && followUpQuestions.length > 0 && (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-gray-600 dark:text-gray-400 ml-1">Suggested questions:</p>
-                <div className="flex flex-wrap gap-2">
-                  {followUpQuestions.map((question, qIndex) => (
-                    <Button 
-                      key={qIndex} 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-gray-100 dark:bg-gray-800 text-xs px-3 py-1 h-auto"
-                      onClick={() => onFollowUpClick?.(question)}
-                    >
-                      {question}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div 
+            className={`max-w-[80%] rounded-lg p-3 ${
+              msg.role === 'user' 
+                ? 'bg-[#65558F] text-white' 
+                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
+            } animate-in fade-in slide-in`}
+          >
+            {msg.content}
           </div>
-          
-          {message.role === 'user' && (
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>You</AvatarFallback>
-            </Avatar>
-          )}
         </div>
       ))}
       
       {transcript && (
-        <div className="flex justify-end gap-3">
-          <div className="max-w-[80%] bg-gray-200 dark:bg-gray-700 p-3 rounded-lg text-gray-800 dark:text-gray-200">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                Transcribing...
-              </Badge>
+        <div className="flex justify-end">
+          <div className="max-w-[80%] rounded-lg p-3 bg-[#65558F] text-white">
+            <div className="flex items-center gap-2">
+              {transcript}
+              <div className="animate-pulse">
+                <div className="h-2 w-2 bg-white rounded-full"></div>
+              </div>
             </div>
-            <p>{transcript}</p>
           </div>
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>You</AvatarFallback>
-          </Avatar>
         </div>
       )}
     </div>

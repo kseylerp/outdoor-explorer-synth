@@ -25,7 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({
   }
   
   return (
-    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#F4F7F3] dark:bg-[#1E1E1E] top-nav">
+    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#F4F7F3] dark:bg-[#1E1E1E] shadow-sm">
       {isMobile && (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleSidebar}>
@@ -44,7 +44,7 @@ const TopNav: React.FC<TopNavProps> = ({
         </Button>
         <Button 
           asChild 
-          className="font-patano primary-button"
+          className="font-patano bg-[#65558F] hover:bg-[#65558F]/90"
         >
           <Link to="/signup">Sign Up</Link>
         </Button>

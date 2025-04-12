@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 interface TriageResponseBubbleProps {
   message: string;
@@ -10,19 +10,9 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
   message, 
   isUser = false 
 }) => {
-  const bubbleRef = useRef<HTMLDivElement>(null);
-  
-  // Animation effect when bubble appears
-  useEffect(() => {
-    if (bubbleRef.current) {
-      bubbleRef.current.classList.add('chat-bubble-in');
-    }
-  }, []);
-  
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div 
-        ref={bubbleRef}
         className={`triage-bubble ${
           isUser 
             ? 'triage-user' 

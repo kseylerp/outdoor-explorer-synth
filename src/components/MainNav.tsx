@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft, MessageCircle } from 'lucide-react';
@@ -36,9 +35,9 @@ const MainNav: React.FC = () => {
   }
   
   return (
-    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
+    <div className={`h-full min-h-screen bg-[#F4F7F3] dark:bg-[#1E1E1E] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-3 h-16 top-nav">
+        <div className="flex items-center justify-between p-3 h-16 bg-[#F4F7F3] dark:bg-[#1E1E1E]">
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="Full Logo Offbeat" className="h-10" />
@@ -112,7 +111,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       to={to} 
       className={`
         flex items-center px-2 py-2 text-sm font-medium rounded-md
-        ${active ? 'bg-gray-100 text-[#65558F] dark:bg-gray-800 dark:text-[#9870FF]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'}
+        ${active ? 'bg-gray-100 text-purple-700 dark:bg-gray-800 dark:text-purple-400' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'}
         ${expanded ? '' : 'justify-center'}
       `} 
       onClick={onClick}
