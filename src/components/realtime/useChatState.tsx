@@ -93,6 +93,7 @@ export const useChatState = () => {
     errorMessage,
     showAudioVisualizer,
     audioLevel,
+    isProcessing,
     setMessage,
     startSession,
     handleSendMessage,

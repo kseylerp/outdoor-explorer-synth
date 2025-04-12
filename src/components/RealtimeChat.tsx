@@ -17,14 +17,21 @@ import ProcessingIndicator from './realtime/ProcessingIndicator';
 import VoiceExperience from './prompt/VoiceExperience';
 
 const RealtimeChat: React.FC = () => {
-  const { state, sendMessage, isProcessing } = useChatState();
-  const [message, setMessage] = useState('');
+  const { 
+    state, 
+    message, 
+    setMessage, 
+    history,
+    handleSendMessage,
+    isProcessing
+  } = useChatState();
+  
   const [transcript, setTranscript] = useState('');
   const [showVoiceExperience, setShowVoiceExperience] = useState(false);
   
   const handleSend = () => {
     if (message.trim()) {
-      sendMessage(message);
+      handleSendMessage();
       setMessage('');
     }
   };
@@ -39,7 +46,8 @@ const RealtimeChat: React.FC = () => {
   const handleVoiceTranscript = (text: string) => {
     setTranscript('');
     if (text.trim()) {
-      sendMessage(text);
+      setMessage(text);
+      handleSendMessage();
     }
     setShowVoiceExperience(false);
   };
@@ -49,7 +57,7 @@ const RealtimeChat: React.FC = () => {
       <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4">
           <ChatHistory 
-            history={state.messages} 
+            history={history} 
             transcript={transcript} 
           />
         </div>
