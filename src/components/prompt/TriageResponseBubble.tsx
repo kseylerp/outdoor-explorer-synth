@@ -24,7 +24,7 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div 
         ref={bubbleRef}
-        className={`max-w-[80%] py-3 px-4 rounded-lg ${
+        className={`triage-bubble max-w-[80%] py-3 px-4 rounded-lg ${
           isUser 
             ? 'bg-primary text-primary-foreground' 
             : 'bg-muted text-foreground dark:bg-zinc-800'
