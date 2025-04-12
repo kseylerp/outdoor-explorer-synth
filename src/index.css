@@ -256,7 +256,7 @@
 
 /* Triage bubble styles */
 .triage-bubble {
-  @apply rounded-lg p-3 max-w-[80%] animate-in fade-in slide-in;
+  @apply rounded-lg p-3 max-w-[80%] animate-in fade-in;
 }
 
 .triage-user {
