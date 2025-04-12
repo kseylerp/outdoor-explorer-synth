@@ -124,7 +124,7 @@
 
 /* Custom gradient text classes */
 .offbeat-gradient {
-  background: linear-gradient(103deg, #9870FF 15.44%, #C68CAB 52.7%, #F9AE80 89.95%);
+  background: linear-gradient(103deg, #F89D53 15.44%, #FB87AB 89.95%);
   @apply bg-clip-text text-transparent;
 }
 

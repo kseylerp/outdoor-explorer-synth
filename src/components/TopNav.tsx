@@ -25,7 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({
   }
   
   return (
-    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-white dark:bg-[#202020] shadow-sm">
+    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#E9ECE8] dark:bg-[#1E1E1E] shadow-sm">
       {isMobile && (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleSidebar}>
@@ -33,7 +33,7 @@ const TopNav: React.FC<TopNavProps> = ({
           </Button>
           
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" alt="Offbeat Logo" className="h-10 object-contain" />
+            <img src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="Offbeat Logo" className="h-10 object-contain" />
           </Link>
         </div>
       )}

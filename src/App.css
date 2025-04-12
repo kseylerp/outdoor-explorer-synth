@@ -44,10 +44,16 @@
 
 /* Light mode explicit overrides */
 :root:not(.dark) {
-  --bg-color: 255, 255, 255;
+  --bg-color: 233, 236, 232; /* #E9ECE8 */
   --text-color: 0, 0, 0;
   background-color: rgb(var(--bg-color));
   color: rgba(var(--text-color), 0.9);
+}
+
+/* Dark mode explicit overrides */
+.dark {
+  --bg-color: 30, 30, 30; /* #1E1E1E */
+  background-color: rgb(var(--bg-color));
 }
 
 /* Light mode styles */

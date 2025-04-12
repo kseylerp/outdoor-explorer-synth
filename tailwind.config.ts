@@ -24,6 +24,8 @@ export default {
 				'patano': ['Patano Sans', 'sans-serif'],
 			},
 			colors: {
+				'dawn-bg': '#E9ECE8',
+				'dusk-bg': '#1E1E1E',
 				'yugen-purple': '#574780',
 				'yugen-bright': '#9870FF',
 				border: 'hsl(var(--border))',
