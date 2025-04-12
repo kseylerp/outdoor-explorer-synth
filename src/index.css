@@ -1,5 +1,8 @@
 
-/* Add this to the end of your index.css file */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
