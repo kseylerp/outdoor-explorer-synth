@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Compass, Map, BookmarkIcon, Users, ShieldQuestion, Info, Settings, PanelLeft, MessageCircle } from 'lucide-react';
@@ -12,14 +11,19 @@ const MainNav: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   const isMobile = useIsMobile();
+
   useEffect(() => {
     if (isMobile) {
       setExpanded(false);
+    } else {
+      setExpanded(true);
     }
   }, [isMobile]);
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
   const toggle = () => {
     setExpanded(!expanded);
   };
@@ -31,9 +35,9 @@ const MainNav: React.FC = () => {
   }
   
   return (
-    <div className={`h-full min-h-screen bg-[#E9ECE8] dark:bg-[#1E1E1E] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
+    <div className={`h-full min-h-screen bg-[#F4F7F3] dark:bg-[#1E1E1E] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-3 h-16 bg-[#E9ECE8] dark:bg-[#1E1E1E]">
+        <div className="flex items-center justify-between p-3 h-16 bg-[#F4F7F3] dark:bg-[#1E1E1E]">
           {expanded ? (
             <Link to="/" className="flex items-center">
               <img src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="Full Logo Offbeat" className="h-10" />
