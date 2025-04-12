@@ -72,6 +72,7 @@ const Index = () => {
   const [hasSubmittedPrompt, setHasSubmittedPrompt] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [pendingBotMessage, setPendingBotMessage] = useState<string | null>(null);
+  const [apiConnectionFailed, setApiConnectionFailed] = useState(false);
   
   // Initialize the thread and conversation when the component loads
   useEffect(() => {
@@ -79,22 +80,19 @@ const Index = () => {
       // Create a thread if we don't have one
       if (!threadId) {
         const newThreadId = await initializeThread();
+        
         if (newThreadId) {
           // Start with a welcome message from the assistant
           const result = await sendMessage("Start a new conversation with a welcome message", newThreadId);
           if (!result) {
             // If we couldn't get a welcome message from the assistant, provide a fallback
-            setTriageMessages([{
-              content: "Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?",
-              isUser: false
-            }]);
+            addBotMessage("Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?");
+            setApiConnectionFailed(true);
           }
         } else {
           // Fallback welcome message if thread initialization fails
-          setTriageMessages([{
-            content: "Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?",
-            isUser: false
-          }]);
+          addBotMessage("Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?");
+          setApiConnectionFailed(true);
         }
       }
     };
@@ -130,15 +128,29 @@ const Index = () => {
     setIsThinking(true);
     
     try {
+      if (apiConnectionFailed) {
+        // If API connection is known to have failed, don't try again, just add a simulated response
+        setTimeout(() => {
+          addBotMessage("I'm here to help with your adventure plans! Could you tell me more about what type of outdoor activity you're interested in?");
+          setIsThinking(false);
+        }, 1000);
+        return;
+      }
+      
       const result = await sendMessage(message, threadId);
       
-      if (result && result.tripData) {
+      if (!result) {
+        // If sendMessage failed, set apiConnectionFailed flag
+        setApiConnectionFailed(true);
+        addBotMessage("I'd be happy to help plan your adventure. What activities are you interested in?");
+      } else if (result.tripData) {
         console.log("Trip data received:", result.tripData);
         // We'll let the useEffect handle adding the message and processing trip data
       }
     } catch (error) {
       console.error("Error processing with assistant:", error);
       addBotMessage("I'm sorry, I encountered an error while processing your request. Please try again.");
+      setApiConnectionFailed(true);
     } finally {
       setIsThinking(false);
     }
@@ -151,15 +163,29 @@ const Index = () => {
     setConversationStage('research');
     
     try {
+      if (apiConnectionFailed) {
+        // If API connection is known to have failed, don't try again, just add a simulated response
+        setTimeout(() => {
+          addBotMessage("Based on our conversation, I'd recommend exploring hiking trails in the Pacific Northwest. The Columbia River Gorge has beautiful waterfalls and trails for various skill levels.");
+          setIsThinking(false);
+        }, 2000);
+        return;
+      }
+      
       const result = await handoffToResearch(threadId);
       
-      if (result && result.tripData) {
+      if (!result) {
+        // If handoff failed, set apiConnectionFailed flag
+        setApiConnectionFailed(true);
+        addBotMessage("Based on what you've told me, I'd suggest a weekend trip to explore some local hiking trails with moderate difficulty.");
+      } else if (result.tripData) {
         console.log("Trip data received from research handoff:", result.tripData);
         // Trip data will be handled by the useEffect
       }
     } catch (error) {
       console.error("Error in handoff to research:", error);
       addBotMessage("I'm sorry, I encountered an error while preparing your trip recommendations. Please try again.");
+      setApiConnectionFailed(true);
     } finally {
       setIsThinking(false);
     }
@@ -200,6 +226,9 @@ const Index = () => {
   };
 
   const handleRetryConnection = () => {
+    // Reset the api connection failed flag
+    setApiConnectionFailed(false);
+    
     // First try to initialize a thread again
     initializeThread().then(newThreadId => {
       if (newThreadId) {

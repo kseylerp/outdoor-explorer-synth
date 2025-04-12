@@ -8,11 +8,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Initialize OpenAI client
+// Initialize OpenAI client with proper error handling
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-const openai = new OpenAI({
-  apiKey: openaiApiKey,
-});
+let openai: OpenAI | null = null;
+try {
+  if (!openaiApiKey) {
+    console.error('OPENAI_API_KEY environment variable is not set');
+  } else {
+    openai = new OpenAI({
+      apiKey: openaiApiKey,
+    });
+  }
+} catch (error) {
+  console.error('Error initializing OpenAI client:', error);
+}
 
 // Assistant IDs
 const TRIAGE_ASSISTANT_ID = 'asst_zHGdllTGFX5XIkPpnsKmWmX5';
@@ -25,8 +34,18 @@ serve(async (req) => {
   }
 
   try {
+    // Check if OpenAI API key is configured
     if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY is not configured in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'OpenAI API key is not configured',
+          details: 'The OPENAI_API_KEY environment variable is not set. Please configure it in the Supabase dashboard.'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const reqBody = await req.json().catch(err => {
@@ -66,6 +85,10 @@ serve(async (req) => {
 // Create a new thread
 async function createThread(req: Request) {
   try {
+    if (!openai) {
+      throw new Error('OpenAI client is not initialized');
+    }
+    
     const thread = await openai.beta.threads.create();
     console.log('Created new thread:', thread.id);
     
@@ -87,6 +110,10 @@ async function getThread(req: Request, threadId: string) {
     throw new Error('threadId is required');
   }
   
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized');
+  }
+  
   const messages = await openai.beta.threads.messages.list(threadId);
   
   return new Response(
@@ -105,6 +132,10 @@ async function postMessage(req: Request, message: string, threadId: string, assi
   
   if (!message) {
     throw new Error('message is required');
+  }
+  
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized');
   }
   
   console.log(`Posting message to thread ${threadId}, assistant ${assistantId}: "${message}"`);
@@ -192,6 +223,10 @@ async function postMessage(req: Request, message: string, threadId: string, assi
 async function handoffToResearch(req: Request, threadId: string) {
   if (!threadId) {
     throw new Error('threadId is required');
+  }
+  
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized');
   }
   
   console.log(`Handing off thread ${threadId} to research assistant ${RESEARCH_ASSISTANT_ID}`);

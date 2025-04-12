@@ -45,6 +45,11 @@ export function useAssistants() {
         throw new Error(`Failed to create thread: ${error.message}`);
       }
 
+      // Handle the case where the API key is not configured
+      if (data && data.error && data.error === 'OpenAI API key is not configured') {
+        throw new Error(`OpenAI API key is not configured: ${data.details}`);
+      }
+
       if (!data || !data.threadId) {
         throw new Error('No threadId returned from create_thread');
       }
@@ -96,6 +101,11 @@ export function useAssistants() {
 
       if (!data) {
         throw new Error('No data returned from post_message');
+      }
+      
+      // Handle the case where the API key is not configured
+      if (data.error && data.error === 'OpenAI API key is not configured') {
+        throw new Error(`OpenAI API key is not configured: ${data.details}`);
       }
 
       const response = data as AssistantResponse;
@@ -166,6 +176,11 @@ export function useAssistants() {
 
       if (!data) {
         throw new Error('No data returned from handoff');
+      }
+      
+      // Handle the case where the API key is not configured
+      if (data.error && data.error === 'OpenAI API key is not configured') {
+        throw new Error(`OpenAI API key is not configured: ${data.details}`);
       }
 
       const response = data as AssistantResponse;
