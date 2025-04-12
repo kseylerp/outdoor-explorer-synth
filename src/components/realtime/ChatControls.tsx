@@ -1,116 +1,75 @@
 
+/**
+ * Controls for chat interaction
+ * 
+ * Features:
+ * - Text input with message composition
+ * - Send button
+ * - Voice recording button
+ * - Status indicators
+ */
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Mic, MicOff, SendHorizonal, Volume2, VolumeX, AudioWaveform } from 'lucide-react';
-
-export type ChatState = 'idle' | 'connecting' | 'connected' | 'recording' | 'processing' | 'error';
+import { Button } from '@/components/ui/button';
+import { Send, Loader2, Mic } from 'lucide-react';
 
 interface ChatControlsProps {
-  state: ChatState;
-  isRecording: boolean;
-  isMuted: boolean;
   message: string;
-  errorMessage: string | null;
-  onStartSession: () => void;
-  onStartRecording: () => void;
-  onStopRecording: () => void;
-  onToggleMute: () => void;
-  onMessageChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onSendMessage: () => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onMessageChange: (value: string) => void;
+  onSend: () => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onVoiceStart: () => void;
+  isProcessing: boolean;
+  isRecording: boolean;
 }
 
 const ChatControls: React.FC<ChatControlsProps> = ({
-  state,
-  isRecording,
-  isMuted,
   message,
-  errorMessage,
-  onStartSession,
-  onStartRecording,
-  onStopRecording,
-  onToggleMute,
   onMessageChange,
-  onSendMessage,
-  onKeyDown
+  onSend,
+  onKeyDown,
+  onVoiceStart,
+  isProcessing,
+  isRecording
 }) => {
-  
-  switch (state) {
-    case 'idle':
-      return (
-        <div className="flex flex-col items-center gap-4">
-          <Button 
-            onClick={onStartSession} 
-            className="flex items-center gap-2 text-lg px-6 py-2 h-12"
-          >
-            <AudioWaveform className="h-5 w-5" />
-            Start Voice Adventure
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Speak with our AI adventure guide to plan your next trip
-          </p>
-        </div>
-      );
-      
-    case 'connecting':
-      return (
-        <Button disabled className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Connecting to assistant...
-        </Button>
-      );
-      
-    case 'connected':
-    case 'recording':
-    case 'processing':
-      return (
-        <div className="flex items-center space-x-2">
+  return (
+    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-[#E9ECE8] dark:bg-[#222222] rounded-b-lg">
+      <div className="relative">
+        <Textarea
+          value={message}
+          onChange={(e) => onMessageChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          disabled={isProcessing || isRecording}
+          placeholder="Type your message..."
+          className="pr-24 resize-none font-patano text-base w-full border-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none text-gray-800 dark:text-white placeholder:text-gray-400 bg-[#E9ECE8] dark:bg-[#222222]"
+          rows={2}
+        />
+        <div className="absolute right-2 bottom-2 flex items-center gap-2">
           <Button
-            variant="outline"
+            onClick={onVoiceStart}
+            disabled={isProcessing || isRecording}
             size="icon"
-            onClick={isRecording ? onStopRecording : onStartRecording}
-            className={isRecording ? "bg-red-100" : ""}
-            disabled={state === 'processing'}
+            variant="ghost"
+            className="rounded-full hover:bg-purple-100 dark:hover:bg-purple-900"
           >
-            {isRecording ? <MicOff /> : <Mic />}
-          </Button>
-          <Textarea
-            placeholder="Type a message..."
-            value={message}
-            onChange={onMessageChange}
-            onKeyDown={onKeyDown}
-            className="min-h-9 flex-1"
-            disabled={state === 'processing' || isRecording}
-          />
-          <Button
-            size="icon"
-            onClick={onSendMessage}
-            disabled={!message.trim() || state === 'processing' || isRecording}
-          >
-            <SendHorizonal />
+            <Mic className="h-5 w-5 text-purple-600" />
           </Button>
           <Button
-            variant="outline"
+            onClick={onSend}
+            disabled={!message.trim() || isProcessing || isRecording}
             size="icon"
-            onClick={onToggleMute}
+            className="rounded-full bg-[#9870FF] hover:bg-[#7E69AB]"
           >
-            {isMuted ? <VolumeX /> : <Volume2 />}
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
-      );
-      
-    case 'error':
-      return (
-        <div className="space-y-2">
-          <p className="text-sm text-red-500">{errorMessage}</p>
-          <Button onClick={onStartSession}>Retry Connection</Button>
-        </div>
-      );
-      
-    default:
-      return null;
-  }
+      </div>
+    </div>
+  );
 };
 
 export default ChatControls;

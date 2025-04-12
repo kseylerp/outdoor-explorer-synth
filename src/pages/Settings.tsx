@@ -20,9 +20,9 @@ const Settings: React.FC = () => {
         <CardContent>
           <div className="flex items-center justify-between py-2">
             <div>
-              <h3 className="font-medium">Dark Mode</h3>
+              <h3 className="font-medium">Theme</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Switch between light and dark mode
+                Switch between Dawn (light) and Dusk (dark) mode
               </p>
             </div>
             <ThemeToggle />

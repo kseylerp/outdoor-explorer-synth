@@ -23,10 +23,12 @@ serve(async (req) => {
   }
   
   try {
+    console.log('Processing realtime session request');
     // Parse request body
-    const { action, instructions, voice = "alloy" } = await req.json();
+    const { action, instructions, voice = "sage" } = await req.json(); // Default to "sage" voice
     
     if (action !== 'create_session') {
+      console.error('Invalid action requested:', action);
       return new Response(
         JSON.stringify({ error: 'Invalid action. Supported actions: create_session' }),
         {
@@ -39,20 +41,60 @@ serve(async (req) => {
     // Get API key from environment
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     if (!OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set in environment variables');
       throw new Error('OPENAI_API_KEY is not set in environment variables');
     }
     
     console.log('Creating session with OpenAI Realtime API...');
     
-    // Default instructions for travel planning and JSON formatting
+    // Enhanced instructions for travel planning with improved triage and follow-up questions
     const defaultInstructions = `You are an adventure guide that specializes in offbeat travel recommendations. 
     Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. 
-    First, engage in natural conversation to understand the user's request. 
-    After you understand their requirements, inform them you'll show them trip options on screen. 
-    Format your response after understanding as a JSON object with destination, activities, and description fields. 
-    For example: \`\`\`json{"destination":"Yosemite","activities":["hiking","camping"],"description":"Weekend trip with moderate trails and fewer crowds"}\`\`\``;
+    
+    When a user starts a conversation:
+    1. First, briefly acknowledge their request with "I understand you're looking for [brief summary]"
+    2. Then ask 2-3 follow-up questions to better understand their needs, such as:
+       - Date range they're planning to travel (also mention if you can suggest less crowded times)
+       - Their skill level for relevant activities
+       - If they need equipment recommendations
+       - Group size and any special considerations (kids, seniors, accessibility needs)
+       
+    If they mention their skill level is uncertain, provide concrete examples to help them assess, such as:
+    - For hiking: "Can you comfortably walk uphill for 2+ hours?" or "Are you comfortable with steep drop-offs?"
+    - For mountain biking: "Can you handle dropping down a few feet from a ledge?"
+    - For water activities: "Do you have experience with Class II-III rapids?"
+    
+    After gathering enough information, say "Thanks for sharing those details. Let me show you some great adventure options!"
+    
+    Format your final recommendation as a JSON object with this structure:
+    {
+      "trip": [
+        {
+          "id": "unique-id-1",
+          "title": "Trip Title",
+          "description": "Detailed description of the trip",
+          "location": "Location name",
+          "duration": "X days",
+          "difficultyLevel": "easy|moderate|challenging",
+          "priceEstimate": number,
+          "whyWeChoseThis": "Reason for recommendation",
+          "activities": ["hiking", "camping", etc],
+          "bestTimeToVisit": "Spring/Summer/Fall/Winter with specific months if applicable",
+          "crowdAvoidanceTip": "When to visit to avoid crowds",
+          "itinerary": [
+            {
+              "day": 1,
+              "title": "Day 1 title",
+              "description": "Day 1 activities"
+            },
+            ...
+          ]
+        }
+      ]
+    }`;
     
     // Request a session token from OpenAI
+    console.log('Sending request to OpenAI with voice:', voice);
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
@@ -61,7 +103,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-realtime-preview-2024-12-17',
-        voice: voice,
+        voice: voice, // Use the specified voice (default: "sage")
         instructions: instructions || defaultInstructions
       }),
     });
@@ -73,14 +115,15 @@ serve(async (req) => {
     }
     
     const data = await response.json();
-    console.log('Session created successfully:', data.id);
+    console.log('Session created successfully with ID:', data.id);
     
     // Return session information and client secret to the client
     return new Response(
       JSON.stringify({
         sessionId: data.id,
         clientSecret: data.client_secret.value,
-        expiresAt: data.client_secret.expires_at
+        expiresAt: data.client_secret.expires_at,
+        voice: voice // Return the voice being used
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

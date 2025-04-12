@@ -1,239 +1,70 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Patano+Sans:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    /* Light mode variables */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Custom lens flash colors */
-    --lens-flash-primary: 267 100% 73%;
-    --lens-flash-secondary: 255 100% 75%; 
-    --lens-flash-tertiary: 288 96% 69%;
-  }
-
-  .dark {
-    /* Dark mode variables */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 264 71% 70%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 264 71% 70%;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-patano text-base;
-  }
-  
-  /* Updated typography styles */
-  h1 {
-    @apply text-3xl md:text-4xl font-bold leading-tight;
-  }
-  
-  h2 {
-    @apply text-2xl md:text-3xl font-medium;
-  }
-  
-  h3 {
-    @apply text-sm font-bold;
-  }
-  
-  p {
-    @apply text-base font-patano;
-  }
+.bubble-animate {
+  animation: fadeIn 0.3s forwards;
 }
 
-/* Custom gradient text classes */
-.offbeat-gradient {
-  background: linear-gradient(103deg, #9870FF 15.44%, #C68CAB 52.7%, #F9AE80 89.95%);
-  @apply bg-clip-text text-transparent;
+/* Make sure the sidebar has consistent styling */
+.side-nav, .main-nav {
+  @apply bg-[#FBFFFB] dark:bg-[#202020] border-r border-white/20 dark:border-gray-800;
 }
 
-.text-gradient {
-  @apply bg-gradient-to-r from-yugen-purple to-yugen-bright bg-clip-text text-transparent;
+.top-nav {
+  @apply border-b border-white/20 dark:border-gray-800;
 }
 
-.trip-intensity-slider .trip-intensity-track {
-  @apply h-2 rounded-full bg-gray-200 dark:bg-gray-700;
+/* Consistent button styling */
+.primary-button {
+  @apply bg-primary hover:bg-primary/90 text-primary-foreground;
 }
 
-.trip-intensity-slider .trip-intensity-range {
-  @apply h-2 rounded-full bg-gradient-to-r from-yugen-purple to-yugen-bright;
+/* Add a gradient for the offbeet text */
+.offbeet-gradient {
+  color: #65558F;
 }
 
-.trip-intensity-slider .trip-intensity-thumb {
-  @apply h-5 w-5 rounded-full bg-white border-2 border-yugen-bright focus:outline-none dark:bg-gray-800;
+/* Updated background colors */
+.dawn-background {
+  @apply bg-[#FBFFFB];
 }
 
-/* Lens flash effect */
-.lens-flash {
-  position: relative;
-  overflow: hidden;
+.conversation-container {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
-.lens-flash::before {
-  content: "";
-  position: absolute;
-  top: -20%;
-  left: -20%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(
-    circle,
-    hsla(var(--lens-flash-primary), 0.3) 0%,
-    hsla(var(--lens-flash-secondary), 0.2) 30%,
-    hsla(var(--lens-flash-tertiary), 0.1) 70%,
-    transparent 100%
-  );
-  border-radius: 50%;
-  opacity: 0;
-  animation: lens-flash 2s ease-out;
-  pointer-events: none;
+.trip-results-container {
+  max-height: calc(100vh - 40vh - 120px);
+  overflow-y: auto;
+}
+
+.sticky-prompt {
+  position: sticky;
+  bottom: 1rem;
   z-index: 10;
+  padding: 0 1rem;
 }
 
-@keyframes lens-flash {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) translateY(10%);
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
   }
-  20% {
+  50% {
     opacity: 0.5;
   }
-  60% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5) translateY(-30%);
-  }
 }
 
-/* Light mode styles */
-.itinerary-day-header {
-  @apply bg-white border-gray-200 text-gray-800;
-}
-
-.itinerary-activity-card {
-  @apply bg-white border-gray-200 text-gray-800;
-}
-
-.why-we-chose-box {
-  @apply bg-white text-gray-800 border-gray-200;
-}
-
-.itinerary-card {
-  @apply bg-white border-gray-200;
-}
-
-.itinerary-section {
-  @apply bg-white text-gray-800;
-}
-
-.accordion-itinerary {
-  @apply bg-white border-gray-200;
-}
-
-/* Dark mode styles */
-.dark .itinerary-day-header {
-  @apply bg-[#202030] text-white border-[#3d3d50];
-}
-
-.dark .itinerary-activity-card {
-  @apply bg-[#202030] border-[#2d2d40] text-gray-100;
-}
-
-.dark .why-we-chose-box {
-  @apply bg-[#202030] text-white border-[#3d3d50];
-}
-
-.dark .itinerary-card {
-  @apply bg-[#202030] border-[#2c2c40];
-}
-
-.dark .itinerary-section {
-  @apply bg-[#202030] text-gray-100;
-}
-
-.dark .accordion-itinerary {
-  @apply bg-[#202030] border-[#2c2c40];
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

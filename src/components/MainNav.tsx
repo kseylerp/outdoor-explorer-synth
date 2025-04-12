@@ -12,14 +12,19 @@ const MainNav: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   const isMobile = useIsMobile();
+
   useEffect(() => {
     if (isMobile) {
       setExpanded(false);
+    } else {
+      setExpanded(true);
     }
   }, [isMobile]);
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
   const toggle = () => {
     setExpanded(!expanded);
   };
@@ -31,16 +36,16 @@ const MainNav: React.FC = () => {
   }
   
   return (
-    <div className={`h-full min-h-screen bg-white dark:bg-[#202020] transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative`}>
+    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative bg-[#FBFFFB] dark:bg-[#202020] border-r border-white/20`}>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-3 h-16 bg-white dark:bg-[#202020]">
+        <div className="flex items-center justify-between p-3 h-16 top-nav">
           {expanded ? (
             <Link to="/" className="flex items-center">
-              <img src="/lovable-uploads/26a595b5-d36b-4512-bf53-e6abc9dc51e5.png" alt="Full Logo Offbeat" className="h-10" />
+              <img src="/lovable-uploads/70848957-e79d-4807-b3cf-df0ac2d7fcda.png" alt="Full Logo Offbeet" className="h-10" />
             </Link>
           ) : (
             <Link to="/" className="mx-auto">
-              <img src="/lovable-uploads/5cd21b79-7686-4d3e-8585-a855c80c5d21.png" alt="Truncated Logo" className="h-8 w-8 object-contain" />
+              <img src="/lovable-uploads/ad618ed5-2c39-49b6-bbe0-c7c13a40bd0e.png" alt="Short Logo Offbeet" className="h-8 w-8 object-contain" />
             </Link>
           )}
           
@@ -107,7 +112,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       to={to} 
       className={`
         flex items-center px-2 py-2 text-sm font-medium rounded-md
-        ${active ? 'bg-gray-100 text-purple-700 dark:bg-gray-800 dark:text-purple-400' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'}
+        ${active ? 'bg-gray-100 text-[#65558F] dark:bg-gray-800 dark:text-[#9870FF]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'}
         ${expanded ? '' : 'justify-center'}
       `} 
       onClick={onClick}
