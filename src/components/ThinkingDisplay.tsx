@@ -12,12 +12,12 @@ const ThinkingDisplay: React.FC<ThinkingDisplayProps> = ({ thinkingSteps, isVisi
   }
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 max-h-96 overflow-y-auto">
-      <h3 className="text-lg font-medium text-purple-700 mb-2">AI Thinking Process</h3>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6 max-h-96 overflow-y-auto">
+      <h3 className="text-lg font-medium text-purple-700 dark:text-purple-400 mb-2">Processing Your Request</h3>
       <div className="space-y-3">
         {thinkingSteps.map((step, index) => (
-          <div key={index} className="text-sm text-gray-700 animate-pulse-slow">
-            <span className="font-semibold text-purple-600">Step {index + 1}:</span>
+          <div key={index} className="text-sm text-gray-700 dark:text-gray-300 animate-pulse-slow">
+            <span className="font-semibold text-purple-600 dark:text-purple-400">Step {index + 1}:</span>
             <p className="mt-1 whitespace-pre-line">{step}</p>
           </div>
         ))}

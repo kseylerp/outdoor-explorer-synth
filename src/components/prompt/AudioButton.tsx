@@ -1,4 +1,12 @@
 
+/**
+ * Button component for activating voice input
+ * 
+ * Features:
+ * - Visual indicator for voice input function
+ * - Disabled state handling
+ * - Consistent styling with other prompt controls
+ */
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AudioWaveform } from 'lucide-react';

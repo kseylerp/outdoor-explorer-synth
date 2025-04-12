@@ -11,23 +11,9 @@ export function useTrips() {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [thinking, setThinking] = useState<string[] | undefined>(undefined);
   const [showThinking, setShowThinking] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gemini'>(
-    () => (localStorage.getItem('preferredAiModel') as 'claude' | 'gemini') || 'gemini'
-  );
+  // Always use OpenAI/Gemini, removing Claude option
+  const [aiModel, setAiModel] = useState<'gemini'>('gemini');
   const { toast } = useToast();
-
-  // Listen for changes to the AI model preference
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const storedModel = localStorage.getItem('preferredAiModel') as 'claude' | 'gemini';
-      if (storedModel && storedModel !== aiModel) {
-        setAiModel(storedModel);
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [aiModel]);
 
   const handlePromptSubmit = async (prompt: string, voiceTripData?: any) => {
     setLoading(true);
@@ -48,7 +34,7 @@ export function useTrips() {
         Description: ${voiceTripData.description || ''}`;
       }
       
-      console.info(`Submitting prompt to generate trips with ${aiModel}: ${processedPrompt}`);
+      console.info(`Submitting prompt to generate trips: ${processedPrompt}`);
       const result = await generateTrips(processedPrompt, (thinkingSteps) => {
         setThinking(thinkingSteps);
         setShowThinking(true);
@@ -58,6 +44,9 @@ export function useTrips() {
         throw new Error("No trip recommendations were generated. Please try again or use a different prompt.");
       }
       
+      // Log the full trip data to debug description issues
+      console.log("Received trip data:", JSON.stringify(result, null, 2));
+      
       setTrips(result);
     } catch (error) {
       console.error('Error processing prompt:', error);
@@ -66,9 +55,8 @@ export function useTrips() {
       
       // Check for specific API_KEY_MISSING error
       if (errorMessage.includes('API_KEY_MISSING')) {
-        const modelName = aiModel === 'claude' ? 'Claude (Anthropic)' : 'Gemini (Google)';
-        setError(`${modelName} API key is not configured`);
-        setErrorDetails(`This application requires a valid API key to generate trip recommendations. Please contact the administrator to set up the ${modelName} API key in the Supabase project settings.`);
+        setError(`OpenAI API key is not configured`);
+        setErrorDetails(`This application requires a valid API key to generate trip recommendations. Please contact the administrator to set up the OpenAI API key in the Supabase project settings.`);
       } else if (errorMessage.includes("|")) {
         // Split error message if it contains details
         const [mainError, details] = errorMessage.split("|", 2);
@@ -93,16 +81,8 @@ export function useTrips() {
   };
 
   const handleRetry = () => {
-    // Switch AI models if error occurred
-    if (error && error.includes('API key')) {
-      const newModel = aiModel === 'claude' ? 'gemini' : 'claude';
-      localStorage.setItem('preferredAiModel', newModel);
-      setAiModel(newModel);
-      toast({
-        title: `Switched to ${newModel === 'claude' ? 'Claude' : 'Gemini'} model`,
-        description: `Trying with ${newModel === 'claude' ? 'Claude' : 'Gemini'} instead.`,
-      });
-    }
+    // Simple retry without model switching since we're only using OpenAI
+    handlePromptSubmit('');
   };
 
   const handleSaveTrip = (trip: Trip) => {

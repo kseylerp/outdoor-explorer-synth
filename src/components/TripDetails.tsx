@@ -45,13 +45,13 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
             <TabsList className="mb-4 bg-purple-100 dark:bg-purple-900/30">
               <TabsTrigger 
                 value="itinerary"
-                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                className="data-[state=active]:bg-[#65558F] data-[state=active]:text-white"
               >
                 Itinerary
               </TabsTrigger>
               <TabsTrigger 
                 value="buddies"
-                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                className="data-[state=active]:bg-[#65558F] data-[state=active]:text-white"
               >
                 <Users className="h-4 w-4 mr-1" />
                 Trip Buddies

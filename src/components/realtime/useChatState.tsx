@@ -7,6 +7,17 @@ import { useKeyboardHandler } from '@/hooks/useKeyboardHandler';
 
 export type ChatState = 'idle' | 'connecting' | 'connected' | 'recording' | 'processing' | 'error';
 
+/**
+ * Custom hook to manage chat state and interactions
+ * 
+ * This hook combines multiple smaller hooks to provide a complete chat experience:
+ * - Audio connection management
+ * - Message history and processing
+ * - Recording functionality
+ * - Keyboard interaction
+ * 
+ * @returns Combined chat state and functionality
+ */
 export const useChatState = () => {
   // Use our smaller, focused hooks
   const { 
@@ -66,6 +77,8 @@ export const useChatState = () => {
   // Handle transcript changes from the audio service
   useEffect(() => {
     if (transcript && transcript.trim()) {
+      // Process the transcript (this will trigger the triage agent first)
+      console.log("Processing transcript in useChatState:", transcript);
       processTranscript(transcript);
     }
   }, [transcript, processTranscript]);
@@ -93,6 +106,7 @@ export const useChatState = () => {
     errorMessage,
     showAudioVisualizer,
     audioLevel,
+    isProcessing,
     setMessage,
     startSession,
     handleSendMessage,

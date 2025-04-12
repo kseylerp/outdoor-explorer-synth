@@ -5,17 +5,17 @@ import { SessionResponse } from './types';
 export class SessionManager {
   async createSession(
     instructions: string = "",
-    voice: string = "alloy"
+    voice: string = "sage"  // Default to "sage" voice
   ): Promise<SessionResponse> {
     try {
-      console.log('Creating realtime session...');
+      console.log('Creating realtime session with voice:', voice);
       
       // Set up session with Supabase Edge Function - ensure we're using the correct URL
       const { data, error } = await supabase.functions.invoke('realtime-sessions', {
         body: {
           action: 'create_session',
-          instructions: instructions || "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. First, engage in natural conversation to understand the user's request. After you understand their requirements, inform them you'll show them trip options on screen. Format your response after understanding as a JSON object with destination, activities, and description fields. For example: ```json{\"destination\":\"Yosemite\",\"activities\":[\"hiking\",\"camping\"],\"description\":\"Weekend trip with moderate trails and fewer crowds\"}```.",
-          voice: voice || "alloy"
+          instructions: instructions || "You are an adventure guide that specializes in offbeat travel recommendations. Help users plan unique outdoor adventures with hiking trails, camping options, and other outdoor activities. First, engage in natural conversation to understand the user's request. After you understand their requirements, inform them you'll show them trip options on screen. Format your response after understanding as a JSON object with trip array containing trip objects with destination, activities, and description fields.",
+          voice: voice || "sage"  // Ensure we're using "sage" voice
         }
       });
       
@@ -29,6 +29,7 @@ export class SessionManager {
       }
       
       console.log('Session created with ID:', data.sessionId);
+      console.log('Using voice:', data.voice);
       
       return {
         sessionId: data.sessionId,
