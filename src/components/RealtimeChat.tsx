@@ -73,12 +73,18 @@ const RealtimeChat: React.FC = () => {
     setShowVoiceExperience(false);
   };
 
+  // Adapt the history to match ChatHistory component expectations
+  const adaptedHistory = history.map(msg => ({
+    role: msg.role === 'system' ? 'assistant' : msg.role, // Convert 'system' to 'assistant' 
+    content: msg.content
+  }));
+
   return (
     <Card className="w-full max-w-3xl mx-auto h-[600px] flex flex-col">
       <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4">
           <ChatHistory 
-            history={history} 
+            history={adaptedHistory} 
             transcript={transcript} 
           />
         </div>

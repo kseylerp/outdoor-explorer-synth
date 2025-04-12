@@ -80,8 +80,8 @@ export const useChatMessages = () => {
     // Simulate the triage agent processing and responding
     // In a real application, this would be an API call
     setTimeout(() => {
-      // Add the assistant response
-      addAssistantMessage("I understand you want to travel. Let me help you plan that. Can you tell me more about your destination preferences?");
+      // Add the triage agent response
+      addAssistantMessage("I'm your adventure assistant. I understand you're looking for travel recommendations. Could you tell me more about what kind of experience you're looking for?");
       
       // End processing state
       setIsProcessing(false);
@@ -103,13 +103,13 @@ export const useChatMessages = () => {
     // Set processing state to true
     setIsProcessing(true);
     
-    // Simulate the assistant processing and responding
+    // Simulate the triage agent processing and responding
     // In a real application, this would be an API call
     setTimeout(() => {
-      // Add the assistant response
-      addAssistantMessage("I'm processing your request for a trip. Let me search for some options for you. What kind of experience are you looking for?");
+      // First, add the triage agent response
+      addAssistantMessage("I'm your adventure assistant. Based on your message, I can help you plan a trip. What type of activities are you interested in?");
       
-      // End processing state
+      // End processing state after the triage agent response
       setIsProcessing(false);
     }, 1500);
   }, [message, addUserMessage, addAssistantMessage]);
