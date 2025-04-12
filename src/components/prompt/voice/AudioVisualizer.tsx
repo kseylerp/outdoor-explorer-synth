@@ -1,4 +1,12 @@
 
+/**
+ * Component that visualizes audio input with animated bars
+ * 
+ * Features:
+ * - Visual feedback for active listening state
+ * - Animated bars that simulate audio levels
+ * - Different colors for different states
+ */
 import React, { useState, useEffect } from 'react';
 
 interface AudioVisualizerProps {
@@ -8,7 +16,7 @@ interface AudioVisualizerProps {
 const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ isListening }) => {
   const [audioVisualizer, setAudioVisualizer] = useState<number[]>(Array(20).fill(10));
 
-  // Create animated audio visualization
+  // Create animated audio visualization when listening
   useEffect(() => {
     if (isListening) {
       const interval = setInterval(() => {

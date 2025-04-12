@@ -1,3 +1,14 @@
+
+/**
+ * Component for voice input and processing experience
+ * 
+ * Features:
+ * - Full-screen modal for voice input
+ * - Audio visualization during recording
+ * - Processing of voice input into transcripts
+ * - Integration with realtime audio API
+ * - Display of AI responses and quick response options
+ */
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +30,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   const [voice] = useState<string>("sage"); // Always use sage voice
   const { toast } = useToast();
   
-  // Custom hooks
+  // Custom hooks for transcript processing and audio handling
   const { quickResponses, extractQuickResponses } = useTranscriptProcessor();
   const { error, initializeAudio } = useRealtimeAudio({
     onTranscriptReceived: (transcript) => {
@@ -79,7 +90,9 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
     }
   }, [isListening, initializeAudio]);
 
-  // Handle manual close with confirmation if needed
+  /**
+   * Handle manual close with confirmation if needed
+   */
   const handleClose = () => {
     if (!processingComplete && !isListening) {
       // If we received a transcript but processing isn't complete,
@@ -91,7 +104,10 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
     }
   };
 
-  // Handle quick response button click
+  /**
+   * Handle quick response button click
+   * @param responseValue - The selected response value
+   */
   const handleQuickResponse = (responseValue: string) => {
     // Pass the response as transcript
     onTranscript(responseValue);

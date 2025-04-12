@@ -1,4 +1,13 @@
 
+/**
+ * Custom hook to manage interactive dialog functionality for prompt follow-ups
+ * 
+ * This hook handles:
+ * - Dialog visibility state
+ * - Current question being presented to the user
+ * - Quick response options for the user to select from
+ * - Question detection logic to determine when to show follow-up dialogs
+ */
 import { useState } from 'react';
 import { QuickResponseOption } from '@/components/prompt/types';
 
@@ -7,7 +16,11 @@ export function usePromptDialog() {
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [quickResponseOptions, setQuickResponseOptions] = useState<QuickResponseOption[]>([]);
 
-  // Check if the prompt might contain questions that need follow-up
+  /**
+   * Analyzes text for potential questions that might need follow-up
+   * Currently implements basic detection for question marks
+   * @param text - The prompt text to analyze
+   */
   const checkForQuestions = (text: string) => {
     // Very basic question detection for demo
     if (text.includes('?')) {

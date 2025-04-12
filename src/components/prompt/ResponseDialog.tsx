@@ -1,4 +1,13 @@
 
+/**
+ * Dialog component for collecting user responses to questions
+ * 
+ * Features:
+ * - Modal dialog with title and content
+ * - Optional quick response buttons
+ * - Text area for free-form responses
+ * - Submit and cancel buttons
+ */
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -21,6 +30,9 @@ const ResponseDialog: React.FC<ResponseDialogProps> = ({
 }) => {
   const [textResponse, setTextResponse] = useState('');
 
+  /**
+   * Handles the submission of the text response
+   */
   const handleSubmit = () => {
     if (textResponse.trim()) {
       onSubmit(textResponse);
@@ -28,6 +40,10 @@ const ResponseDialog: React.FC<ResponseDialogProps> = ({
     }
   };
 
+  /**
+   * Handles a click on one of the quick response options
+   * @param value - The value of the selected option
+   */
   const handleOptionClick = (value: string) => {
     onSubmit(value);
   };

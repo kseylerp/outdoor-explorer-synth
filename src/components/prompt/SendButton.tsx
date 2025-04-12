@@ -1,4 +1,12 @@
 
+/**
+ * Button component for submitting prompts
+ * 
+ * Features:
+ * - Visual feedback for active/disabled states
+ * - Loading spinner during processing
+ * - Send icon when ready
+ */
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Send, Loader2 } from 'lucide-react';

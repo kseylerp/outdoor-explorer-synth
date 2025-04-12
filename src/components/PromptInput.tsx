@@ -1,4 +1,14 @@
 
+/**
+ * Main prompt input component that integrates all prompt functionality
+ * 
+ * Features:
+ * - Text input for user prompts
+ * - Voice input capability
+ * - Response dialog for follow-up questions
+ * - Processing state visualization
+ * - Integration with various prompt-related hooks
+ */
 import React from 'react';
 import VoiceExperience from './prompt/VoiceExperience';
 import PromptResponseDialog from './prompt/PromptResponseDialog';
@@ -30,8 +40,6 @@ const PromptInput: React.FC<PromptInputProps> = ({
     currentQuestion,
     quickResponseOptions,
     setShowResponseDialog,
-    setCurrentQuestion,
-    setQuickResponseOptions,
     checkForQuestions
   } = usePromptDialog();
 
@@ -53,6 +61,10 @@ const PromptInput: React.FC<PromptInputProps> = ({
     setPrompt
   );
 
+  /**
+   * Handle responses from the dialog component
+   * @param response - The user's response text
+   */
   const handleResponseSubmit = (response: string) => {
     console.log('Dialog response received:', response);
     

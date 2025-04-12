@@ -1,4 +1,12 @@
 
+/**
+ * Custom hook for processing voice transcripts and generating appropriate response options
+ * 
+ * Features:
+ * - Analyzes transcript text for question patterns
+ * - Provides contextual quick response options based on transcript content
+ * - Handles different types of questions (yes/no, skill level, timing, etc.)
+ */
 import { useState } from 'react';
 
 type QuickResponse = { text: string; value: string };
@@ -6,7 +14,10 @@ type QuickResponse = { text: string; value: string };
 export const useTranscriptProcessor = () => {
   const [quickResponses, setQuickResponses] = useState<QuickResponse[]>([]);
 
-  // Extract yes/no or other binary options from AI responses
+  /**
+   * Analyzes text to extract appropriate quick response options
+   * @param text - The transcript text to analyze
+   */
   const extractQuickResponses = (text: string) => {
     // Look for yes/no questions
     if (/would you like|do you want|are you interested|should I|yes or no/i.test(text)) {

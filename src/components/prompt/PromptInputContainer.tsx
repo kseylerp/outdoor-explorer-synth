@@ -1,4 +1,14 @@
 
+/**
+ * Container component for the prompt input interface
+ * 
+ * This component encapsulates:
+ * - Text input area for prompts
+ * - Send button for submitting
+ * - Audio button for voice input
+ * - Visual feedback (lens flash effect)
+ * - Loading state handling
+ */
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import SendButton from './SendButton';

@@ -1,4 +1,12 @@
 
+/**
+ * Component for displaying quick response buttons
+ * 
+ * Features:
+ * - Displays a set of predefined response options as buttons
+ * - Handles selection of options
+ * - Properly styled buttons for the voice interface
+ */
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -8,6 +16,7 @@ interface QuickResponsesProps {
 }
 
 const QuickResponses: React.FC<QuickResponsesProps> = ({ responses, onResponse }) => {
+  // If no responses are provided, don't render anything
   if (!responses.length) {
     return null;
   }

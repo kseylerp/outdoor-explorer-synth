@@ -1,4 +1,13 @@
 
+/**
+ * Component for processing and displaying voice responses
+ * 
+ * Features:
+ * - Shows processing state for voice responses
+ * - Displays AI responses
+ * - Shows quick response options when available
+ * - Provides completion button when processing is done
+ */
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import QuickResponses from './QuickResponses';

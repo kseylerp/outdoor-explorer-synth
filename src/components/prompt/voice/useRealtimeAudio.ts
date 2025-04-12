@@ -1,4 +1,13 @@
 
+/**
+ * Custom hook for managing realtime audio connections and processing
+ * 
+ * Features:
+ * - Initializes audio connection with realtime API
+ * - Handles audio session creation and management
+ * - Processes transcripts and trip data
+ * - Provides error handling for audio connection issues
+ */
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +21,11 @@ export const useRealtimeAudio = (options: RealtimeAudioOptions) => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  /**
+   * Initialize the audio connection with the realtime API
+   * @param isListening - Whether to actively listen for audio input
+   * @returns A promise that resolves to the audio service instance or null
+   */
   const initializeAudio = (isListening: boolean) => {
     if (isListening) {
       console.log('Initializing voice experience and connecting to Realtime API');

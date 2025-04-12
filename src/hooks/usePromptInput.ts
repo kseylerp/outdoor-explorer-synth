@@ -1,4 +1,12 @@
 
+/**
+ * Custom hook to manage prompt input state and visual effects
+ * 
+ * This hook handles:
+ * - Prompt text state management
+ * - Lens flash animation effect when user types
+ * - References to DOM elements for the textarea and container
+ */
 import { useState, useEffect, useRef } from 'react';
 
 export function usePromptInput(defaultValue: string = '') {

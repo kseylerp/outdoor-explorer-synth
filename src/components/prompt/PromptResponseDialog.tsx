@@ -1,4 +1,13 @@
 
+/**
+ * Component for showing interactive response dialogs to users
+ * 
+ * This component displays a modal dialog with:
+ * - A question prompt
+ * - Optional quick response buttons
+ * - Ability to close the dialog
+ * - Callback for when a response is submitted
+ */
 import React from 'react';
 import ResponseDialog from './ResponseDialog';
 

@@ -1,4 +1,13 @@
 
+/**
+ * Component to display chat conversation history
+ * 
+ * Features:
+ * - Displays message exchange between user and assistant
+ * - Shows current transcript being processed
+ * - Handles empty state with welcome message
+ * - Visual differentiation between user and assistant messages
+ */
 import React from 'react';
 
 interface ChatHistoryProps {
