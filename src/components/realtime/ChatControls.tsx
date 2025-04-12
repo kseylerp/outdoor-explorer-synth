@@ -1,17 +1,17 @@
 
 /**
- * Component for chat input controls in the realtime chat interface
+ * Controls for chat interaction
  * 
  * Features:
- * - Text input area
- * - Voice recording button
+ * - Text input with message composition
  * - Send button
- * - Processing state handling
+ * - Voice recording button
+ * - Status indicators
  */
 import React from 'react';
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Send, Mic, Loader2 } from "lucide-react";
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Send, Loader2, Mic } from 'lucide-react';
 
 interface ChatControlsProps {
   message: string;
@@ -33,39 +33,40 @@ const ChatControls: React.FC<ChatControlsProps> = ({
   isRecording
 }) => {
   return (
-    <div className="border-t p-4 flex items-end gap-2">
-      <Textarea
-        value={message}
-        onChange={(e) => onMessageChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        disabled={isProcessing || isRecording}
-        placeholder="Ask about adventures, destinations, or trip ideas..."
-        className="min-h-[80px] resize-none"
-      />
-      
-      <div className="flex flex-col gap-2">
-        <Button 
-          onClick={onVoiceStart} 
-          size="icon" 
-          variant="outline"
+    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-[#E9ECE8] dark:bg-[#222222] rounded-b-lg">
+      <div className="relative">
+        <Textarea
+          value={message}
+          onChange={(e) => onMessageChange(e.target.value)}
+          onKeyDown={onKeyDown}
           disabled={isProcessing || isRecording}
-        >
-          <Mic className="h-4 w-4" />
-          <span className="sr-only">Voice input</span>
-        </Button>
-        
-        <Button 
-          onClick={onSend} 
-          size="icon"
-          disabled={isProcessing || !message.trim() || isRecording}
-        >
-          {isProcessing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-          <span className="sr-only">Send message</span>
-        </Button>
+          placeholder="Type your message..."
+          className="pr-24 resize-none font-patano text-base w-full border-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none text-gray-800 dark:text-white placeholder:text-gray-400 bg-[#E9ECE8] dark:bg-[#222222]"
+          rows={2}
+        />
+        <div className="absolute right-2 bottom-2 flex items-center gap-2">
+          <Button
+            onClick={onVoiceStart}
+            disabled={isProcessing || isRecording}
+            size="icon"
+            variant="ghost"
+            className="rounded-full hover:bg-purple-100 dark:hover:bg-purple-900"
+          >
+            <Mic className="h-5 w-5 text-purple-600" />
+          </Button>
+          <Button
+            onClick={onSend}
+            disabled={!message.trim() || isProcessing || isRecording}
+            size="icon"
+            className="rounded-full bg-[#9870FF] hover:bg-[#7E69AB]"
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

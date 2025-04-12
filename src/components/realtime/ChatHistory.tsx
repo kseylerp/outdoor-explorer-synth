@@ -33,9 +33,9 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ history, transcript }) => {
           <div 
             className={`max-w-[80%] rounded-lg p-3 ${
               msg.role === 'user' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-muted'
-            }`}
+                ? 'bg-[#65558F] text-white' 
+                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700'
+            } animate-in fade-in slide-in`}
           >
             {msg.content}
           </div>
@@ -44,7 +44,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ history, transcript }) => {
       
       {transcript && (
         <div className="flex justify-end">
-          <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground">
+          <div className="max-w-[80%] rounded-lg p-3 bg-[#65558F] text-white">
             <div className="flex items-center gap-2">
               {transcript}
               <div className="animate-pulse">

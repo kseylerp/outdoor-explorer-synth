@@ -80,7 +80,7 @@ const RealtimeChat: React.FC = () => {
   }));
 
   return (
-    <Card className="w-full max-w-3xl mx-auto h-[600px] flex flex-col">
+    <Card className="w-full max-w-3xl mx-auto h-[600px] flex flex-col bg-[#F4F7F3] dark:bg-[#202020]">
       <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4">
           <ChatHistory 
@@ -91,15 +91,17 @@ const RealtimeChat: React.FC = () => {
         
         {isProcessing && <ProcessingIndicator />}
         
-        <ChatControls 
-          message={message}
-          onMessageChange={setMessage}
-          onSend={handleSend}
-          onKeyDown={handleKeyDown}
-          onVoiceStart={() => setShowVoiceExperience(true)}
-          isProcessing={isProcessing}
-          isRecording={showVoiceExperience}
-        />
+        <div className="sticky bottom-0 bg-[#F4F7F3] dark:bg-[#202020]">
+          <ChatControls 
+            message={message}
+            onMessageChange={setMessage}
+            onSend={handleSend}
+            onKeyDown={handleKeyDown}
+            onVoiceStart={() => setShowVoiceExperience(true)}
+            isProcessing={isProcessing}
+            isRecording={showVoiceExperience}
+          />
+        </div>
       </CardContent>
       
       {showVoiceExperience && (

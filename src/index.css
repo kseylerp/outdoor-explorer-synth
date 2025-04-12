@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Patano+Sans:wght@400;500;600;700&display=swap');
 
@@ -100,7 +101,7 @@
   }
 
   body {
-    @apply bg-[#F4F7F3] dark:bg-[#1E1E1E] text-foreground font-patano text-base;
+    @apply bg-[#F4F7F3] dark:bg-[#202020] text-foreground font-patano text-base;
   }
   
   /* Updated typography styles */
@@ -187,6 +188,22 @@
   }
 }
 
+/* Chat bubble animation */
+@keyframes bubble-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-bubble-in {
+  animation: bubble-in 0.3s ease-out forwards;
+}
+
 /* Light mode styles */
 .itinerary-day-header {
   @apply bg-white border-gray-200 text-gray-800;
@@ -235,4 +252,17 @@
 
 .dark .accordion-itinerary {
   @apply bg-[#202030] border-[#2c2c40];
+}
+
+/* Triage bubble styles */
+.triage-bubble {
+  @apply rounded-lg p-3 max-w-[80%] animate-in fade-in slide-in;
+}
+
+.triage-user {
+  @apply bg-[#65558F] text-white;
+}
+
+.triage-ai {
+  @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700;
 }

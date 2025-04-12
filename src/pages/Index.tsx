@@ -7,6 +7,7 @@ import ThinkingDisplay from '@/components/ThinkingDisplay';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { useTrips } from '@/hooks/useTrips';
 import ResponseDialog from '@/components/prompt/ResponseDialog';
+import TriageResponseBubble from '@/components/prompt/TriageResponseBubble';
 
 const Index = () => {
   const {
@@ -24,27 +25,66 @@ const Index = () => {
   const [dialogQuestion, setDialogQuestion] = useState<string | null>(null);
   const [showResponseDialog, setShowResponseDialog] = useState(false);
   const [quickResponseOptions, setQuickResponseOptions] = useState<Array<{text: string, value: string}>>([]);
+  const [triageMessages, setTriageMessages] = useState<Array<{content: string, isUser: boolean}>>([]);
   
   // Handle voice transcript and potential trip data
   const handleTranscript = (transcript: string, tripData?: any) => {
     console.log('Index received transcript:', transcript);
     console.log('Index received trip data:', tripData);
     
+    // Add the user message to triage messages
+    setTriageMessages(prev => [...prev, {content: transcript, isUser: true}]);
+    
     if (tripData) {
       handleVoiceTripData(tripData, transcript);
     } else {
+      // Display a temporary "thinking" triage message
+      setTriageMessages(prev => [...prev, {
+        content: "I'm analyzing your request...",
+        isUser: false
+      }]);
+      
       handlePromptSubmit(transcript);
+      
+      // After a short delay, add AI response to triage messages
+      setTimeout(() => {
+        setTriageMessages(prev => {
+          // Replace the "thinking" message with the actual response
+          const newMessages = [...prev];
+          if (newMessages.length > 1 && newMessages[newMessages.length - 1].content === "I'm analyzing your request...") {
+            newMessages.pop(); // Remove the thinking message
+          }
+          return [...newMessages, {
+            content: "I'm looking for some adventure options based on your request. I'll show the results above once they're ready.",
+            isUser: false
+          }];
+        });
+      }, 2000);
     }
   };
 
   // Handle dialog response submission
   const handleDialogResponse = (response: string) => {
     console.log('Dialog response received:', response);
+    
+    // Add the response to triage messages
+    setTriageMessages(prev => [...prev, {content: response, isUser: true}]);
+    
     handlePromptSubmit(response);
+    
+    // Add AI response to triage messages
+    setTimeout(() => {
+      setTriageMessages(prev => [...prev, {
+        content: "Updating your adventure options based on your feedback...",
+        isUser: false
+      }]);
+    }, 1000);
+    
+    setShowResponseDialog(false);
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl bg-white dark:bg-[#202020]">
+    <div className="container mx-auto px-4 py-6 max-w-6xl flex flex-col min-h-[calc(100vh-80px)] bg-[#F4F7F3] dark:bg-[#202020]">
       <div className="mb-8 text-center my-[20px] mx-0">
         <h1 className="text-4xl font-bold mb-4 py-0 mx-[2px] md:text-5xl my-px">
           Let's find an <span className="offbeat-gradient">offbeat</span> adventure
@@ -54,7 +94,65 @@ const Index = () => {
         </p>
       </div>
 
-      <div className="mb-8 w-full bg-white dark:bg-[#202020]">
+      <div className="flex-grow overflow-y-auto">
+        {/* Response Dialog for follow-up questions */}
+        <ResponseDialog
+          isOpen={showResponseDialog}
+          onClose={() => setShowResponseDialog(false)}
+          question={dialogQuestion || ""}
+          onSubmit={handleDialogResponse}
+          options={quickResponseOptions}
+        />
+
+        {error && (
+          <ApiConnectionError 
+            customMessage={error} 
+            errorDetails={errorDetails || undefined} 
+            onRetry={handleRetry} 
+          />
+        )}
+
+        {loading && (
+          <div className="mb-8">
+            <LoadingSpinner />
+            {thinking && thinking.length > 0 && (
+              <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />
+            )}
+          </div>
+        )}
+
+        {trips.length > 0 && (
+          <div className="space-y-8 mb-8">
+            {trips.map((trip, index) => (
+              <div key={trip.id || `trip-${index}`} className="relative">
+                {trips.length > 1 && (
+                  <div className="absolute -top-4 -left-2 z-10">
+                    <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
+                      Option {index + 1}
+                    </span>
+                  </div>
+                )}
+                <TripCard trip={trip} onSave={() => handleSaveTrip(trip)} />
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Triage Message Bubbles */}
+        {triageMessages.length > 0 && (
+          <div className="mb-6 px-4">
+            {triageMessages.map((message, index) => (
+              <TriageResponseBubble 
+                key={index}
+                message={message.content}
+                isUser={message.isUser}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 sticky bottom-4">
         <PromptInput 
           onSubmit={handlePromptSubmit} 
           onTranscript={handleTranscript}
@@ -62,49 +160,6 @@ const Index = () => {
           placeholder="Tell us about your dream trip..." 
         />
       </div>
-
-      {/* Response Dialog for follow-up questions */}
-      <ResponseDialog
-        isOpen={showResponseDialog}
-        onClose={() => setShowResponseDialog(false)}
-        question={dialogQuestion || ""}
-        onSubmit={handleDialogResponse}
-        options={quickResponseOptions}
-      />
-
-      {error && (
-        <ApiConnectionError 
-          customMessage={error} 
-          errorDetails={errorDetails || undefined} 
-          onRetry={handleRetry} 
-        />
-      )}
-
-      {loading && (
-        <div className="mb-8">
-          <LoadingSpinner />
-          {thinking && thinking.length > 0 && (
-            <ThinkingDisplay thinkingSteps={thinking} isVisible={true} />
-          )}
-        </div>
-      )}
-
-      {trips.length > 0 && (
-        <div className="space-y-8">
-          {trips.map((trip, index) => (
-            <div key={trip.id || `trip-${index}`} className="relative">
-              {trips.length > 1 && (
-                <div className="absolute -top-4 -left-2 z-10">
-                  <span className="bg-purple-600 text-white text-sm font-medium px-3 py-1 rounded-full">
-                    Option {index + 1}
-                  </span>
-                </div>
-              )}
-              <TripCard trip={trip} onSave={() => handleSaveTrip(trip)} />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

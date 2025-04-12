@@ -1,3 +1,4 @@
+
 /**
  * Container component for the prompt input interface
  * 
@@ -41,7 +42,7 @@ const PromptInputContainer: React.FC<PromptInputContainerProps> = ({
   return (
     <div 
       ref={promptBoxRef}
-      className={`relative border border-gray-200 rounded-md p-4 bg-[#E9ECE8] py-[24px] mx-[24px] ${lensFlashActive ? 'lens-flash' : ''}`}
+      className={`relative border border-gray-200 rounded-md p-4 bg-[#E9ECE8] dark:bg-[#222222] py-[24px] mx-[24px] ${lensFlashActive ? 'lens-flash' : ''}`}
     >
       <Textarea 
         ref={textareaRef} 
@@ -50,7 +51,7 @@ const PromptInputContainer: React.FC<PromptInputContainerProps> = ({
         onChange={e => setPrompt(e.target.value)} 
         onKeyDown={onKeyDown} 
         disabled={isProcessing} 
-        className="min-h-24 pr-20 mb-2 resize-none font-patano text-base w-full border-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none text-white placeholder:text-gray-400 bg-[#E9ECE8] px-3" 
+        className="min-h-24 pr-20 mb-2 resize-none font-patano text-base w-full border-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none text-gray-800 dark:text-white placeholder:text-gray-400 bg-[#E9ECE8] dark:bg-[#222222] px-3" 
       />
       <div className="absolute right-5 bottom-5 flex items-center gap-2">
         <AudioButton onClick={onAudioClick} disabled={isProcessing} />
