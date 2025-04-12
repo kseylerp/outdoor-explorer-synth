@@ -266,3 +266,17 @@
 .triage-ai {
   @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700;
 }
+
+/* Navigation styles */
+.main-nav {
+  @apply h-full min-h-screen bg-[#F4F7F3] dark:bg-[#1E1E1E] border-r border-gray-300 dark:border-gray-700;
+}
+
+.top-nav {
+  @apply border-b border-gray-300 dark:border-gray-700;
+}
+
+/* Button styles */
+.primary-button {
+  @apply bg-[#65558F] hover:bg-[#65558F]/90 text-white;
+}

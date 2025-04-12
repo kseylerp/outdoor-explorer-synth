@@ -1,13 +1,4 @@
 
-/**
- * Component for real-time chat functionality
- * 
- * Features:
- * - Message history display
- * - Input controls for sending messages
- * - Voice input capability
- * - Processing indicator during AI responses
- */
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useChatState } from './realtime/useChatState';
@@ -30,6 +21,7 @@ const RealtimeChat: React.FC = () => {
   
   const [transcript, setTranscript] = useState('');
   const [showVoiceExperience, setShowVoiceExperience] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const { toast } = useToast();
   
   // Handle potential errors in chat state
@@ -50,6 +42,45 @@ const RealtimeChat: React.FC = () => {
     }
   }, [pendingTranscript]);
   
+  // Generate follow-up questions based on conversation content
+  useEffect(() => {
+    if (history.length > 1 && !isProcessing) {
+      const lastBotMessage = history.findLast(msg => msg.role === 'assistant' || msg.role === 'system');
+      
+      if (lastBotMessage) {
+        // Generate follow-up questions based on last message content
+        const suggestedQuestions = generateFollowUpQuestions(lastBotMessage.content);
+        setFollowUpQuestions(suggestedQuestions);
+      }
+    }
+  }, [history, isProcessing]);
+  
+  const generateFollowUpQuestions = (messageContent: string): string[] => {
+    // Very basic question generation - in a real app, this would be more sophisticated
+    const questions: string[] = [];
+    
+    if (messageContent.toLowerCase().includes('hiking')) {
+      questions.push("What hiking difficulty level are you comfortable with?");
+    }
+    
+    if (messageContent.toLowerCase().includes('food') || messageContent.toLowerCase().includes('restaurant')) {
+      questions.push("Do you have any dietary preferences I should know about?");
+    }
+    
+    if (messageContent.toLowerCase().includes('hotel') || messageContent.toLowerCase().includes('stay')) {
+      questions.push("What's your preferred accommodation type?");
+    }
+    
+    // Always add some generic follow-ups if we don't have specific ones
+    if (questions.length < 2) {
+      questions.push("What else would you like to know about this destination?");
+      questions.push("How many people will be traveling with you?");
+      questions.push("What's your budget for this trip?");
+    }
+    
+    return questions.slice(0, 3); // Limit to 3 questions
+  };
+
   const handleSend = () => {
     if (message.trim()) {
       handleSendMessage();
@@ -72,6 +103,13 @@ const RealtimeChat: React.FC = () => {
     }
     setShowVoiceExperience(false);
   };
+  
+  const handleFollowUpClick = (question: string) => {
+    setMessage(question);
+    setTimeout(() => {
+      handleSendMessage();
+    }, 100);
+  };
 
   // Adapt the history to match ChatHistory component expectations
   const adaptedHistory = history.map(msg => ({
@@ -85,13 +123,15 @@ const RealtimeChat: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-4">
           <ChatHistory 
             history={adaptedHistory} 
-            transcript={transcript} 
+            transcript={transcript}
+            followUpQuestions={followUpQuestions}
+            onFollowUpClick={handleFollowUpClick}
           />
         </div>
         
         {isProcessing && <ProcessingIndicator />}
         
-        <div className="sticky bottom-0 bg-[#F4F7F3] dark:bg-[#202020]">
+        <div className="sticky bottom-0 bg-[#F4F7F3] dark:bg-[#202020] p-4">
           <ChatControls 
             message={message}
             onMessageChange={setMessage}

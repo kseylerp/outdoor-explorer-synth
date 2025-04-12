@@ -55,12 +55,6 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
               
               <AccordionContent className="px-5 pb-5 pt-0">
                 <div className="pl-[52px]"> {/* Align with the icon */}
-                  <div className="mb-4">
-                    <Badge variant="outline" className="bg-gray-50 text-gray-700 mb-2 dark:bg-gray-800 dark:text-gray-200">
-                      <Clock className="h-3 w-3 mr-1" /> Full day
-                    </Badge>
-                  </div>
-                  
                   {/* Meals Section */}
                   {day.meals && (Object.keys(day.meals).length > 0) && (
                     <div className="mb-6 bg-amber-50 p-4 rounded-lg border border-amber-100 dark:bg-[#202030] dark:border-gray-700">
@@ -118,7 +112,7 @@ const TripItinerary: React.FC<TripItineraryProps> = ({
                             <h4 className="font-medium text-gray-900 dark:text-gray-200">
                               {activity.name || 'Unnamed Activity'}
                             </h4>
-                            {activity.duration && (
+                            {activity.duration && activity.duration !== "Full day" && (
                               <Badge variant="outline" className="flex items-center gap-1 dark:bg-gray-800 dark:text-gray-200">
                                 <Clock className="h-3 w-3" />
                                 {activity.duration}

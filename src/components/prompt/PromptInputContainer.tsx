@@ -1,14 +1,4 @@
 
-/**
- * Container component for the prompt input interface
- * 
- * This component encapsulates:
- * - Text input area for prompts
- * - Send button for submitting
- * - Audio button for voice input
- * - Visual feedback (lens flash effect)
- * - Loading state handling
- */
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import SendButton from './SendButton';
@@ -42,7 +32,7 @@ const PromptInputContainer: React.FC<PromptInputContainerProps> = ({
   return (
     <div 
       ref={promptBoxRef}
-      className={`relative border border-gray-200 rounded-md p-4 bg-[#E9ECE8] dark:bg-[#222222] py-[24px] mx-[24px] ${lensFlashActive ? 'lens-flash' : ''}`}
+      className={`relative border border-gray-200 bg-[#E9ECE8] dark:bg-[#222222] rounded-md ${lensFlashActive ? 'lens-flash' : ''}`}
     >
       <Textarea 
         ref={textareaRef} 
