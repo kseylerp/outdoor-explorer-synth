@@ -8,13 +8,14 @@
  * - Voice input capability
  * - Processing indicator during AI responses
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useChatState } from './realtime/useChatState';
 import ChatHistory from './realtime/ChatHistory';
 import ChatControls from './realtime/ChatControls';
 import ProcessingIndicator from './realtime/ProcessingIndicator';
 import VoiceExperience from './prompt/VoiceExperience';
+import { useToast } from '@/hooks/use-toast';
 
 const RealtimeChat: React.FC = () => {
   const { 
@@ -23,11 +24,31 @@ const RealtimeChat: React.FC = () => {
     setMessage, 
     history,
     handleSendMessage,
-    isProcessing
+    isProcessing,
+    transcript: pendingTranscript
   } = useChatState();
   
   const [transcript, setTranscript] = useState('');
   const [showVoiceExperience, setShowVoiceExperience] = useState(false);
+  const { toast } = useToast();
+  
+  // Handle potential errors in chat state
+  useEffect(() => {
+    if (state === 'error') {
+      toast({
+        title: "Connection Error",
+        description: "There was an error connecting to the chat service. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [state, toast]);
+
+  // Update local transcript when pending transcript changes
+  useEffect(() => {
+    if (pendingTranscript) {
+      setTranscript(pendingTranscript);
+    }
+  }, [pendingTranscript]);
   
   const handleSend = () => {
     if (message.trim()) {
