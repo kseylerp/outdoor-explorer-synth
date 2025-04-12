@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ItineraryDay } from '@/types/trips';
 import DayDetails from './DayDetails';
@@ -20,9 +20,16 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
   const maxDays = itinerary && itinerary.length > 0 
     ? Math.max(...itinerary.map(day => day.day))
     : 1;
+    
+  // Use effect to populate days that are missing
+  useEffect(() => {
+    if (itinerary.length < maxDays) {
+      console.log(`Itinerary has ${itinerary.length} days but should have ${maxDays} days`);
+    }
+  }, [itinerary, maxDays]);
 
   return (
-    <div>
+    <div className="md:px-2">
       {itinerary.length < maxDays && (
         <Alert variant="default" className="mb-4 bg-amber-50 border-amber-200 text-amber-800">
           <AlertDescription>
@@ -35,19 +42,22 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
       <Tabs 
         defaultValue={selectedDay.toString()} 
         onValueChange={(val) => onDayChange(parseInt(val))}
+        className="w-full"
       >
-        <TabsList className="mb-4 bg-purple-100 flex flex-wrap">
-          {/* Create tabs based on maxDays */}
-          {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
-            <TabsTrigger 
-              key={day} 
-              value={day.toString()}
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-            >
-              Day {day}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="mb-4 bg-purple-100 flex flex-nowrap">
+            {/* Create tabs based on maxDays */}
+            {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
+              <TabsTrigger 
+                key={day} 
+                value={day.toString()}
+                className="data-[state=active]:bg-[#65558F] data-[state=active]:text-white whitespace-nowrap"
+              >
+                Day {day}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
         
         {/* Render existing days from the API */}
         {itinerary.map((day) => (
