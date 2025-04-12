@@ -1,22 +1,5 @@
 
-// Type definitions for the OpenAI assistants function
-
-export interface AssistantResponse {
-  message?: {
-    content: Array<{
-      type: string;
-      text?: {
-        value: string;
-      };
-    }>;
-    role: 'assistant' | 'user';
-    id: string;
-    created_at: number;
-  };
-  tripData?: any;
-  runStatus: string;
-}
-
+// Request body types
 export interface RequestBody {
   action: 'create_thread' | 'get_thread' | 'post_message' | 'handoff';
   message?: string;
@@ -24,7 +7,18 @@ export interface RequestBody {
   assistantId?: string;
 }
 
+// Response for assistant communications
+export interface AssistantResponse {
+  message?: any;
+  tripData?: any;
+  runStatus?: string;
+  error?: string;
+  details?: string;
+}
+
+// Enhanced error response with help text
 export interface ErrorResponse {
   error: string;
-  details?: string;
+  details: string;
+  help: string | null;
 }
