@@ -40,19 +40,41 @@ export class RealtimeAudioService {
       this.messageHandler = new MessageHandler(
         (text: string) => {
           this.transcript = text;
+          console.log('Transcript updated:', text);
           if (this.onTranscriptReceived) this.onTranscriptReceived(text);
         },
-        this.onError || undefined,
-        this.onAIResponseStart || undefined,
-        this.onAIResponseEnd || undefined,
-        this.onTripDataReceived || undefined
+        (error: Error) => {
+          console.error('Error in MessageHandler:', error);
+          if (this.onError) this.onError(error);
+        },
+        () => {
+          console.log('AI response started');
+          if (this.onAIResponseStart) this.onAIResponseStart();
+        },
+        () => {
+          console.log('AI response ended');
+          if (this.onAIResponseEnd) this.onAIResponseEnd();
+        },
+        (tripData: any) => {
+          console.log('Trip data received:', tripData);
+          if (this.onTripDataReceived) this.onTripDataReceived(tripData);
+        }
       );
       
       // Create WebRTC handler
       this.webRTCHandler = new WebRTCHandler(
-        (event) => { if (this.onAIResponseStart) this.onAIResponseStart(); },
-        (message) => { if (this.messageHandler) this.messageHandler.handleMessage(message); },
-        () => this.sendSessionUpdate()
+        (event) => { 
+          console.log('WebRTC track event received');
+          if (this.onAIResponseStart) this.onAIResponseStart();
+        },
+        (message) => {
+          console.log('WebRTC message received');
+          if (this.messageHandler) this.messageHandler.handleMessage(message);
+        },
+        () => {
+          console.log('WebRTC data channel opened, sending session update');
+          this.sendSessionUpdate();
+        }
       );
       
       // Create audio processor
@@ -94,16 +116,21 @@ export class RealtimeAudioService {
     
     try {
       // Initialize WebRTC connection
-      await this.webRTCHandler.initialize();
+      const pc = await this.webRTCHandler.initialize();
+      console.log('WebRTC peer connection initialized:', pc !== null);
       
       // Create data channel
-      this.webRTCHandler.createDataChannel();
+      const dc = this.webRTCHandler.createDataChannel();
+      console.log('Data channel created:', dc !== null);
       
       // Create and set local description
       const offer = await this.webRTCHandler.createOffer();
+      console.log('Local description (offer) created');
       
       // Connect to OpenAI
+      console.log('Sending SDP to OpenAI');
       const sdpAnswer = await this.sessionManager.connectToOpenAI(offer.sdp!, ephemeralToken);
+      console.log('Received SDP answer from OpenAI');
       
       const answer = {
         type: "answer" as RTCSdpType,
@@ -111,7 +138,7 @@ export class RealtimeAudioService {
       };
       
       await this.webRTCHandler.setRemoteDescription(answer);
-      console.log('WebRTC connection established');
+      console.log('Remote description (answer) set - WebRTC connection established');
     } catch (error) {
       console.error('WebRTC connection failed:', error);
       throw error;
@@ -125,6 +152,7 @@ export class RealtimeAudioService {
     }
     
     try {
+      console.log('Sending session update message');
       this.webRTCHandler.sendMessage({
         type: 'session.update',
         session: {
@@ -153,11 +181,14 @@ export class RealtimeAudioService {
     
     try {
       // Initialize audio processor and get audio stream
+      console.log('Initializing audio processor');
       const mediaStream = await this.audioProcessor.initialize();
+      console.log('Audio processor initialized, got media stream:', mediaStream !== null);
       
       // Add tracks to peer connection
       if (mediaStream) {
         mediaStream.getAudioTracks().forEach(track => {
+          console.log('Adding audio track to peer connection');
           if (this.webRTCHandler) {
             this.webRTCHandler.addTrack(track, mediaStream);
           }
@@ -165,7 +196,9 @@ export class RealtimeAudioService {
       }
       
       // Set up audio processing pipeline
+      console.log('Setting up audio processing pipeline');
       this.audioProcessor.setupProcessing(mediaStream);
+      console.log('Audio processing pipeline setup complete');
     } catch (error) {
       console.error('Error starting audio capture:', error);
       throw error;
@@ -205,14 +238,17 @@ export class RealtimeAudioService {
   
   disconnect(): void {
     try {
+      console.log('Disconnecting RealtimeAudioService');
       // Clean up audio processor
       if (this.audioProcessor) {
+        console.log('Cleaning up audio processor');
         this.audioProcessor.cleanup();
         this.audioProcessor = null;
       }
       
       // Close WebRTC connection
       if (this.webRTCHandler) {
+        console.log('Closing WebRTC connection');
         this.webRTCHandler.close();
         this.webRTCHandler = null;
       }

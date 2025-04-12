@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import PromptInput from '@/components/PromptInput';
 import TripCard from '@/components/TripCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -19,7 +19,9 @@ const Index = () => {
     handleRetry,
     handleSaveTrip
   } = useTrips();
-
+  
+  const [dialogQuestion, setDialogQuestion] = useState<string | null>(null);
+  
   // Handle voice transcript and potential trip data
   const handleTranscript = (transcript: string, tripData?: any) => {
     console.log('Index received transcript:', transcript);

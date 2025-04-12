@@ -4,11 +4,12 @@ import { Textarea } from '@/components/ui/textarea';
 import SendButton from './prompt/SendButton';
 import AudioButton from './prompt/AudioButton';
 import VoiceExperience from './prompt/VoiceExperience';
+import ResponseDialog from './prompt/ResponseDialog';
 import { useToast } from '@/hooks/use-toast';
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
-  onTranscript?: (transcript: string, tripData?: any) => void; // Added this prop
+  onTranscript?: (transcript: string, tripData?: any) => void;
   isProcessing: boolean;
   defaultValue?: string;
   placeholder?: string;
@@ -24,6 +25,9 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const [prompt, setPrompt] = useState(defaultValue);
   const [showAudioExperience, setShowAudioExperience] = useState(false);
   const [lensFlashActive, setLensFlashActive] = useState(false);
+  const [showResponseDialog, setShowResponseDialog] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState('');
+  const [quickResponseOptions, setQuickResponseOptions] = useState<Array<{text: string, value: string}>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const promptBoxRef = useRef<HTMLDivElement>(null);
   const {
@@ -42,6 +46,12 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const handleSubmit = () => {
     if (prompt.trim() && !isProcessing) {
       onSubmit(prompt.trim());
+      
+      // Clear the prompt after submission
+      setPrompt('');
+      
+      // Check for potential follow-up questions in the prompt
+      checkForQuestions(prompt);
     }
   };
 
@@ -53,23 +63,76 @@ const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   const handleVoiceTranscript = (transcript: string, tripData?: any) => {
+    console.log(`Handling voice transcript: "${transcript}"`);
+    
+    if (!transcript.trim()) {
+      console.warn('Empty transcript received');
+      return;
+    }
+    
+    // Update the prompt field with the transcript
     setPrompt(transcript);
+    
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
     
-    // Call the onTranscript prop if provided
-    if (onTranscript) {
-      onTranscript(transcript, tripData);
+    // Open dialog for follow-up questions if this seems to be a response to a question
+    // (Don't open dialog for initial prompts)
+    if (isResponseToQuestion(transcript)) {
+      setCurrentQuestion('Continue the conversation');
+      setQuickResponseOptions([]);
+      setShowResponseDialog(true);
+    } else {
+      // If this is an initial prompt, submit it directly
+      if (onTranscript) {
+        onTranscript(transcript, tripData);
+      }
+    }
+  };
+
+  // Check if text appears to be a response to a question rather than a new prompt
+  const isResponseToQuestion = (text: string): boolean => {
+    // Common response patterns
+    const responsePatterns = [
+      /^yes/i,
+      /^no/i,
+      /^definitely/i,
+      /^I'd like/i,
+      /^I am/i,
+      /^I prefer/i,
+      /^Sounds good/i,
+      /^That works/i,
+      /^I'll/i,
+      /^We'll/i
+    ];
+    
+    return responsePatterns.some(pattern => pattern.test(text.trim()));
+  }
+
+  // Check if the prompt might contain questions that need follow-up
+  const checkForQuestions = (text: string) => {
+    // Very basic question detection for demo
+    if (text.includes('?')) {
+      setTimeout(() => {
+        setCurrentQuestion("Would you like to add more details to your request?");
+        setQuickResponseOptions([
+          { text: "Yes", value: "Yes, I'd like to provide more details." },
+          { text: "No", value: "No, that's all I need to know." }
+        ]);
+        setShowResponseDialog(true);
+      }, 1000);
     }
   };
 
   const startVoiceExperience = () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      console.log('Requesting microphone permissions...');
       // Check if we have microphone permissions before showing the UI
       navigator.mediaDevices.getUserMedia({
         audio: true
       }).then(() => {
+        console.log('Microphone permissions granted, starting voice experience');
         setShowAudioExperience(true);
       }).catch(err => {
         console.error('Error accessing microphone:', err);
@@ -80,6 +143,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
         });
       });
     } else {
+      console.error('MediaDevices API not supported');
       toast({
         title: 'Voice input not supported',
         description: 'Your browser does not support voice input.',
@@ -88,9 +152,38 @@ const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
+  const handleResponseSubmit = (response: string) => {
+    console.log('Dialog response received:', response);
+    
+    // Set the response to the prompt field
+    setPrompt(response);
+    
+    // Submit the response
+    if (response.trim()) {
+      onSubmit(response);
+      setPrompt('');
+    }
+  };
+
   return <div className="space-y-4 relative">
-      {showAudioExperience && <VoiceExperience onClose={() => setShowAudioExperience(false)} onTranscript={handleVoiceTranscript} />}
+      {/* Voice Experience Modal */}
+      {showAudioExperience && (
+        <VoiceExperience 
+          onClose={() => setShowAudioExperience(false)} 
+          onTranscript={handleVoiceTranscript} 
+        />
+      )}
       
+      {/* Response Dialog */}
+      <ResponseDialog 
+        isOpen={showResponseDialog}
+        onClose={() => setShowResponseDialog(false)}
+        question={currentQuestion}
+        onSubmit={handleResponseSubmit}
+        options={quickResponseOptions}
+      />
+      
+      {/* Main Prompt Input */}
       <div 
         ref={promptBoxRef}
         className={`relative border border-gray-200 rounded-md p-4 bg-[#0c0c0c] py-[24px] mx-[24px] ${lensFlashActive ? 'lens-flash' : ''}`}

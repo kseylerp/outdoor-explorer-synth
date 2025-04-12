@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceExperienceProps {
@@ -14,6 +15,8 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   const [processingComplete, setProcessingComplete] = useState(false);
   const [aiResponseText, setAiResponseText] = useState<string | null>(null);
   const [voice] = useState<string>("sage"); // Always use sage voice
+  const [quickResponses, setQuickResponses] = useState<{text: string, value: string}[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Create animated audio visualization
@@ -30,6 +33,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
   // Connect to the OpenAI Realtime API and start listening
   useEffect(() => {
     if (isListening) {
+      console.log('Initializing voice experience and connecting to Realtime API');
       // Initialize WebRTC connection to OpenAI Realtime API
       import('@/services/audio/RealtimeAudioService').then(({ RealtimeAudioService }) => {
         const service = new RealtimeAudioService();
@@ -55,6 +59,9 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
                 
                 // Pass transcript to parent
                 onTranscript(transcript);
+                
+                // Extract potential quick response options from transcript
+                extractQuickResponses(transcript);
                 
                 // Simulate AI response after a delay
                 setTimeout(() => {
@@ -83,6 +90,7 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
             
             service.onError = (error) => {
               console.error('Realtime audio error:', error);
+              setError(error.message);
               toast({
                 title: "Error with voice service",
                 description: error.message,
@@ -92,6 +100,8 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
           })
           .catch(error => {
             console.error('Failed to initialize realtime session:', error);
+            setError(`Connection failed: ${error.message}`);
+            
             toast({
               title: "Connection failed",
               description: "Could not connect to the voice service. Please try again.",
@@ -105,11 +115,51 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
           });
           
         return () => {
+          console.log('Disconnecting voice service');
           service.disconnect();
         };
+      }).catch(err => {
+        console.error('Error importing RealtimeAudioService:', err);
+        setError(`Failed to load audio service: ${err.message}`);
       });
     }
   }, [isListening, onTranscript, toast, onClose]);
+
+  // Extract yes/no or other binary options from AI responses
+  const extractQuickResponses = (text: string) => {
+    // Look for yes/no questions
+    if (/would you like|do you want|are you interested|should I|yes or no/i.test(text)) {
+      setQuickResponses([
+        { text: "Yes", value: "Yes, please do!" },
+        { text: "No", value: "No, thanks." }
+      ]);
+      return;
+    }
+    
+    // Look for skill level questions
+    if (/skill level|how experienced|difficulty|challenging/i.test(text)) {
+      setQuickResponses([
+        { text: "Beginner", value: "I'm a beginner." },
+        { text: "Intermediate", value: "I have intermediate experience." },
+        { text: "Advanced", value: "I'm an advanced adventurer." }
+      ]);
+      return;
+    }
+    
+    // Look for time of year questions
+    if (/time of year|when.*visit|season|month|spring|summer|fall|winter/i.test(text)) {
+      setQuickResponses([
+        { text: "Spring", value: "I'm planning to go in the spring." },
+        { text: "Summer", value: "I'm planning to go in the summer." },
+        { text: "Fall", value: "I'm planning to go in the fall." },
+        { text: "Winter", value: "I'm planning to go in the winter." }
+      ]);
+      return;
+    }
+    
+    // Default: clear any previous responses if no patterns match
+    setQuickResponses([]);
+  };
 
   // Handle manual close with confirmation if needed
   const handleClose = () => {
@@ -121,6 +171,13 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
       // Otherwise just close normally
       onClose();
     }
+  };
+
+  // Handle quick response button click
+  const handleQuickResponse = (responseValue: string) => {
+    // Pass the response as transcript
+    onTranscript(responseValue);
+    onClose();
   };
   
   return (
@@ -140,36 +197,62 @@ const VoiceExperience: React.FC<VoiceExperienceProps> = ({ onClose, onTranscript
         Using OpenAI with Sage voice
       </div>
       
-      <div className="flex items-center justify-center gap-1 mb-8">
-        {audioVisualizer.map((height, i) => (
-          <div 
-            key={i}
-            className={`w-1.5 rounded-full transition-all duration-200 ${
-              isListening ? 'bg-gradient-to-t from-purple-600 to-purple-400' : 'bg-gradient-to-t from-blue-600 to-blue-400'
-            }`}
-            style={{
-              height: `${height}px`,
-              animationDuration: `${Math.random() * 1 + 0.5}s`
-            }}
-          />
-        ))}
-      </div>
-      
-      <div className="text-white/70 text-sm max-w-md text-center px-4">
-        {isListening 
-          ? "What adventure are you looking for? Describe your ideal trip!" 
-          : processingComplete 
-            ? "Ready to explore your adventure options? Click outside to view them."
-            : "I'm processing your request..."}
-      </div>
-      
-      {processingComplete && (
-        <button 
-          onClick={onClose}
-          className="mt-8 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
-        >
-          Show My Adventure Options
-        </button>
+      {error ? (
+        <div className="text-red-400 p-4 bg-red-900/20 rounded-md mb-6 max-w-md text-center">
+          {error}
+          <div className="mt-2">
+            <Button onClick={onClose} variant="destructive" size="sm">Close</Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-center gap-1 mb-8">
+            {audioVisualizer.map((height, i) => (
+              <div 
+                key={i}
+                className={`w-1.5 rounded-full transition-all duration-200 ${
+                  isListening ? 'bg-gradient-to-t from-purple-600 to-purple-400' : 'bg-gradient-to-t from-blue-600 to-blue-400'
+                }`}
+                style={{
+                  height: `${height}px`,
+                  animationDuration: `${Math.random() * 1 + 0.5}s`
+                }}
+              />
+            ))}
+          </div>
+          
+          <div className="text-white/70 text-sm max-w-md text-center px-4">
+            {isListening 
+              ? "What adventure are you looking for? Describe your ideal trip!" 
+              : processingComplete 
+                ? "Ready to explore your adventure options? Click outside to view them."
+                : "I'm processing your request..."}
+          </div>
+          
+          {quickResponses.length > 0 && !isListening && (
+            <div className="flex flex-wrap gap-3 mt-6 justify-center">
+              {quickResponses.map((response, index) => (
+                <Button 
+                  key={index}
+                  onClick={() => handleQuickResponse(response.value)}
+                  variant="outline"
+                  className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                >
+                  {response.text}
+                </Button>
+              ))}
+            </div>
+          )}
+          
+          {processingComplete && (
+            <Button 
+              onClick={onClose}
+              className="mt-8 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
+            >
+              Show My Adventure Options
+            </Button>
+          )}
+        </>
       )}
     </div>
   );

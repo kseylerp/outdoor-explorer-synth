@@ -1,6 +1,10 @@
+
 import { AudioTranscriptHandler, ErrorHandler, AIResponseHandler, TripDataHandler } from './types';
 
 export class MessageHandler {
+  // Track transcript for debugging
+  private currentTranscript: string = '';
+  
   constructor(
     private onTranscriptReceived: AudioTranscriptHandler | null = null,
     private onError: ErrorHandler | null = null,
@@ -17,6 +21,7 @@ export class MessageHandler {
       case 'response.audio_transcript.delta':
         // Incremental transcript update
         if (this.onTranscriptReceived && message.delta) {
+          this.currentTranscript += message.delta;
           this.onTranscriptReceived(message.delta);
         }
         break;
@@ -24,6 +29,8 @@ export class MessageHandler {
       case 'response.audio_transcript.done':
         // Full transcript is now available
         if (this.onTranscriptReceived && message.transcript) {
+          this.currentTranscript = message.transcript;
+          console.log('Complete transcript received:', this.currentTranscript);
           this.onTranscriptReceived(message.transcript);
           
           // Extract JSON if it exists in the response
