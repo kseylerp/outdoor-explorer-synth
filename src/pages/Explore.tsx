@@ -44,7 +44,8 @@ const Explore: React.FC = () => {
 
       <div className="mb-8">
         <PromptInput 
-          onSubmit={handlePromptSubmit} 
+          onSubmit={handlePromptSubmit}
+          onTranscript={handleTranscript}
           isProcessing={loading} 
           defaultValue=""
           placeholder="Tell us about your dream trip. For example: A 5-day moderate hiking trip near Portland with waterfall views and minimal crowds"

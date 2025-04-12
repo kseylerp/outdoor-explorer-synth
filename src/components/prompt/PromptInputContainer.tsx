@@ -3,8 +3,6 @@ import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import SendButton from './SendButton';
 import AudioButton from './AudioButton';
-import { usePromptInput } from '@/hooks/usePromptInput';
-import { PromptInputProps } from './types';
 
 interface PromptInputContainerProps {
   prompt: string;

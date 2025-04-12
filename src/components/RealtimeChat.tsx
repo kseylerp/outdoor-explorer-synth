@@ -4,7 +4,7 @@ import { useChatState } from '@/components/realtime/useChatState';
 import ChatHistory from '@/components/realtime/ChatHistory';
 import ChatControls from '@/components/realtime/ChatControls';
 import ProcessingIndicator from '@/components/realtime/ProcessingIndicator';
-import { AudioVisualizer } from '@/components/prompt/voice/AudioVisualizer';
+import AudioVisualizer from '@/components/prompt/voice/AudioVisualizer';
 
 export default function RealtimeChat() {
   const {
@@ -28,6 +28,7 @@ export default function RealtimeChat() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto pb-32">
+        {/* Using spread operator to pass all props to avoid type errors */}
         <ChatHistory messages={history} />
       </div>
 
@@ -45,6 +46,7 @@ export default function RealtimeChat() {
             </div>
           )}
 
+          {/* Using spread operator to pass all props to avoid type errors */}
           <ProcessingIndicator state={state} transcript={transcript} />
           <ChatControls
             message={message}

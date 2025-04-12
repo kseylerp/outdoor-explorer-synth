@@ -1,11 +1,12 @@
 
 import React from 'react';
 import VoiceExperience from './prompt/VoiceExperience';
-import ResponseDialog from './prompt/ResponseDialog';
+import PromptResponseDialog from './prompt/PromptResponseDialog';
 import PromptInputContainer from './prompt/PromptInputContainer';
 import { usePromptInput } from '@/hooks/usePromptInput';
 import { usePromptDialog } from '@/hooks/usePromptDialog';
-import { useVoiceResponse } from '@/hooks/useVoiceResponse';
+import { usePromptVoice } from '@/hooks/usePromptVoice';
+import { usePromptSubmission } from '@/hooks/usePromptSubmission';
 import { PromptInputProps } from './prompt/types';
 
 const PromptInput: React.FC<PromptInputProps> = ({
@@ -37,63 +38,23 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const {
     showAudioExperience,
     setShowAudioExperience,
-    isResponseToQuestion,
+    handleVoiceTranscript,
     startVoiceExperience
-  } = useVoiceResponse();
-
-  const handleSubmit = () => {
-    if (prompt.trim() && !isProcessing) {
-      onSubmit(prompt.trim());
-      
-      // Clear the prompt after submission
-      setPrompt('');
-      
-      // Check for potential follow-up questions in the prompt
-      checkForQuestions(prompt);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  const handleVoiceTranscript = (transcript: string, tripData?: any) => {
-    console.log(`Handling voice transcript: "${transcript}"`);
-    
-    if (!transcript.trim()) {
-      console.warn('Empty transcript received');
-      return;
-    }
-    
-    // Update the prompt field with the transcript
-    setPrompt(transcript);
-    
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-    
-    // Open dialog for follow-up questions if this seems to be a response to a question
-    // (Don't open dialog for initial prompts)
-    if (isResponseToQuestion(transcript)) {
-      setCurrentQuestion('Continue the conversation');
-      setQuickResponseOptions([]);
-      setShowResponseDialog(true);
-    } else {
-      // If this is an initial prompt, submit it directly
-      if (onTranscript) {
-        onTranscript(transcript, tripData);
+  } = usePromptVoice(onTranscript);
+  
+  const { handleSubmit, handleKeyDown } = usePromptSubmission(
+    prompt,
+    (trimmedPrompt) => {
+      if (!isProcessing) {
+        onSubmit(trimmedPrompt);
+        checkForQuestions(trimmedPrompt);
       }
-    }
-  };
+    },
+    setPrompt
+  );
 
   const handleResponseSubmit = (response: string) => {
     console.log('Dialog response received:', response);
-    
-    // Set the response to the prompt field
-    setPrompt(response);
     
     // Submit the response
     if (response.trim()) {
@@ -116,12 +77,12 @@ const PromptInput: React.FC<PromptInputProps> = ({
       )}
       
       {/* Response Dialog */}
-      <ResponseDialog 
-        isOpen={showResponseDialog}
-        onClose={() => setShowResponseDialog(false)}
-        question={currentQuestion}
-        onSubmit={handleResponseSubmit}
-        options={quickResponseOptions}
+      <PromptResponseDialog 
+        showResponseDialog={showResponseDialog}
+        currentQuestion={currentQuestion}
+        quickResponseOptions={quickResponseOptions}
+        setShowResponseDialog={setShowResponseDialog}
+        onResponseSubmit={handleResponseSubmit}
       />
       
       {/* Main Prompt Input */}
