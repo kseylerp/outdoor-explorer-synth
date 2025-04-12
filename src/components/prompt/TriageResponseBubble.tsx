@@ -4,11 +4,13 @@ import React, { useEffect, useRef } from 'react';
 interface TriageResponseBubbleProps {
   message: string;
   isUser?: boolean;
+  isLoading?: boolean;
 }
 
 const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({ 
   message, 
-  isUser = false 
+  isUser = false,
+  isLoading = false
 }) => {
   const bubbleRef = useRef<HTMLDivElement>(null);
   
@@ -27,7 +29,7 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
           isUser 
             ? 'bg-primary text-primary-foreground' 
             : 'bg-white dark:bg-zinc-800 text-foreground shadow-sm'
-        } opacity-0 bubble-animate`}
+        } ${isLoading ? 'animate-pulse' : ''} opacity-0 bubble-animate`}
         style={{ wordBreak: 'break-word' }}
       >
         {message.split('\n').map((line, i) => (

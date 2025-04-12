@@ -7,26 +7,31 @@ import ThinkingDisplay from '@/components/ThinkingDisplay';
 import ApiConnectionError from '@/components/common/ApiConnectionError';
 import { useTrips } from '@/hooks/useTrips';
 import TriageResponseBubble from '@/components/prompt/TriageResponseBubble';
+import { useAssistants } from '@/hooks/useAssistants';
 
 // Define conversation stages for our boolean conversation flow
 type ConversationStage = 
   | 'welcome'
-  | 'region'
-  | 'timing'
-  | 'timing_recommendation'
-  | 'skill_level'
-  | 'duration'
-  | 'equipment'
-  | 'group_size'
-  | 'confirmation'
-  | 'refinement';
+  | 'exploring'
+  | 'research';
+
+interface UserPreferences {
+  region: string;
+  timing: string;
+  wantsTimingRecommendation: boolean | null;
+  skillLevel: string;
+  duration: string;
+  equipment: string;
+  groupSize: string;
+  interests: string;
+}
 
 const Index = () => {
   const {
     trips,
-    loading,
-    error,
-    errorDetails,
+    loading: tripsLoading,
+    error: tripsError,
+    errorDetails: tripsErrorDetails,
     thinking,
     handlePromptSubmit,
     handleVoiceTripData,
@@ -34,19 +39,38 @@ const Index = () => {
     handleSaveTrip
   } = useTrips();
   
+  const {
+    threadId,
+    loading: assistantLoading,
+    error: assistantError,
+    errorDetails: assistantErrorDetails,
+    assistantResponse,
+    tripData: assistantTripData,
+    sendMessage,
+    handoffToResearch
+  } = useAssistants();
+
+  // Combined loading and error states
+  const loading = tripsLoading || assistantLoading;
+  const error = tripsError || assistantError;
+  const errorDetails = tripsErrorDetails || assistantErrorDetails;
+  
   // State for the conversation flow
   const [conversationStage, setConversationStage] = useState<ConversationStage>('welcome');
   const [triageMessages, setTriageMessages] = useState<Array<{content: string, isUser: boolean}>>([]);
-  const [userPreferences, setUserPreferences] = useState({
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
     region: '',
     timing: '',
-    wantsTimingRecommendation: null as boolean | null,
+    wantsTimingRecommendation: null,
     skillLevel: '',
     duration: '',
     equipment: '',
-    groupSize: ''
+    groupSize: '',
+    interests: ''
   });
   const [hasSubmittedPrompt, setHasSubmittedPrompt] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [pendingBotMessage, setPendingBotMessage] = useState<string | null>(null);
   
   // Initialize the conversation with welcome message
   useEffect(() => {
@@ -57,6 +81,67 @@ const Index = () => {
       }]);
     }
   }, [triageMessages.length]);
+
+  // Handle assistant response changes
+  useEffect(() => {
+    if (assistantResponse && pendingBotMessage === null) {
+      addBotMessage(assistantResponse);
+      setPendingBotMessage(null);
+
+      // Check if there's trip data from the assistant
+      if (assistantTripData) {
+        // Handle the trip data - either pass to handleVoiceTripData or handle it directly
+        console.log("Trip data received from assistant:", assistantTripData);
+        handleVoiceTripData(assistantTripData, assistantResponse);
+      }
+
+      // If we were in welcome stage, move to exploring
+      if (conversationStage === 'welcome') {
+        setConversationStage('exploring');
+      }
+    }
+  }, [assistantResponse, pendingBotMessage, assistantTripData, conversationStage, handleVoiceTripData]);
+
+  // Process user messages through the OpenAI assistant
+  const processWithAssistant = async (message: string) => {
+    setPendingBotMessage(""); // Set a pending message to show loading state
+    setIsThinking(true);
+    
+    try {
+      const result = await sendMessage(message, threadId);
+      
+      if (result && result.tripData) {
+        console.log("Trip data received:", result.tripData);
+        // We'll let the useEffect handle adding the message and processing trip data
+      }
+    } catch (error) {
+      console.error("Error processing with assistant:", error);
+      addBotMessage("I'm sorry, I encountered an error while processing your request. Please try again.");
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  // Perform a handoff to research assistant
+  const performHandoff = async () => {
+    setPendingBotMessage("Let me create some detailed trip recommendations for you...");
+    setIsThinking(true);
+    setConversationStage('research');
+    
+    try {
+      const result = await handoffToResearch(threadId);
+      
+      if (result && result.tripData) {
+        console.log("Trip data received from research handoff:", result.tripData);
+        // Trip data will be handled by the useEffect
+      }
+    } catch (error) {
+      console.error("Error in handoff to research:", error);
+      addBotMessage("I'm sorry, I encountered an error while preparing your trip recommendations. Please try again.");
+    } finally {
+      setIsThinking(false);
+    }
+  };
 
   // Handle transcript and triage the conversation
   const handleTranscript = (transcript: string, tripData?: any) => {
@@ -69,191 +154,81 @@ const Index = () => {
     if (tripData) {
       handleVoiceTripData(tripData, transcript);
     } else {
-      processConversation(transcript);
+      // Process with the assistant instead of local logic
+      processWithAssistant(transcript);
     }
   };
 
-  // Process the user's message based on conversation stage
-  const processConversation = (userMessage: string) => {
-    const userMessageLower = userMessage.toLowerCase();
-    
-    switch (conversationStage) {
-      case 'welcome':
-        setUserPreferences(prev => ({...prev, interests: userMessage}));
-        askAboutRegion();
-        break;
-      
-      case 'region':
-        setUserPreferences(prev => ({...prev, region: userMessage}));
-        askAboutTiming();
-        break;
-        
-      case 'timing':
-        setUserPreferences(prev => ({...prev, timing: userMessage}));
-        askTimingRecommendation();
-        break;
-        
-      case 'timing_recommendation':
-        if (userMessageLower.includes('yes') || userMessageLower.includes('y')) {
-          setUserPreferences(prev => ({...prev, wantsTimingRecommendation: true}));
-          provideTimingRecommendation();
-        } else {
-          setUserPreferences(prev => ({...prev, wantsTimingRecommendation: false}));
-          askAboutSkillLevel();
-        }
-        break;
-        
-      case 'skill_level':
-        setUserPreferences(prev => ({...prev, skillLevel: userMessage}));
-        askAboutDuration();
-        break;
-        
-      case 'duration':
-        setUserPreferences(prev => ({...prev, duration: userMessage}));
-        askAboutEquipment();
-        break;
-        
-      case 'equipment':
-        setUserPreferences(prev => ({...prev, equipment: userMessage}));
-        askAboutGroupSize();
-        break;
-        
-      case 'group_size':
-        setUserPreferences(prev => ({...prev, groupSize: userMessage}));
-        confirmAndGenerateTrip();
-        break;
-        
-      case 'confirmation':
-        if (userMessageLower.includes('yes') || userMessageLower.includes('y')) {
-          generateFinalTrip();
-        } else {
-          askForRefinement();
-        }
-        break;
-        
-      case 'refinement':
-        handlePromptRefinement(userMessage);
-        break;
-        
-      default:
-        handlePromptSubmit(userMessage);
-    }
-  };
-  
-  // Conversation flow helper functions
-  const askAboutRegion = () => {
-    setConversationStage('region');
-    addBotMessage("Great! What specific region or type of landscape are you interested in exploring?");
-  };
-  
-  const askAboutTiming = () => {
-    setConversationStage('timing');
-    addBotMessage("When are you planning to go? (date range or season)");
-  };
-  
-  const askTimingRecommendation = () => {
-    setConversationStage('timing_recommendation');
-    addBotMessage("Would you like me to recommend the best time to visit to avoid crowds? (Y/N)");
-  };
-  
-  const provideTimingRecommendation = () => {
-    addBotMessage(`Based on your interest in ${userPreferences.region}, I'd recommend visiting during shoulder seasons (late spring or early fall) to avoid crowds while still enjoying good weather.`);
-    askAboutSkillLevel();
-  };
-  
-  const askAboutSkillLevel = () => {
-    setConversationStage('skill_level');
-    addBotMessage("What is your skill/experience level with outdoor activities? For example, for hiking, are you comfortable with 8 hours of strenuous uphill climbing?");
-  };
-  
-  const askAboutDuration = () => {
-    setConversationStage('duration');
-    addBotMessage("How long would you like your adventure to be? (days/weeks)");
-  };
-  
-  const askAboutEquipment = () => {
-    setConversationStage('equipment');
-    addBotMessage("Do you have equipment already or will you need to rent/purchase gear?");
-  };
-  
-  const askAboutGroupSize = () => {
-    setConversationStage('group_size');
-    addBotMessage("How many people will be joining you? Does your group include children or seniors?");
-  };
-  
-  const confirmAndGenerateTrip = () => {
-    setConversationStage('confirmation');
-    
-    const summary = `
-Thanks for sharing those details. Based on what you've told me:
-- Adventure interest: ${userPreferences.interests}
-- Region: ${userPreferences.region}
-- Timing: ${userPreferences.timing}
-- Skill level: ${userPreferences.skillLevel}
-- Duration: ${userPreferences.duration}
-- Equipment: ${userPreferences.equipment}
-- Group: ${userPreferences.groupSize}
-
-I'll show you some adventure options on screen that match your preferences. Does this sound good? (Y/N)
-    `;
-    
-    addBotMessage(summary);
-  };
-  
-  const generateFinalTrip = () => {
-    addBotMessage("Great! I'm crafting your perfect adventure experience now...");
-    
-    // Construct the prompt from gathered preferences
-    const fullPrompt = `
-Plan an adventure trip with these details:
-- Region: ${userPreferences.region}
-- Timing: ${userPreferences.timing}
-- Skill Level: ${userPreferences.skillLevel}
-- Duration: ${userPreferences.duration}
-- Equipment needs: ${userPreferences.equipment}
-- Group size: ${userPreferences.groupSize}
-- Adventure interests: ${userPreferences.interests}
-    `;
-    
-    // Submit to the AI
-    handlePromptSubmit(fullPrompt);
-  };
-  
-  const askForRefinement = () => {
-    setConversationStage('refinement');
-    addBotMessage("What would you like to change about the plan?");
-  };
-  
-  const handlePromptRefinement = (refinement: string) => {
-    addBotMessage("Thanks! I'll update your adventure options based on that feedback...");
-    
-    // Create a new prompt with the refinement
-    const refinedPrompt = `
-Adjust this trip based on the following feedback:
-${refinement}
-
-Original trip details:
-- Region: ${userPreferences.region}
-- Timing: ${userPreferences.timing}
-- Skill Level: ${userPreferences.skillLevel}
-- Duration: ${userPreferences.duration}
-- Equipment needs: ${userPreferences.equipment}
-- Group size: ${userPreferences.groupSize}
-- Adventure interests: ${userPreferences.interests}
-    `;
-    
-    handlePromptSubmit(refinedPrompt);
-  };
-  
   const addBotMessage = (message: string) => {
     setTriageMessages(prev => [...prev, {content: message, isUser: false}]);
   };
 
   const handleUserPrompt = (prompt: string) => {
+    // Add user message to the conversation
     setTriageMessages(prev => [...prev, {content: prompt, isUser: true}]);
     setHasSubmittedPrompt(true);
-    processConversation(prompt);
+    
+    // Process with the OpenAI assistant
+    processWithAssistant(prompt);
+
+    // Update userPreferences.interests for the first message in welcome stage
+    if (conversationStage === 'welcome') {
+      setUserPreferences(prev => ({...prev, interests: prompt}));
+    }
   };
+
+  // Check if we should perform handoff
+  useEffect(() => {
+    const shouldHandoff = () => {
+      // This is a simple heuristic - you might want more sophisticated logic
+      // If we have collected enough information in the exploring stage, proceed to research
+      if (conversationStage === 'exploring' && 
+          triageMessages.length >= 6 && 
+          !loading && 
+          !pendingBotMessage) {
+        
+        const lastBotMessages = triageMessages
+          .filter(msg => !msg.isUser)
+          .slice(-3);
+        
+        // Look for confirmation questions in recent bot messages
+        const confirmationPhrases = [
+          'does this sound good',
+          'ready to see some options',
+          'should i show you',
+          'would you like to see',
+          'would you like me to generate',
+          'shall i create'
+        ];
+        
+        for (const msg of lastBotMessages) {
+          const msgLower = msg.content.toLowerCase();
+          if (confirmationPhrases.some(phrase => msgLower.includes(phrase))) {
+            // Look for a yes response from user
+            const lastUserMessage = triageMessages
+              .filter(msg => msg.isUser)
+              .pop();
+            
+            if (lastUserMessage) {
+              const userMsgLower = lastUserMessage.content.toLowerCase();
+              if (userMsgLower.includes('yes') || 
+                  userMsgLower.includes('yeah') || 
+                  userMsgLower.includes('sure') ||
+                  userMsgLower.includes('ok') ||
+                  userMsgLower.includes('please')) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
+    };
+
+    if (shouldHandoff()) {
+      performHandoff();
+    }
+  }, [triageMessages, conversationStage, loading, pendingBotMessage]);
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl flex flex-col min-h-[calc(100vh-80px)] bg-[#EFF3EE] dark:bg-[#202020]">
@@ -280,6 +255,13 @@ Original trip details:
                   isUser={message.isUser}
                 />
               ))}
+              {pendingBotMessage !== null && (
+                <TriageResponseBubble 
+                  message="..."
+                  isUser={false}
+                  isLoading={true}
+                />
+              )}
             </div>
           )}
         </div>
