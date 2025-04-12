@@ -44,14 +44,14 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
         onValueChange={(val) => onDayChange(parseInt(val))}
         className="w-full"
       >
-        <div className="overflow-x-auto">
-          <TabsList className="mb-4 bg-purple-100 flex flex-nowrap">
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="mb-4 bg-purple-100 flex flex-nowrap w-auto">
             {/* Create tabs based on maxDays */}
             {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
               <TabsTrigger 
                 key={day} 
                 value={day.toString()}
-                className="data-[state=active]:bg-[#65558F] data-[state=active]:text-white whitespace-nowrap"
+                className="data-[state=active]:bg-[#65558F] data-[state=active]:text-white whitespace-nowrap min-w-[80px]"
               >
                 Day {day}
               </TabsTrigger>
@@ -61,7 +61,7 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
         
         {/* Render existing days from the API */}
         {itinerary.map((day) => (
-          <TabsContent key={day.day} value={day.day.toString()}>
+          <TabsContent key={day.day} value={day.day.toString()} className="mt-2">
             <DayDetails day={day} />
           </TabsContent>
         ))}
@@ -70,7 +70,7 @@ const ItineraryDayTabs: React.FC<ItineraryDayTabsProps> = ({
         {Array.from({ length: maxDays }, (_, i) => i + 1)
           .filter(day => !itinerary.some(d => d.day === day))
           .map(day => (
-            <TabsContent key={day} value={day.toString()}>
+            <TabsContent key={day} value={day.toString()} className="mt-2">
               <DayDetails 
                 day={{
                   day,

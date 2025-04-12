@@ -15,6 +15,7 @@ const TriageResponseBubble: React.FC<TriageResponseBubbleProps> = ({
   // Animation effect when bubble appears
   useEffect(() => {
     if (bubbleRef.current) {
+      bubbleRef.current.style.opacity = '1';
       bubbleRef.current.classList.add('bubble-animate');
     }
   }, []);

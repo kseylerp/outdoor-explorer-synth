@@ -1,4 +1,3 @@
-
 /* Add this to the end of your index.css file */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -7,6 +6,7 @@
 
 .bubble-animate {
   animation: fadeIn 0.3s forwards;
+  opacity: 1 !important;
 }
 
 /* Make sure the sidebar has consistent styling */
@@ -21,4 +21,24 @@
 /* Consistent button styling */
 .primary-button {
   @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+}
+
+/* Fix for itinerary display */
+.itinerary-section {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.itinerary-card {
+  margin-bottom: 1rem;
+}
+
+.itinerary-activity-card {
+  word-break: break-word;
+}
+
+/* Fix for chat bubbles */
+.triage-bubble {
+  display: block !important;
+  opacity: 1 !important;
 }
