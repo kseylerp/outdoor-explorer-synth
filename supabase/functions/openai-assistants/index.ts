@@ -25,7 +25,15 @@ serve(async (req) => {
   }
 
   try {
-    const { action, message, threadId, assistantId } = await req.json();
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY is not configured in environment variables');
+    }
+
+    const reqBody = await req.json().catch(err => {
+      throw new Error(`Failed to parse request body: ${err.message}`);
+    });
+    
+    const { action, message, threadId, assistantId } = reqBody;
     console.log(`Received request: action=${action}, threadId=${threadId || 'new'}, assistantId=${assistantId || 'default'}`);
 
     switch (action) {
@@ -57,15 +65,20 @@ serve(async (req) => {
 
 // Create a new thread
 async function createThread(req: Request) {
-  const thread = await openai.beta.threads.create();
-  console.log('Created new thread:', thread.id);
-  
-  return new Response(
-    JSON.stringify({ threadId: thread.id }),
-    {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    }
-  );
+  try {
+    const thread = await openai.beta.threads.create();
+    console.log('Created new thread:', thread.id);
+    
+    return new Response(
+      JSON.stringify({ threadId: thread.id }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw new Error(`Failed to create thread: ${error.message}`);
+  }
 }
 
 // Get thread messages
@@ -258,6 +271,7 @@ async function handoffToResearch(req: Request, threadId: string) {
     }),
     {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
     }
   );
 }

@@ -34,6 +34,9 @@ export function useAssistants() {
   const initializeThread = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      setErrorDetails(null);
+      
       const { data, error } = await supabase.functions.invoke('openai-assistants', {
         body: { action: 'create_thread' },
       });
@@ -42,10 +45,11 @@ export function useAssistants() {
         throw new Error(`Failed to create thread: ${error.message}`);
       }
 
-      if (!data.threadId) {
+      if (!data || !data.threadId) {
         throw new Error('No threadId returned from create_thread');
       }
 
+      console.log('Successfully created thread:', data.threadId);
       setThreadId(data.threadId);
       return data.threadId;
     } catch (err: any) {
@@ -68,6 +72,8 @@ export function useAssistants() {
     try {
       setLoading(true);
       setAssistantResponse(null);
+      setError(null);
+      setErrorDetails(null);
       
       // If no threadId, initialize one first
       const threadToUse = currentThreadId || threadId || await initializeThread();
@@ -86,6 +92,10 @@ export function useAssistants() {
 
       if (error) {
         throw new Error(`Failed to send message: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('No data returned from post_message');
       }
 
       const response = data as AssistantResponse;
@@ -135,6 +145,8 @@ export function useAssistants() {
   const handoffToResearch = useCallback(async (currentThreadId: string | null = null) => {
     try {
       setLoading(true);
+      setError(null);
+      setErrorDetails(null);
       
       const threadToUse = currentThreadId || threadId;
       if (!threadToUse) {
@@ -150,6 +162,10 @@ export function useAssistants() {
 
       if (error) {
         throw new Error(`Handoff failed: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('No data returned from handoff');
       }
 
       const response = data as AssistantResponse;
@@ -207,6 +223,7 @@ export function useAssistants() {
     tripData,
     sendMessage,
     handoffToResearch,
+    initializeThread,
     reset
   };
 }

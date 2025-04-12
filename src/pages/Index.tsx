@@ -47,7 +47,8 @@ const Index = () => {
     assistantResponse,
     tripData: assistantTripData,
     sendMessage,
-    handoffToResearch
+    handoffToResearch,
+    initializeThread
   } = useAssistants();
 
   // Combined loading and error states
@@ -72,15 +73,36 @@ const Index = () => {
   const [isThinking, setIsThinking] = useState(false);
   const [pendingBotMessage, setPendingBotMessage] = useState<string | null>(null);
   
-  // Initialize the conversation with welcome message
+  // Initialize the thread and conversation when the component loads
   useEffect(() => {
+    const initConversation = async () => {
+      // Create a thread if we don't have one
+      if (!threadId) {
+        const newThreadId = await initializeThread();
+        if (newThreadId) {
+          // Start with a welcome message from the assistant
+          const result = await sendMessage("Start a new conversation with a welcome message", newThreadId);
+          if (!result) {
+            // If we couldn't get a welcome message from the assistant, provide a fallback
+            setTriageMessages([{
+              content: "Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?",
+              isUser: false
+            }]);
+          }
+        } else {
+          // Fallback welcome message if thread initialization fails
+          setTriageMessages([{
+            content: "Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?",
+            isUser: false
+          }]);
+        }
+      }
+    };
+
     if (triageMessages.length === 0) {
-      setTriageMessages([{
-        content: "Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?",
-        isUser: false
-      }]);
+      initConversation();
     }
-  }, [triageMessages.length]);
+  }, [threadId, sendMessage, initializeThread, triageMessages.length]);
 
   // Handle assistant response changes
   useEffect(() => {
@@ -175,6 +197,31 @@ const Index = () => {
     if (conversationStage === 'welcome') {
       setUserPreferences(prev => ({...prev, interests: prompt}));
     }
+  };
+
+  const handleRetryConnection = () => {
+    // First try to initialize a thread again
+    initializeThread().then(newThreadId => {
+      if (newThreadId) {
+        // If the thread initialization is successful, resume conversation
+        if (triageMessages.length > 0) {
+          // Find the last user message and resend it
+          const lastUserMessage = [...triageMessages]
+            .reverse()
+            .find(msg => msg.isUser);
+          
+          if (lastUserMessage) {
+            processWithAssistant(lastUserMessage.content);
+          } else {
+            // No user message found, send a greeting to start
+            processWithAssistant("Hello");
+          }
+        } else {
+          // No messages yet, send a greeting
+          processWithAssistant("Start conversation");
+        }
+      }
+    });
   };
 
   // Check if we should perform handoff
@@ -272,7 +319,7 @@ const Index = () => {
             <ApiConnectionError 
               customMessage={error} 
               errorDetails={errorDetails || undefined} 
-              onRetry={handleRetry} 
+              onRetry={handleRetryConnection} 
             />
           )}
 
