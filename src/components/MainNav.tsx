@@ -36,16 +36,16 @@ const MainNav: React.FC = () => {
   }
   
   return (
-    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative bg-[#EFF3EE] dark:bg-[#202020]`}>
+    <div className={`main-nav transition-all duration-300 ${expanded ? 'w-64' : 'w-16'} relative bg-[#FBFFFB] dark:bg-[#202020] border-r border-white/20`}>
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-3 h-16 top-nav">
           {expanded ? (
             <Link to="/" className="flex items-center">
-              <img src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="Full Logo Offbeat" className="h-10" />
+              <img src="/lovable-uploads/70848957-e79d-4807-b3cf-df0ac2d7fcda.png" alt="Full Logo Offbeet" className="h-10" />
             </Link>
           ) : (
             <Link to="/" className="mx-auto">
-              <img src="/lovable-uploads/7c343b4f-ae71-4da6-a6e3-86d7a8654cf8.png" alt="Truncated Logo" className="h-8 w-8 object-contain" />
+              <img src="/lovable-uploads/ad618ed5-2c39-49b6-bbe0-c7c13a40bd0e.png" alt="Short Logo Offbeet" className="h-8 w-8 object-contain" />
             </Link>
           )}
           

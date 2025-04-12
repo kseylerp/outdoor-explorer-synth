@@ -26,7 +26,7 @@ const TopNav: React.FC<TopNavProps> = ({
   }
   
   return (
-    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#EFF3EE] dark:bg-[#1E1E1E] top-nav">
+    <div className="h-20 flex items-center justify-between px-3 md:px-6 bg-[#FBFFFB] dark:bg-[#1E1E1E] top-nav border-b border-white/20">
       {isMobile && (
         <div className="flex items-center gap-2">
           <Button 
@@ -40,7 +40,7 @@ const TopNav: React.FC<TopNavProps> = ({
           </Button>
           
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/9f6d8016-f016-4bc2-b123-529e15a7164a.png" alt="Offbeat Logo" className="h-10 object-contain" />
+            <img src="/lovable-uploads/70848957-e79d-4807-b3cf-df0ac2d7fcda.png" alt="Offbeet Logo" className="h-10 object-contain" />
           </Link>
         </div>
       )}

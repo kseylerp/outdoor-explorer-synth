@@ -25,10 +25,14 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({
   if (aiModel === 'gemini') modelName = 'Gemini';
   if (aiModel === 'openai') modelName = 'OpenAI';
   
+  // Check for specific OpenAI API errors
+  const isAuthError = error?.toLowerCase().includes('unauthorized') || 
+                      error?.toLowerCase().includes('invalid api key');
+  
   return (
     <Alert variant="destructive" className="mb-6">
       <AlertOctagon className="h-4 w-4" />
-      <AlertTitle>API Configuration Required</AlertTitle>
+      <AlertTitle>{isApiKeyError ? "API Configuration Required" : "Connection Error"}</AlertTitle>
       <AlertDescription>
         <p className="mb-2">{error}</p>
         
@@ -40,6 +44,13 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({
           <p className="mb-2">
             This app requires a valid {modelName} API key to generate trip recommendations. 
             Please contact the administrator to set up the API keys in the Supabase project.
+          </p>
+        )}
+        
+        {!helpText && isAuthError && (
+          <p className="mb-2">
+            The {modelName} API key provided is invalid or has expired.
+            Please check your API key in the Supabase secrets configuration.
           </p>
         )}
         

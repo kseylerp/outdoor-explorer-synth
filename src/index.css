@@ -14,11 +14,11 @@
 
 /* Make sure the sidebar has consistent styling */
 .side-nav, .main-nav {
-  @apply bg-[#EFF3EE] dark:bg-[#202020] border-r border-gray-200 dark:border-gray-800;
+  @apply bg-[#FBFFFB] dark:bg-[#202020] border-r border-white/20 dark:border-gray-800;
 }
 
 .top-nav {
-  @apply border-b border-gray-200 dark:border-gray-800;
+  @apply border-b border-white/20 dark:border-gray-800;
 }
 
 /* Consistent button styling */
@@ -26,14 +26,14 @@
   @apply bg-primary hover:bg-primary/90 text-primary-foreground;
 }
 
-/* Add a gradient for the offbeat text */
-.offbeat-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#65558F] to-[#A27BE7];
+/* Add a gradient for the offbeet text */
+.offbeet-gradient {
+  color: #65558F;
 }
 
 /* Updated background colors */
 .dawn-background {
-  @apply bg-[#EFF3EE];
+  @apply bg-[#FBFFFB];
 }
 
 .conversation-container {

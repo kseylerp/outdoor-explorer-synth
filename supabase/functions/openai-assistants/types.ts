@@ -21,4 +21,6 @@ export interface ErrorResponse {
   error: string;
   details: string;
   help: string | null;
+  status?: string;
+  code?: string;
 }

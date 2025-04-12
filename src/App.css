@@ -44,7 +44,7 @@
 
 /* Light mode explicit overrides */
 :root:not(.dark) {
-  --bg-color: 233, 236, 232; /* #E9ECE8 */
+  --bg-color: 251, 255, 251; /* #FBFFFB - Dawn setting */
   --text-color: 0, 0, 0;
   background-color: rgb(var(--bg-color));
   color: rgba(var(--text-color), 0.9);
@@ -69,4 +69,17 @@
 
 :root:not(.dark) .border-border {
   border-color: #e5e7eb;
+}
+
+/* Adding white lines for separation */
+.section-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+  margin: 1rem 0;
+}
+
+/* Updated text gradient for offbeet */
+.offbeet-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, #65558F, #7E69AB);
+  color: #65558F;
 }
