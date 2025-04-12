@@ -81,14 +81,8 @@ export function useGuideChat() {
     setIsSubmitting(true);
     
     try {
-      // Add images to the activity data
-      const activityWithImages = {
-        ...activityData,
-        images: images
-      };
-      
-      // Save to database
-      await saveActivity(activityWithImages);
+      // Save to database with images
+      await saveActivity(activityData, images);
       
       toast.success('Activity successfully submitted!');
       
