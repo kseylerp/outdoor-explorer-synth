@@ -1,19 +1,17 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AudioVisualizer from './realtime/AudioVisualizer';
-import ChatControls from './realtime/ChatControls';
-import ChatHistory from './realtime/ChatHistory';
-import ProcessingIndicator from './realtime/ProcessingIndicator';
-import { useChatState } from './realtime/useChatState';
+import { useChatState } from '@/components/realtime/useChatState';
+import ChatHistory from '@/components/realtime/ChatHistory';
+import ChatControls from '@/components/realtime/ChatControls';
+import ProcessingIndicator from '@/components/realtime/ProcessingIndicator';
+import { AudioVisualizer } from '@/components/prompt/voice/AudioVisualizer';
 
-const RealtimeChat: React.FC = () => {
+export default function RealtimeChat() {
   const {
     state,
     message,
     transcript,
     isRecording,
-    isMuted,
     history,
     errorMessage,
     showAudioVisualizer,
@@ -28,34 +26,40 @@ const RealtimeChat: React.FC = () => {
   } = useChatState();
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader>
-        <CardTitle>Offbeat Adventure Assistant</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ChatHistory history={history} transcript={transcript} />
-        
-        {state === 'processing' && <ProcessingIndicator />}
-        
-        <ChatControls 
-          state={state}
-          isRecording={isRecording}
-          isMuted={isMuted}
-          message={message}
-          errorMessage={errorMessage}
-          onStartSession={startSession}
-          onStartRecording={startRecording}
-          onStopRecording={stopRecording}
-          onToggleMute={toggleMute}
-          onMessageChange={(e) => setMessage(e.target.value)}
-          onSendMessage={handleSendMessage}
-          onKeyDown={handleKeyDown}
-        />
-        
-        {showAudioVisualizer && <AudioVisualizer onClose={stopRecording} audioLevel={audioLevel} />}
-      </CardContent>
-    </Card>
-  );
-};
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-auto pb-32">
+        <ChatHistory messages={history} />
+      </div>
 
-export default RealtimeChat;
+      {showAudioVisualizer && (
+        <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2">
+          <AudioVisualizer isListening={isRecording} />
+        </div>
+      )}
+
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t">
+        <div className="container mx-auto p-4 max-w-3xl">
+          {errorMessage && (
+            <div className="text-destructive mb-2 text-sm">
+              Error: {errorMessage}
+            </div>
+          )}
+
+          <ProcessingIndicator state={state} transcript={transcript} />
+          <ChatControls
+            message={message}
+            setMessage={setMessage}
+            onSend={handleSendMessage}
+            onKeyDown={handleKeyDown}
+            onStartRecording={startRecording}
+            onStopRecording={stopRecording}
+            onToggleMute={toggleMute}
+            onStartSession={startSession}
+            state={state}
+            isRecording={isRecording}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
