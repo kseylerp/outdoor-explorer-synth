@@ -9,7 +9,7 @@
  * - Provides error handling for audio connection issues
  */
 import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface RealtimeAudioOptions {
   onTranscriptReceived?: (transcript: string) => void;
@@ -19,7 +19,6 @@ interface RealtimeAudioOptions {
 
 export const useRealtimeAudio = (options: RealtimeAudioOptions) => {
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
   /**
    * Initialize the audio connection with the realtime API
@@ -38,8 +37,7 @@ export const useRealtimeAudio = (options: RealtimeAudioOptions) => {
             console.log('Realtime session started with ID:', sessionId);
             
             // When we connect, check the voice being used
-            toast({
-              title: "Connected with Sage voice",
+            toast("Connected with Sage voice", {
               description: "You're now connected using OpenAI's Sage voice assistant",
             });
             
@@ -70,8 +68,7 @@ export const useRealtimeAudio = (options: RealtimeAudioOptions) => {
                 options.onError(error);
               }
               
-              toast({
-                title: "Error with voice service",
+              toast("Error with voice service", {
                 description: error.message,
                 variant: "destructive"
               });
@@ -83,8 +80,7 @@ export const useRealtimeAudio = (options: RealtimeAudioOptions) => {
             console.error('Failed to initialize realtime session:', error);
             setError(`Connection failed: ${error.message}`);
             
-            toast({
-              title: "Connection failed",
+            toast("Connection failed", {
               description: "Could not connect to the voice service. Please try again.",
               variant: "destructive"
             });

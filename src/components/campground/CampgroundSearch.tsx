@@ -4,7 +4,7 @@ import { Search, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Campground, searchCampgrounds } from '@/services/campground/campgroundService';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import CampgroundList from './CampgroundList';
 
 interface CampgroundSearchProps {
@@ -19,14 +19,12 @@ const CampgroundSearch: React.FC<CampgroundSearchProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<Campground[]>([]);
-  const { toast } = useToast();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!searchQuery.trim()) {
-      toast({
-        title: "Search query required",
+      toast("Search query required", {
         description: "Please enter a search term to find campgrounds",
         variant: "destructive"
       });
@@ -40,16 +38,14 @@ const CampgroundSearch: React.FC<CampgroundSearchProps> = ({
       setResults(campgrounds);
       
       if (campgrounds.length === 0) {
-        toast({
-          title: "No campgrounds found",
+        toast("No campgrounds found", {
           description: `No campgrounds found for "${searchQuery}"`,
           variant: "default"
         });
       }
     } catch (error) {
       console.error("Error searching campgrounds:", error);
-      toast({
-        title: "Search failed",
+      toast("Search failed", {
         description: error instanceof Error ? error.message : "Failed to search campgrounds",
         variant: "destructive"
       });

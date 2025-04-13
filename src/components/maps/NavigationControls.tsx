@@ -21,8 +21,7 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
 }) => {
   const handleGetDirections = async () => {
     if (!selectedTripId) {
-      toast({
-        title: "Select a Trip",
+      toast("Select a Trip", {
         description: "Please select a saved trip to get directions.",
         variant: "destructive"
       });
@@ -32,8 +31,7 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
     const selectedTrip = savedTrips.find(trip => trip.id === selectedTripId);
     
     if (!selectedTrip) {
-      toast({
-        title: "Error",
+      toast("Error", {
         description: "Could not find selected trip details.",
         variant: "destructive"
       });
@@ -63,8 +61,7 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
         });
         
         if (result.success) {
-          toast({
-            title: "Navigation Started",
+          toast("Navigation Started", {
             description: "Turn-by-turn directions are active in native maps app"
           });
         } else {
@@ -76,15 +73,13 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
         const url = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLng}&destination=${endLat},${endLng}&travelmode=${mode}`;
         window.open(url, '_blank');
         
-        toast({
-          title: "Web Navigation",
+        toast("Web Navigation", {
           description: "Directions opened in web maps"
         });
       }
     } catch (error) {
       console.error('Navigation error:', error);
-      toast({
-        title: "Navigation Error",
+      toast("Navigation Error", {
         description: "Could not start navigation. Please try again.",
         variant: "destructive"
       });

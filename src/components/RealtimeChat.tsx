@@ -6,7 +6,7 @@ import ChatHistory from './realtime/ChatHistory';
 import ChatControls from './realtime/ChatControls';
 import ProcessingIndicator from './realtime/ProcessingIndicator';
 import VoiceExperience from './prompt/VoiceExperience';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 const RealtimeChat: React.FC = () => {
   const { 
@@ -22,18 +22,16 @@ const RealtimeChat: React.FC = () => {
   const [transcript, setTranscript] = useState('');
   const [showVoiceExperience, setShowVoiceExperience] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const { toast } = useToast();
   
   // Handle potential errors in chat state
   useEffect(() => {
     if (state === 'error') {
-      toast({
-        title: "Connection Error",
+      toast("Connection Error", {
         description: "There was an error connecting to the chat service. Please try again.",
         variant: "destructive"
       });
     }
-  }, [state, toast]);
+  }, [state]);
 
   // Update local transcript when pending transcript changes
   useEffect(() => {

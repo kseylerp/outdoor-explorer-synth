@@ -19,8 +19,7 @@ const SavedTrips: React.FC = () => {
         setSavedTrips(parsedTrips);
       } catch (error) {
         console.error('Error parsing saved trips:', error);
-        toast({
-          title: "Error",
+        toast("Error", {
           description: "Could not load your saved trips.",
           variant: "destructive"
         });
@@ -37,8 +36,7 @@ const SavedTrips: React.FC = () => {
     setSavedTrips(updatedTrips);
     localStorage.setItem('savedTrips', JSON.stringify(updatedTrips));
     
-    toast({
-      title: "Trip Removed",
+    toast("Trip Removed", {
       description: "The trip has been removed from your saved trips.",
     });
   };

@@ -25,11 +25,10 @@ const TripDetails: React.FC<TripDetailsProps> = ({ trip }) => {
 
   const handleSaveTrip = () => {
     setIsSaved(!isSaved);
-    toast({
-      title: isSaved ? "Trip removed from saved trips" : "Trip saved successfully",
+    toast(isSaved ? "Trip removed from saved trips" : "Trip saved successfully", {
       description: isSaved ? 
         "The trip has been removed from your saved trips." : 
-        "You can find this trip in your saved trips section.",
+        "You can find this trip in your saved trips section."
     });
   };
   

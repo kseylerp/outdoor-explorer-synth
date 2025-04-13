@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { createThread, sendMessageToAssistant, handoffToResearchAssistant } from '@/services/assistantService';
 import { AssistantState, AssistantResult } from '@/types/assistants';
 
@@ -29,8 +29,7 @@ export function useAssistants() {
         error: 'Failed to initialize conversation',
         errorDetails: err.message
       }));
-      toast({
-        title: 'Error',
+      toast("Error", {
         description: 'Failed to initialize conversation. Please try again.',
         variant: 'destructive',
       });
@@ -84,8 +83,7 @@ export function useAssistants() {
         error: 'Failed to get response from assistant',
         errorDetails: err.message
       }));
-      toast({
-        title: 'Error',
+      toast("Error", {
         description: 'Failed to get response from assistant. Please try again.',
         variant: 'destructive',
       });
@@ -125,8 +123,7 @@ export function useAssistants() {
         error: 'Failed to hand off to research assistant',
         errorDetails: err.message
       }));
-      toast({
-        title: 'Error',
+      toast("Error", {
         description: 'Failed to get recommendations from research assistant. Please try again.',
         variant: 'destructive',
       });

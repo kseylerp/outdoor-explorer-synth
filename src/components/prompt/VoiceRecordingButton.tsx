@@ -64,9 +64,8 @@ const VoiceRecordingButton: React.FC<VoiceRecordingButtonProps> = ({
           };
         } catch (error) {
           console.error('Error processing voice:', error);
-          toast({
-            title: 'Voice Processing Error',
-            description: 'We couldn\'t process your voice. Please try again or type your request.',
+          toast("Voice Processing Error", {
+            description: "We couldn't process your voice. Please try again or type your request.",
             variant: 'destructive',
           });
           setIsProcessingVoice(false);
@@ -79,15 +78,13 @@ const VoiceRecordingButton: React.FC<VoiceRecordingButtonProps> = ({
       mediaRecorder.start();
       setIsRecording(true);
       
-      toast({
-        title: 'Recording started',
+      toast("Recording started", {
         description: 'Speak now. Click the microphone again to stop recording.',
       });
       
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      toast({
-        title: 'Microphone Error',
+      toast("Microphone Error", {
         description: 'Could not access your microphone. Please check permissions.',
         variant: 'destructive'
       });

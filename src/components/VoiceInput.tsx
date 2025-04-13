@@ -49,8 +49,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessing }) =
       setIsRecording(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      toast({
-        title: 'Microphone Error',
+      toast("Microphone Error", {
         description: 'Could not access your microphone. Please check permissions.',
         variant: 'destructive'
       });
@@ -93,8 +92,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessing }) =
       */
     } catch (error) {
       console.error('Error processing audio:', error);
-      toast({
-        title: 'Processing Error',
+      toast("Processing Error", {
         description: 'Could not process your audio. Please try again.',
         variant: 'destructive'
       });

@@ -40,8 +40,7 @@ const TripDetailsPage: React.FC = () => {
       console.error("Error loading trip:", error);
       setError("Failed to load trip details");
       
-      toast({
-        title: "Error Loading Trip",
+      toast("Error Loading Trip", {
         description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive"
       });
@@ -71,8 +70,7 @@ const TripDetailsPage: React.FC = () => {
       .catch(err => {
         console.error("Error retrying trip load:", err);
         setError("Failed to load trip details on retry");
-        toast({
-          title: "Error on Retry",
+        toast("Error on Retry", {
           description: err instanceof Error ? err.message : "Unknown error occurred",
           variant: "destructive"
         });
