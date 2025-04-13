@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { useToast } from './use-toast';
+import { toast } from '@/components/ui/use-toast';
 import { createThread, sendMessageToAssistant, handoffToResearchAssistant } from '@/services/assistantService';
 import { AssistantState, AssistantResult } from '@/types/assistants';
 
@@ -13,8 +13,6 @@ export function useAssistants() {
     assistantResponse: null,
     tripData: null
   });
-  
-  const { toast } = useToast();
 
   // Initialize a thread
   const initializeThread = useCallback(async () => {
@@ -40,7 +38,7 @@ export function useAssistants() {
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [toast]);
+  }, []);
 
   // Send a message to the assistant
   const sendMessage = useCallback(async (message: string, currentThreadId: string | null = null) => {
@@ -78,11 +76,7 @@ export function useAssistants() {
         tripData: result.tripData || null
       }));
 
-      return {
-        threadId: threadToUse,
-        response: result.response,
-        tripData: result.tripData
-      };
+      return result;
     } catch (err: any) {
       console.error('Error sending message:', err);
       setState(prev => ({
@@ -99,7 +93,7 @@ export function useAssistants() {
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [state.threadId, initializeThread, toast]);
+  }, [state.threadId, initializeThread]);
 
   // Handoff to research assistant
   const handoffToResearch = useCallback(async (currentThreadId: string | null = null) => {
@@ -123,10 +117,7 @@ export function useAssistants() {
         tripData: result.tripData || null
       }));
 
-      return {
-        response: result.response,
-        tripData: result.tripData
-      };
+      return result;
     } catch (err: any) {
       console.error('Error in handoff to research:', err);
       setState(prev => ({
@@ -143,7 +134,7 @@ export function useAssistants() {
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [state.threadId, toast]);
+  }, [state.threadId]);
 
   // Reset state
   const reset = useCallback(() => {
