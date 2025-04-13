@@ -14,13 +14,19 @@ export function useGuideAssistant() {
       setIsLoading(true);
       setError(null);
       
+      console.log('Creating new thread...');
       const newThreadId = await createAssistantThread();
+      
       if (newThreadId) {
+        console.log('Thread created:', newThreadId);
         setThreadId(newThreadId);
+      } else {
+        console.error('Failed to create thread');
       }
       
       return newThreadId;
     } catch (err: any) {
+      console.error('Error in createThread:', err);
       setError(err.message);
       return null;
     } finally {
@@ -28,7 +34,7 @@ export function useGuideAssistant() {
     }
   };
 
-  // Send a message to the Guide Recommendation assistant
+  // Send a message to the Triage assistant
   const sendMessage = async (message: string) => {
     try {
       setIsLoading(true);
@@ -40,8 +46,10 @@ export function useGuideAssistant() {
         throw new Error('Could not create conversation thread');
       }
       
+      console.log(`Sending message to thread ${currentThreadId}: ${message}`);
       return await sendAssistantMessage(message, currentThreadId);
     } catch (err: any) {
+      console.error('Error in sendMessage:', err);
       setError(err.message);
       throw err;
     } finally {

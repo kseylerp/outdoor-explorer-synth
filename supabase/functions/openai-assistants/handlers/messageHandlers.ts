@@ -36,6 +36,8 @@ export function extractTripDataFromMessage(latestMessage: any): any | null {
 
 // Post a message to a thread and run the assistant
 export async function postMessage(req: Request, message: string, threadId: string, assistantId: string = TRIAGE_ASSISTANT_ID): Promise<Response> {
+  console.log(`postMessage called with message: "${message}", threadId: ${threadId}, assistantId: ${assistantId}`);
+  
   if (!threadId) {
     return new Response(
       JSON.stringify({
@@ -91,7 +93,7 @@ export async function postMessage(req: Request, message: string, threadId: strin
     const maxRetries = 30; // 30 * 1s = 30s max wait time
     
     while (runStatus.status !== 'completed' && runStatus.status !== 'failed' && retries < maxRetries) {
-      console.log(`Run status: ${runStatus.status}, waiting...`);
+      console.log(`Run status: ${runStatus.status}, waiting... (retry ${retries+1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
       retries++;
@@ -137,6 +139,11 @@ export async function postMessage(req: Request, message: string, threadId: strin
     // Extract trip data from the message if it's in JSON format
     const tripData = extractTripDataFromMessage(latestMessage);
     
+    console.log('Run completed. Latest message:', latestMessage ? 'received' : 'none');
+    if (tripData) {
+      console.log('Trip data extracted:', tripData);
+    }
+    
     return new Response(
       JSON.stringify({ 
         message: latestMessage,
@@ -171,6 +178,8 @@ export async function postMessage(req: Request, message: string, threadId: strin
 
 // Handoff from triage to research assistant
 export async function handoffToResearch(req: Request, threadId: string): Promise<Response> {
+  console.log(`handoffToResearch called with threadId: ${threadId}`);
+  
   if (!threadId) {
     return new Response(
       JSON.stringify({
@@ -212,7 +221,7 @@ export async function handoffToResearch(req: Request, threadId: string): Promise
     const maxRetries = 60; // 60 * 1s = 60s max wait time for research (it may take longer)
     
     while (runStatus.status !== 'completed' && runStatus.status !== 'failed' && retries < maxRetries) {
-      console.log(`Research run status: ${runStatus.status}, waiting...`);
+      console.log(`Research run status: ${runStatus.status}, waiting... (retry ${retries+1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
       retries++;
@@ -257,6 +266,11 @@ export async function handoffToResearch(req: Request, threadId: string): Promise
     
     // Extract trip data from the message
     const tripData = extractTripDataFromMessage(latestMessage);
+    
+    console.log('Research run completed. Latest message:', latestMessage ? 'received' : 'none');
+    if (tripData) {
+      console.log('Trip data extracted from research:', tripData);
+    }
     
     return new Response(
       JSON.stringify({ 

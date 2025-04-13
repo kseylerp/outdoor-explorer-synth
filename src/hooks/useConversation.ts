@@ -61,19 +61,20 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
     const initConversation = async () => {
       // Create a thread if we don't have one
       if (!threadId) {
+        console.log('Initializing conversation and creating thread...');
         const newThreadId = await initializeThread();
         
         if (newThreadId) {
           // Start with a welcome message from the assistant
-          const result = await sendMessage("Start a new conversation with a welcome message", newThreadId);
+          console.log('Thread created, sending initial message to get Triage AI response');
+          const result = await sendMessage("Start a new conversation", newThreadId);
+          
           if (!result) {
-            // If we couldn't get a welcome message from the assistant, provide a fallback
-            addBotMessage("Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?");
+            console.error('Failed to get welcome message from assistant');
             setApiConnectionFailed(true);
           }
         } else {
-          // Fallback welcome message if thread initialization fails
-          addBotMessage("Hi there! I'd love to help you plan your next adventure. What kind of outdoor experience are you looking for?");
+          console.error('Failed to initialize thread');
           setApiConnectionFailed(true);
         }
       }
@@ -87,6 +88,7 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
   // Handle assistant response changes
   useEffect(() => {
     if (assistantResponse && pendingBotMessage === null) {
+      console.log('Received assistant response:', assistantResponse);
       addBotMessage(assistantResponse);
       setPendingBotMessage(null);
 
@@ -110,6 +112,7 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
     
     try {
       if (apiConnectionFailed) {
+        console.warn('API connection previously failed, using fallback response');
         // If API connection is known to have failed, don't try again, just add a simulated response
         setTimeout(() => {
           addBotMessage("I'm here to help with your adventure plans! Could you tell me more about what type of outdoor activity you're interested in?");
@@ -117,9 +120,11 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
         return;
       }
       
+      console.log(`Processing message with assistant: "${message}"`);
       const result = await sendMessage(message, threadId);
       
       if (!result) {
+        console.error('sendMessage failed, setting apiConnectionFailed flag');
         // If sendMessage failed, set apiConnectionFailed flag
         setApiConnectionFailed(true);
         addBotMessage("I'd be happy to help plan your adventure. What activities are you interested in?");
@@ -141,6 +146,7 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
     
     try {
       if (apiConnectionFailed) {
+        console.warn('API connection previously failed, using fallback handoff response');
         // If API connection is known to have failed, don't try again, just add a simulated response
         setTimeout(() => {
           addBotMessage("Based on our conversation, I'd recommend exploring hiking trails in the Pacific Northwest. The Columbia River Gorge has beautiful waterfalls and trails for various skill levels.");
@@ -148,9 +154,11 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
         return;
       }
       
+      console.log('Performing handoff to research assistant...');
       const result = await handoffToResearch(threadId);
       
       if (!result) {
+        console.error('Handoff failed, setting apiConnectionFailed flag');
         // If handoff failed, set apiConnectionFailed flag
         setApiConnectionFailed(true);
         addBotMessage("Based on what you've told me, I'd suggest a weekend trip to explore some local hiking trails with moderate difficulty.");
@@ -186,10 +194,12 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
   const handleRetryConnection = () => {
     // Reset the api connection failed flag
     setApiConnectionFailed(false);
+    console.log('Retrying API connection...');
     
     // First try to initialize a thread again
     initializeThread().then(newThreadId => {
       if (newThreadId) {
+        console.log('Successfully created new thread:', newThreadId);
         // If the thread initialization is successful, resume conversation
         if (triageMessages.length > 0) {
           // Find the last user message and resend it
@@ -198,15 +208,20 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
             .find(msg => msg.isUser);
           
           if (lastUserMessage) {
+            console.log('Resending last user message:', lastUserMessage.content);
             processWithAssistant(lastUserMessage.content);
           } else {
             // No user message found, send a greeting to start
+            console.log('No previous user messages, sending greeting');
             processWithAssistant("Hello");
           }
         } else {
           // No messages yet, send a greeting
+          console.log('Empty conversation, sending start message');
           processWithAssistant("Start conversation");
         }
+      } else {
+        console.error('Failed to create new thread during retry');
       }
     });
   };
@@ -250,6 +265,7 @@ export const useConversation = (handleVoiceTripData: (tripData: any, transcript:
                   userMsgLower.includes('sure') ||
                   userMsgLower.includes('ok') ||
                   userMsgLower.includes('please')) {
+                console.log('User confirmed, performing handoff to research assistant');
                 return true;
               }
             }

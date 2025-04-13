@@ -12,11 +12,7 @@ export interface ChatMessage {
 export function useGuideChat() {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<File[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>([{
-    content: "Hi there! I'm your Guide Recommendation AI assistant. I'll help you create activities that align with our sustainability standards. Let's start by discussing your activity idea. What would you like to add?",
-    isAI: true,
-    timestamp: new Date()
-  }]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [meetStandards, setMeetStandards] = useState(false);
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);

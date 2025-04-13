@@ -7,6 +7,6 @@ export const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Assistant IDs
+// Assistant IDs - these should be updated to match your actual assistant IDs
 export const TRIAGE_ASSISTANT_ID = 'asst_zHGdllTGFX5XIkPpnsKmWmX5';
 export const RESEARCH_ASSISTANT_ID = 'asst_Un9Ivmu0ylYCF4ToZQhsJ09S';
