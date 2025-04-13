@@ -13,6 +13,7 @@ function runVite() {
   // Try approach 1: node_modules/.bin path
   try {
     const binPath = path.join(__dirname, '..', 'node_modules', '.bin', 'vite');
+    console.log("Looking for Vite at:", binPath);
     if (fs.existsSync(binPath)) {
       console.log("Found Vite in node_modules/.bin at:", binPath);
       const result = spawnSync(binPath, [], { 
@@ -23,14 +24,17 @@ function runVite() {
         process.exit(result.status || 0);
         return;
       }
+    } else {
+      console.log("Vite not found at expected location:", binPath);
     }
   } catch (e) {
-    console.log("Could not load Vite from node_modules/.bin/vite");
+    console.log("Could not load Vite from node_modules/.bin/vite:", e.message);
   }
   
   // Try approach 2: node_modules/vite/bin path
   try {
     const localVitePath = path.join(__dirname, '..', 'node_modules', 'vite', 'bin', 'vite.js');
+    console.log("Looking for Vite at:", localVitePath);
     if (fs.existsSync(localVitePath)) {
       console.log("Found Vite at:", localVitePath);
       const result = spawnSync('node', [localVitePath], { 
@@ -41,13 +45,16 @@ function runVite() {
         process.exit(result.status || 0);
         return;
       }
+    } else {
+      console.log("Vite not found at:", localVitePath);
     }
   } catch (e) {
-    console.log("Could not load Vite from node_modules/vite/bin/vite.js");
+    console.log("Could not load Vite from node_modules/vite/bin/vite.js:", e.message);
   }
 
   // Try approach 3: require.resolve
   try {
+    console.log("Attempting to locate Vite via require.resolve...");
     const vitePath = require.resolve('vite/bin/vite.js');
     console.log("Found Vite using require.resolve at:", vitePath);
     const result = spawnSync('node', [vitePath], { 
@@ -59,13 +66,16 @@ function runVite() {
       return;
     }
   } catch (e) {
-    console.log("Could not resolve vite/bin/vite.js");
+    console.log("Could not resolve vite/bin/vite.js:", e.message);
   }
 
   // Try approach 4: emergency reinstall and npx
   try {
-    console.log("Attempting emergency reinstall of vite...");
-    execSync('npm install --no-save vite @vitejs/plugin-react-swc', { stdio: 'inherit' });
+    console.log("Attempting emergency reinstall of vite and date-fns...");
+    // First install a compatible date-fns version for react-day-picker
+    execSync('npm install --no-save date-fns@3.3.1 --legacy-peer-deps', { stdio: 'inherit' });
+    // Then install vite
+    execSync('npm install --no-save vite@latest @vitejs/plugin-react-swc --legacy-peer-deps', { stdio: 'inherit' });
     console.log("Attempting to use npx vite...");
     const result = spawnSync('npx', ['vite'], { 
       stdio: 'inherit',
