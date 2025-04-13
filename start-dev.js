@@ -7,9 +7,25 @@ const { execSync, spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+// Function to check if a command exists
+function commandExists(cmd) {
+  try {
+    execSync(cmd + ' --version', { stdio: 'ignore' });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Force install of vite and required dependencies
 console.log("Installing required packages...");
 try {
+  // Check if npm is available
+  if (!commandExists('npm')) {
+    console.error("Error: npm is not installed or not in PATH. Please install Node.js and npm.");
+    process.exit(1);
+  }
+  
   // Use npm ci for more reliable installations if package-lock exists
   if (fs.existsSync(path.join(__dirname, 'package-lock.json'))) {
     console.log("Using npm ci for installation...");
@@ -18,6 +34,11 @@ try {
     console.log("Using npm install for dependencies...");
     execSync('npm install --no-save', { stdio: 'inherit' });
   }
+  
+  // Ensure vite is installed explicitly
+  console.log("Ensuring vite is installed...");
+  execSync('npm install --no-save vite @vitejs/plugin-react-swc', { stdio: 'inherit' });
+  
   console.log("✓ Dependencies installed successfully");
 } catch (err) {
   console.error("Failed with normal install, trying direct vite install:", err);
