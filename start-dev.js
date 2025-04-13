@@ -3,63 +3,66 @@
 
 console.log("🚀 Starting development server...");
 
-// First, make sure vite is installed
 const { execSync, spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-// Check if Vite is installed globally or locally
-const checkViteInstallation = () => {
-  try {
-    // Try to find local vite installation
-    require.resolve('vite');
-    console.log("✓ Vite found locally");
-    return true;
-  } catch (e) {
-    try {
-      // Check if it's available globally
-      execSync('npx vite --version', { stdio: 'ignore' });
-      console.log("✓ Vite found globally via npx");
-      return true;
-    } catch (err) {
-      console.log("⚠️ Vite not found");
-      return false;
-    }
+// Force install of vite and required dependencies
+console.log("Installing required packages...");
+try {
+  // Use npm ci for more reliable installations if package-lock exists
+  if (fs.existsSync(path.join(__dirname, 'package-lock.json'))) {
+    console.log("Using npm ci for installation...");
+    execSync('npm ci --no-audit', { stdio: 'inherit' });
+  } else {
+    console.log("Using npm install for dependencies...");
+    execSync('npm install --no-save', { stdio: 'inherit' });
   }
-};
-
-// Install Vite if not found
-if (!checkViteInstallation()) {
-  console.log("Installing vite and required packages...");
-  
+  console.log("✓ Dependencies installed successfully");
+} catch (err) {
+  console.error("Failed with normal install, trying direct vite install:", err);
   try {
-    execSync('npm install --no-save vite @vitejs/plugin-react-swc lovable-tagger', { 
+    // Direct install of critical packages
+    execSync('npm install --no-save vite @vitejs/plugin-react-swc', { 
       stdio: 'inherit'
     });
     console.log("✓ Vite installed successfully");
-  } catch (err) {
-    console.error("Failed to install Vite:", err);
+  } catch (innerErr) {
+    console.error("Failed to install Vite:", innerErr);
     process.exit(1);
   }
 }
 
-// Run Vite
-console.log("Starting Vite development server...");
-let viteProcess;
-
-// First try to use local vite
-try {
-  const localVitePath = path.join(__dirname, 'node_modules', 'vite', 'bin', 'vite.js');
-  if (fs.existsSync(localVitePath)) {
-    viteProcess = spawn('node', [localVitePath], { stdio: 'inherit' });
-    console.log("Using local Vite installation");
-  } else {
-    throw new Error("Local Vite not found");
+// Function to find the vite executable
+function findViteExecutable() {
+  const possiblePaths = [
+    path.join(__dirname, 'node_modules', '.bin', 'vite'),
+    path.join(__dirname, 'node_modules', 'vite', 'bin', 'vite.js'),
+  ];
+  
+  for (const vitePath of possiblePaths) {
+    if (fs.existsSync(vitePath)) {
+      console.log(`Found Vite at: ${vitePath}`);
+      return vitePath;
+    }
   }
-} catch (e) {
-  // Fall back to npx if local fails
-  console.log("Falling back to npx vite");
-  viteProcess = spawn('npx', ['vite'], { stdio: 'inherit' });
+  
+  return null;
+}
+
+// Start the Vite server
+console.log("Starting Vite development server...");
+const viteExecutable = findViteExecutable();
+
+let viteProcess;
+if (viteExecutable) {
+  // Use the located vite executable
+  viteProcess = spawn('node', [viteExecutable], { stdio: 'inherit' });
+} else {
+  // Fallback to using node to run our vite-helper.js
+  console.log("Vite executable not found directly, using helper script...");
+  const helperPath = path.join(__dirname, 'src', 'vite-helper.js');
+  viteProcess = spawn('node', [helperPath], { stdio: 'inherit' });
 }
 
 viteProcess.on('error', (err) => {
