@@ -44,7 +44,7 @@ try {
   
   // First fix date-fns dependency issue
   console.log("Resolving date-fns dependency conflict...");
-  execSync('npm install --no-save date-fns@3.3.1 --legacy-peer-deps', { stdio: 'inherit' });
+  execSync('npm install --no-save date-fns@3.3.1 uuid@latest --legacy-peer-deps', { stdio: 'inherit' });
   
   // Use npm ci for more reliable installations if package-lock exists
   if (fs.existsSync(path.join(__dirname, 'package-lock.json'))) {
@@ -65,7 +65,7 @@ try {
   try {
     // Direct install of critical packages
     console.log("Attempting direct installation of critical packages...");
-    execSync('npm install --no-save date-fns@3.3.1 vite@latest @vitejs/plugin-react-swc --legacy-peer-deps', { 
+    execSync('npm install --no-save uuid@latest date-fns@3.3.1 vite@latest @vitejs/plugin-react-swc --legacy-peer-deps', { 
       stdio: 'inherit'
     });
     console.log("✓ Critical packages installed successfully");

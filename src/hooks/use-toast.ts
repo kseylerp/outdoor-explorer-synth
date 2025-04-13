@@ -1,39 +1,39 @@
 import { toast as sonnerToast, type ToastT } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 type ToastProps = {
   title?: string;
   description?: string;
   variant?: "default" | "destructive";
-} & Omit<ToastT, "title" | "description">;
+  id?: string;
+} & Omit<ToastT, "title" | "description" | "id">;
 
-// Enhanced toast function that accepts both a string message and object config
 function toast(
   messageOrProps: string | ToastProps,
   options?: ToastProps
 ) {
-  // If first argument is a string, handle it as the message/title
+  const generateId = () => uuidv4();
+  
   if (typeof messageOrProps === "string") {
     const title = messageOrProps;
-    const { description, variant, ...restOptions } = options || {};
+    const { description, variant, id = generateId(), ...restOptions } = options || {};
     
     if (variant === "destructive") {
-      return sonnerToast.error(title, { description, ...restOptions });
+      return sonnerToast.error(title, { description, id, ...restOptions });
     }
     
-    return sonnerToast(title, { description, ...restOptions });
+    return sonnerToast(title, { description, id, ...restOptions });
   }
   
-  // Otherwise, first argument is an object with props
-  const { title, description, variant, ...restProps } = messageOrProps;
+  const { title, description, variant, id = generateId(), ...restProps } = messageOrProps;
   
   if (variant === "destructive") {
-    return sonnerToast.error(title || "", { description, ...restProps });
+    return sonnerToast.error(title || "", { description, id, ...restProps });
   }
   
-  return sonnerToast(title || "", { description, ...restProps });
+  return sonnerToast(title || "", { description, id, ...restProps });
 }
 
-// Add all sonnerToast methods
 toast.success = sonnerToast.success;
 toast.error = sonnerToast.error;
 toast.info = sonnerToast.info;
