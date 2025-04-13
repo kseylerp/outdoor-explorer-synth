@@ -28,7 +28,7 @@ try {
 
 // Now start the development server
 console.log("Starting Vite development server...");
-const viteProcess = spawn('npx', ['vite'], { 
+const viteProcess = spawn('node', ['./node_modules/vite/bin/vite.js'], { 
   stdio: 'inherit',
   shell: true
 });
