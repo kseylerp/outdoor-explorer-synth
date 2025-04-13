@@ -15,8 +15,8 @@ try {
   console.log("⚠️ Vite not found locally. Installing vite and required packages...");
   
   try {
-    // Install necessary packages
-    execSync('npm install --save-dev vite @vitejs/plugin-react-swc', { 
+    // Install necessary packages without modifying package.json
+    execSync('npm install --no-save vite @vitejs/plugin-react-swc', { 
       stdio: 'inherit',
     });
     console.log("✓ Vite installed successfully");
