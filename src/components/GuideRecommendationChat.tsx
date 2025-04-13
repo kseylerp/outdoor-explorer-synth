@@ -2,10 +2,10 @@
 import React, { useRef } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useGuideChat } from '@/hooks/useGuideChat';
-import ChatMessageList from './ChatMessageList';
-import ImageGallery from './ImageGallery';
-import ActivitySubmitSection from './ActivitySubmitSection';
-import ChatInputSection from './ChatInputSection';
+import ChatMessageList from './guide/ChatMessageList';
+import ImageGallery from './guide/ImageGallery';
+import ActivitySubmitSection from './guide/ActivitySubmitSection';
+import ChatInputSection from './guide/ChatInputSection';
 
 const GuideRecommendationChat: React.FC = () => {
   const {
